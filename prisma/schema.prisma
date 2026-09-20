@@ -1,0 +1,81 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  GUEST
+  USER
+  VIP_MEMBER
+  ADMIN
+}
+
+enum ResourceType {
+  STOCK_FREE
+  PRESET_FREE
+  PAID_RESOURCE
+  COURSE
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  name          String?
+  passwordHash  String
+  role          Role           @default(USER)
+  balance       Float          @default(0.0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  downloads     DownloadLog[]
+  transactions  Transaction[]
+}
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  slug        String     @unique
+  resources   Resource[]
+  createdAt   DateTime   @default(now())
+}
+
+model Resource {
+  id          String       @id @default(uuid())
+  title       String
+  slug        String       @unique
+  description String?
+  imageUrl    String
+  fileUrl     String?
+  type        ResourceType
+  price       Float        @default(0.0)
+  viewsCount  Int          @default(0)
+  downloadCount Int        @default(0)
+  rating      Float        @default(5.0)
+  categoryId  String
+  category    Category     @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  downloads   DownloadLog[]
+}
+
+model DownloadLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  resourceId  String
+  resource    Resource @relation(fields: [resourceId], references: [id])
+  downloadedAt DateTime @default(now())
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  amount      Float
+  status      String   // PENDING, SUCCESS, FAILED
+  code        String   @unique
+  createdAt   DateTime @default(now())
+}
