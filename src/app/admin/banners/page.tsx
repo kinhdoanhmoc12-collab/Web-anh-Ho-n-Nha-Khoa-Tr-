@@ -2,7 +2,21 @@
 
 import { useState, useEffect, useRef } from "react";
 import AdminSidebar from "@/components/AdminSidebar";
-import { Image as ImageIcon, Plus, Trash2, CheckCircle2, RefreshCw, Eye, ArrowUp, ArrowDown, Upload, Link as LinkIcon } from "lucide-react";
+import {
+  Image as ImageIcon,
+  Plus,
+  Trash2,
+  CheckCircle2,
+  RefreshCw,
+  Eye,
+  ArrowUp,
+  ArrowDown,
+  Upload,
+  Link as LinkIcon,
+  Edit3,
+  X,
+  Save,
+} from "lucide-react";
 
 const defaultBanners = [
   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1920",
@@ -18,6 +32,12 @@ export default function AdminBannersPage() {
   const [newUrl, setNewUrl] = useState("");
   const [notice, setNotice] = useState("");
   const [previewIndex, setPreviewIndex] = useState(0);
+
+  // Edit Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [editUrl, setEditUrl] = useState("");
+  const [editMode, setEditMode] = useState<"file" | "url">("file");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,7 +70,6 @@ export default function AdminBannersPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check size limit (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 10MB.");
       return;
@@ -79,6 +98,46 @@ export default function AdminBannersPage() {
     saveBanners(updated);
     setPreviewIndex(updated.length - 1);
     setNewUrl("");
+  };
+
+  // Open Edit Modal
+  const handleOpenEditModal = (index: number) => {
+    setEditIndex(index);
+    setEditUrl(banners[index] || "");
+    setEditMode(banners[index]?.startsWith("data:image") ? "file" : "url");
+    setIsEditModalOpen(true);
+  };
+
+  // Handle Edit Image Upload from Local Computer
+  const handleEditFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || editIndex === null) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 10MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64Image = event.target?.result as string;
+      if (base64Image) {
+        setEditUrl(base64Image);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Save Edit Changes
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editIndex === null || !editUrl.trim()) return;
+
+    const updated = [...banners];
+    updated[editIndex] = editUrl.trim();
+    saveBanners(updated);
+    setPreviewIndex(editIndex);
+    setIsEditModalOpen(false);
   };
 
   const handleDelete = (index: number) => {
@@ -130,11 +189,12 @@ export default function AdminBannersPage() {
               <ImageIcon className="w-6 h-6 text-[#00b4d8]" /> QUẢN LÝ HERO BANNER SLIDER
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Tải ảnh từ máy tính hoặc dán đường dẫn URL để cập nhật Banner Slider Trang Chủ ZunPhoto.
+              Thêm, chỉnh sửa/thay thế, xóa và sắp xếp thứ tự hình ảnh Banner trình chiếu trên Trang Chủ ZunPhoto.
             </p>
           </div>
 
           <button
+            type="button"
             onClick={handleResetDefault}
             className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs shadow flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-700"
           >
@@ -272,6 +332,16 @@ export default function AdminBannersPage() {
                         <Eye className="w-3.5 h-3.5" />
                       </button>
 
+                      {/* EDIT / REPLACE BUTTON */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditModal(idx)}
+                        className="p-1.5 rounded bg-[#00b4d8]/10 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white transition-colors"
+                        title="Chỉnh sửa / Thay thế ảnh này"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => handleMoveUp(idx)}
@@ -347,6 +417,98 @@ export default function AdminBannersPage() {
           </div>
         </div>
       </main>
+
+      {/* EDIT / REPLACE BANNER MODAL */}
+      {isEditModalOpen && editIndex !== null && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-lg space-y-4 relative shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Edit3 className="w-4 h-4 text-[#00b4d8]" />
+                Thay Thế / Chỉnh Sửa Ảnh Banner #{editIndex + 1}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-4 text-xs">
+              {/* Preview Current Image */}
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-300">Ảnh Hiện Tại</label>
+                <div className="relative w-full h-40 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                  <img src={editUrl} alt="Banner Preview" className="w-full h-full object-cover" />
+                </div>
+              </div>
+
+              {/* Mode Toggle */}
+              <div className="flex gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setEditMode("file")}
+                  className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                    editMode === "file" ? "bg-[#00b4d8] text-white shadow" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <Upload className="w-3.5 h-3.5" /> Chọn từ Thư Mục Máy Tính
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditMode("url")}
+                  className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                    editMode === "url" ? "bg-[#00b4d8] text-white shadow" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <LinkIcon className="w-3.5 h-3.5" /> Nhập Link URL
+                </button>
+              </div>
+
+              {editMode === "file" ? (
+                <div className="space-y-2">
+                  <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-700 hover:border-[#00b4d8] bg-slate-950 rounded-xl cursor-pointer transition-colors text-center space-y-1">
+                    <Upload className="w-6 h-6 text-[#00b4d8]" />
+                    <span className="text-xs font-bold text-white">Bấm để chọn file ảnh mới thay thế</span>
+                    <span className="text-[10px] text-slate-400">JPG, PNG, WEBP, GIF (Tối đa 10MB)</span>
+                    <input type="file" accept="image/*" onChange={handleEditFileUpload} className="hidden" />
+                  </label>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-300">Đường Dẫn URL Ảnh Mới</label>
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    value={editUrl}
+                    onChange={(e) => setEditUrl(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors"
+                >
+                  Hủy Bỏ
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold transition-colors shadow flex items-center justify-center gap-1.5"
+                >
+                  <Save className="w-4 h-4" /> Lưu Thay Đổi
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
