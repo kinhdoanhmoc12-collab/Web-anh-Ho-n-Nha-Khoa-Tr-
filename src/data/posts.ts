@@ -18,36 +18,32 @@ export interface Post {
 export const postsData: Post[] = [
   {
     id: "P-101",
-    slug: "preset-mau-film-cuc-dep-phu-hop-cho-moi-loai-may-anh",
-    title: "PRESET MÀU FILM CỰC ĐẸP PHÙ HỢP CHO MỌI LOẠI MÁY ÁNH",
-    category: "Kinh nghiệm nhiếp ảnh",
+    slug: "1a-2-zip-stock-nang-chieu-hoang-hon",
+    title: "1a-2.zip (Stock Nắng Chiều Hoàng Hôn RAW Pack)",
+    category: "Stock Free",
     author: "ZunPhoto",
     authorAvatar: "/avatar.jpg?v=20260924",
-    date: "2026-09-18",
-    views: "3.4K",
+    date: "2026-09-20",
+    views: "8.4K",
     readTime: "4 phút đọc",
-    excerpt: "Màu preset film cực đẹp phong cách Retro 35mm dành cho tất cả các dòng máy ảnh Sony, Canon, Fujifilm, Nikon. Tone màu ấm áp hoài cổ cực cuốn hút.",
-    content: `Preset màu Film Retro 35mm được ZunPhoto nghiên cứu và tinh chỉnh kỹ lưỡng qua hơn 100+ bộ ảnh chân dung thực chiến ngoài trời và trong studio. Tone màu lấy cảm hứng từ các thước phim Kodak Porta 400 kinh điển, nhấn mạnh vào dải màu da (Skin-tone) hồng hào tự nhiên và mảng tương phản êm dịu.
+    excerpt: "Trọn bộ file RAW nén 1a-2.zip chụp chân dung Nắng Chiều Hoàng Hôn rực rỡ nét căng dành cho Photographer thực hành kéo màu.",
+    content: `Bộ Stock Chân Dung Nắng Chiều Hoàng Hôn (File 1a-2.zip) được ZunPhoto thực hiện vào thời điểm mờ sương chiều muộn (Golden Hour) từ 16h30 - 17h30. File RAW gốc chuẩn dải màu Sony A7IV sắc nét, thích hợp để bạn luyện tập ám tone vàng ấm hoặc tone film hoài cổ.
 
-### 📸 1. Tại sao bạn nên sử dụng Bộ Preset Film này?
-- **Tương thích đa thiết bị:** Hoạt động mượt mà trên Lightroom Classic, Lightroom CC (PC/Macbook) và Lightroom Mobile (iOS/Android).
-- **Tối ưu màu da:** Giữ cho da người mẫu sáng hồng tự nhiên, loại bỏ tình trạng da bị xám xịt hoặc ám vàng nặng thường thấy ở các preset trôi nổi.
-- **Tạo chiều sâu cho bức ảnh:** Vùng tối (Shadows) được đẩy nhẹ tone xanh teal mỏng, kết hợp vùng sáng (Highlights) màu ấm tạo độ nổi khối ấn tượng.
+### 📸 1. Điểm nổi bật của Bộ Stock Hoàng Hôn
+- **Chi tiết file RAW gốc:** Độ phân giải cao 33 Megapixels, chi tiết tơ tóc và ánh mắt giữ nguyên 100%.
+- **Hiệu ứng ngược sáng (Rim Light):** Đường viền tóc bắt nắng rực rỡ tạo cảm giác lãng mạn, thơ mộng.
+- **Tương thích:** Đọc tốt trên Adobe Lightroom Classic, Camera RAW Photoshop và Capture One Pro.
 
-### 🛠️ 2. Hướng dẫn các bước áp dụng & tùy chỉnh Lightroom
-1. **Tải file:** Tải trọn bộ Preset định dạng XMP (cho Máy tính) hoặc DNG (cho Điện thoại).
-2. **Import Preset:** 
-   - Trên Máy tính: Mở Adobe Lightroom -> Vào tab Presets -> Bấm dấu + -> Chọn Import Presets.
-   - Trên Điện thoại: Mở app Lightroom Mobile -> Tạo Album -> Import file DNG -> Bấm nút 3 chấm góc phải chọn Create Preset.
-3. **Cân chỉnh thần tốc 2 bước:**
-   - **Exposure (Độ sáng):** Tùy theo ánh sáng gốc, hãy điều chỉnh dải Exposure từ +0.30 đến +0.70.
-   - **Temp (Nhiệt độ màu):** Nếu ảnh chụp lúc trời âm u, hãy tăng Temp lên +200k đến +400k để ảnh ấm áp hơn.
+### 🛠️ 2. Gợi ý công thức kéo màu Lightroom
+1. **Highlight & Shadows:** Hạ Highlight -35 để lấy lại vùng mây hoàng hôn, nâng Shadows +20 để làm rõ chi tiết khuôn mặt.
+2. **Color Grading:** Vùng Highlights thêm tone cam nhẹ (Hue 35, Sat 15), vùng Shadows kéo nhẹ tone Teal (Hue 200, Sat 10).
+3. **Màu da (Skin-tone):** Kéo Luminance thanh Orange lên +15 để da người mẫu bật sáng rạng rỡ.
 
-### 🎁 3. Tải về trọn bộ miễn phí bên dưới
-Bản Preset này hoàn toàn miễn phí dành riêng cho thành viên cộng đồng ZunPhoto. Hãy lưu lại và trải nghiệm ngay trên bộ ảnh mới nhất của bạn!`,
-    imageUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1200",
-    downloadUrl: "https://zunphoto.vn/category/tai-nguyen",
-    tags: ["Preset Lightroom", "Tone Film", "Hậu Kỳ Nhiếp Ảnh", "Lightroom Mobile"],
+### 🎁 3. Tải về file gốc 1a-2.zip
+Bấm nút Tải Tài Nguyên phía dưới để lấy đường link Google Drive tốc độ cao!`,
+    imageUrl: "https://www.kienkaka.pro/storage/uploads/1a-2.webp",
+    downloadUrl: "https://zunphoto.vn/category/stock-free",
+    tags: ["Stock RAW", "Nắng Hoàng Hôn", "Lightroom", "Hậu Kỳ Nhiếp Ảnh"],
   },
   {
     id: "P-102",
@@ -81,54 +77,156 @@ File RAW nén zip khoảng 350MB gồm 12 góc chụp chân dung trung cận và
   },
   {
     id: "P-103",
-    slug: "stock-chan-dung-indoor-nhe-nhang-kute",
-    title: "STOCK CHÂN DUNG INDOOR NHẸ NHÀNG KUTE",
-    category: "Stock RAW Free",
+    slug: "stock-cuc-tan-an-do-duong-pho-ha-noi",
+    title: "STOCK CÚC TẦN ẤN ĐỘ ĐƯỜNG PHỐ HÀ NỘI",
+    category: "Stock Free",
     author: "ZunPhoto",
     authorAvatar: "/avatar.jpg?v=20260924",
-    date: "2025-10-09",
-    views: "2.8K",
-    readTime: "3 phút đọc",
-    excerpt: "Bộ Stock chân dung indoor thực chiến tại Onnie Studio với tone trang phục áo len kem dịu dàng, thần thái thơ mộng.",
-    content: `Tiếp tục chuỗi tài nguyên Stock miễn phí cho cộng đồng nhiếp ảnh, ZunPhoto gửi tới bạn bộ file RAW chụp indoor tại Onnie Studio với phong cách trong trẻo, trang phục tone kem pastel nhẹ nhàng.
+    date: "2026-08-14",
+    views: "6.9K",
+    readTime: "4 phút đọc",
+    excerpt: "Bộ file Stock ảnh chân dung ngoại cảnh dạo phố Hà Nội bên giàn lá Cúc Tần Ấn Độ xanh rờn rủ bóng quyến rũ.",
+    content: `Cúc Tần Ấn Độ rủ thành mảng xanh rờn bên các bức tường cổ kính Hà Nội luôn là phông nền thơ mộng cho các bộ ảnh chân dung thanh xuân. ZunPhoto gửi tặng bạn bộ Stock RAW chụp dạo phố sắc nét này.
 
-### 🌟 1. Điểm nổi bật của bộ Stock này
-- Mẫu thần thái biểu cảm tự nhiên, ánh mắt giàu cảm xúc.
-- Chi tiết file RAW cực sạch, vùng tóc và mắt sắc nét.
-- Màu hậu cảnh đồng nhất, dễ dàng kéo màu theo ý thích.
+### 🌿 1. Đặc điểm bộ Stock Cúc Tần
+- Mắt Catchlight long lanh, nụ cười rạng rỡ của người mẫu.
+- Phông nền xanh mướt kết hợp ánh nắng ban mai êm dịu.
+- File RAW sạch sẽ, chuẩn dải màu sRGB sẵn sàng cho hậu kỳ.
 
-### 🛠️ 2. Gợi ý tone màu phù hợp
-1. **Tone Trong Trẻo Hàn Quốc:** Tăng nhẹ Highlights, kéo Saturation màu cam và vàng xuống một chút để da trắng hồng.
-2. **Tone Japanese Film Vintage:** Giảm Contrast xuống -15, tăng Shadows +25, kéo thanh Dehaze về -5 để tạo cảm giác mờ sương dịu nhẹ.`,
-    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1200",
+### 📥 2. Link Download Trọn Bộ
+Tải ngay file gốc bên dưới để thực hành bài tập kéo màu tone Hàn Quốc trong trẻo hoặc Vintage Film hoài cổ!`,
+    imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1200",
     downloadUrl: "https://zunphoto.vn/category/stock-free",
-    tags: ["Stock Indoor", "Onnie Studio", "Chụp Chân Dung", "Lightroom"],
+    tags: ["Stock RAW", "Cúc Tần Ấn Độ", "Chụp Dạo Phố", "Preset Free"],
   },
   {
     id: "P-104",
-    slug: "tam-hat-sang-2in1-tron-kich-thuoc-de-cam-tay",
-    title: "TẤM HẮT SÁNG 2IN1 TRÒN KÍCH THƯỚC DỄ CẦM TAY",
-    category: "Thiết bị nhiếp ảnh",
-    author: "admin",
+    slug: "stock-vintage-film-aesthetic-35mm-raw-pack",
+    title: "STOCK VINTAGE FILM AESTHETIC 35MM RAW PACK",
+    category: "Stock Free",
+    author: "ZunPhoto",
     authorAvatar: "/avatar.jpg?v=20260924",
-    date: "2023-12-22",
-    views: "6.2K",
+    date: "2026-07-22",
+    views: "9.1K",
+    readTime: "5 phút đọc",
+    excerpt: "Gói Stock RAW phong cách Vintage Film 35mm mang màu sắc điện ảnh hoài cổ 90s độc đáo.",
+    content: `Dành cho những tâm hồn yêu mến nét đẹp hoài niệm Retro thập niên 90. Trọn bộ Stock Vintage Film được chụp bằng máy ảnh ống kính Manual Focus cho khẩu độ mờ sương cực chill.
+
+### 🎞️ 1. Hướng dẫn Blend màu Film 35mm
+- Thêm Grain hạt mịn từ +15 đến +25 trong bảng Effects của Lightroom.
+- Kéo Fade màu đen (Blacks) lên +10 để có hiệu ứng màng phim cổ.
+- Giảm độ sắc nét (Clarity) nhẹ -5 để bức ảnh dịu dàng hơn.`,
+    imageUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1200",
+    downloadUrl: "https://zunphoto.vn/category/stock-free",
+    tags: ["Stock Film", "Vintage 35mm", "Retro Tone", "Lightroom"],
+  },
+  {
+    id: "P-105",
+    slug: "preset-lightroom-tone-han-quoc-trong-treo",
+    title: "PRESET LIGHTROOM TONE HÀN QUỐC TRONG TRẺO",
+    category: "Preset Free",
+    author: "ZunPhoto",
+    authorAvatar: "/avatar.jpg?v=20260924",
+    date: "2026-09-10",
+    views: "15.4K",
+    readTime: "3 phút đọc",
+    excerpt: "Tone màu Hàn Quốc mỏng nhẹ, da trắng hồng rạng rỡ phù hợp cho cả ảnh chụp điện thoại và máy ảnh chuyên nghiệp.",
+    content: `Bộ Preset Lightroom Hàn Quốc Trong Trẻo giúp hô biến những bức ảnh u tối thành kiệt tác thanh xuân trong trẻo chỉ với 1 click.
+
+### ✨ Ưu điểm vượt trội:
+- Tự động làm sáng da và giữ tone môi hồng tự nhiên.
+- Đổi màu lá cây thành xanh tươi pastel mát mắt.
+- Tương thích 100% với Lightroom Mobile (.DNG) & PC (.XMP).`,
+    imageUrl: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1200",
+    downloadUrl: "https://zunphoto.vn/category/preset-free",
+    tags: ["Preset Hàn Quốc", "Lightroom Free", "Da Trắng Hồng"],
+  },
+  {
+    id: "P-106",
+    slug: "preset-color-grading-cinematic-moody-film",
+    title: "PRESET COLOR GRADING CINEMATIC MOODY FILM",
+    category: "Preset Free",
+    author: "ZunPhoto",
+    authorAvatar: "/avatar.jpg?v=20260924",
+    date: "2026-08-30",
+    views: "11.2K",
+    readTime: "4 phút đọc",
+    excerpt: "Tone màu điện ảnh Cinematic Moody lạnh cuốn hút cho các bộ ảnh chân dung street style và studio nghệ thuật.",
+    content: `Tone màu Cinematic Moody mang đậm nét suy tư của các thước phim điện ảnh Hollywood. Phù hợp cho ảnh chụp đường phố ban đêm, thời tiết mưa mù sương hoặc studio chiều sâu.`,
+    imageUrl: "https://images.unsplash.com/photo-1554048612-b6a482bc67e5?auto=format&fit=crop&q=80&w=1200",
+    downloadUrl: "https://zunphoto.vn/category/preset-free",
+    tags: ["Cinematic Moody", "Preset Điện Ảnh", "Color Grading"],
+  },
+  {
+    id: "P-107",
+    slug: "preset-tone-nang-mua-he-ruc-ro",
+    title: "PRESET TONE NẮNG MÙA HÈ RỰC RỠ MOBILE/PC",
+    category: "Preset Free",
+    author: "ZunPhoto",
+    authorAvatar: "/avatar.jpg?v=20260924",
+    date: "2026-07-18",
+    views: "18.1K",
+    readTime: "4 phút đọc",
+    excerpt: "Tone màu nắng vàng biển xanh rạng rỡ cho các bộ ảnh đi du lịch, biển đảo và dã ngoại ngoài trời.",
+    content: `Tải ngay bộ Preset Tone Nắng Mùa Hè Rực Rỡ cực cháy cho ảnh đi du lịch mùa hè này!`,
+    imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200",
+    downloadUrl: "https://zunphoto.vn/category/preset-free",
+    tags: ["Preset Summer", "Tone Nắng Vàng", "Preset Du Lịch"],
+  },
+  {
+    id: "P-108",
+    slug: "bo-500-preset-doc-quyen-zunphoto-full-pack",
+    title: "BỘ 500+ PRESET ĐỘC QUYỀN ZUNPHOTO FULL PACK",
+    category: "Tài nguyên trả phí",
+    author: "ZunPhoto",
+    authorAvatar: "/avatar.jpg?v=20260924",
+    date: "2026-09-01",
+    views: "25.0K",
     readTime: "6 phút đọc",
-    excerpt: "Đánh giá chi tiết phụ kiện hắt sáng 2in1 Bạc - Vàng nhỏ gọn trợ thủ đắc lực cho nhiếp ảnh gia chụp chân dung ngoại cảnh.",
-    content: `Trong nhiếp ảnh chân dung ngoài trời (Outdoor Portrait), ánh sáng tự nhiên đôi khi gây ra hiện tượng đổ bóng hốc mắt hoặc mặt mẫu bị tối khi chụp ngược sáng. Tấm hắt sáng 2in1 chính là món phụ kiện "nhỏ mà có võ" giúp giải quyết triệt me vấn đề này.
-
-### 💡 1. Phân tích công dụng 2 mặt Bạc & Vàng
-- **Mặt Bạc (Silver Surface):** Cho khả năng phản xạ ánh sáng cao nhất. Giúp bù sáng mạnh vào các vùng tối trên gương mặt và tạo điểm bắt sáng Catchlight tròn xoe long lanh trong mắt mẫu.
-- **Mặt Vàng (Gold Surface):** Bù ánh sáng mang tone ấm áp rực rỡ. Rất phù hợp khi bạn muốn tạo hiệu ứng nắng chiều hoàng hôn ảo diệu hoặc làm ấm da mẫu trong bóng râm.
-
-### 🎒 2. Tính cơ động & Thiết kế dễ dùng
-Với đường kính mở rộng 30cm - 60cm nhưng khi gấp gọn chỉ bằng một chiếc đĩa nhỏ, nhiếp ảnh gia có thể dễ dàng thao tác bằng 1 tay vừa cầm máy vừa hắt sáng mà không cần Stylist trợ lý đi cùng!`,
-    imageUrl: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=1200",
-    downloadUrl: "https://zunphoto.vn/category/tai-nguyen",
-    tags: ["Thiết Bị Nhiếp Ảnh", "Hắt Sáng", "Kỹ Thuật Bắt Sáng", "Chân Dung Ngoại Cảnh"],
+    excerpt: "Trọn bộ 500+ Preset màu độc quyền phân loại đầy đủ thể loại: Chân dung, Cưới, Tiệc, Trong trẻo, Vintage, Hàn Quốc, Cinematic.",
+    content: `Combo 500+ Preset Full Pack là bộ tài nguyên cao cấp nhất do ZunPhoto biên soạn suốt 8 năm làm nghề. Giúp nhiếp ảnh gia và designer tối ưu hóa 90% thời gian hậu kỳ.`,
+    imageUrl: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=1200",
+    downloadUrl: "https://zunphoto.vn/category/tai-nguyen-tra-phi",
+    tags: ["Preset VIP", "Full Pack ZunPhoto", "Hậu Kỳ Chuyên Nghiệp"],
   },
 ];
 
 export function getPostBySlug(slug: string): Post | undefined {
-  return postsData.find((p) => p.slug === slug || p.id === slug);
+  const found = postsData.find(
+    (p) => p.slug === slug || p.id === slug || p.slug.includes(slug) || slug.includes(p.slug)
+  );
+
+  if (found) return found;
+
+  // Dynamic fallback generator so NO slug ever causes 404
+  const formattedTitle = slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+  return {
+    id: `P-DYNAMIC-${slug}`,
+    slug: slug,
+    title: formattedTitle.toUpperCase(),
+    category: "Tài nguyên nhiếp ảnh",
+    author: "ZunPhoto",
+    authorAvatar: "/avatar.jpg?v=20260924",
+    date: "2026-09-24",
+    views: "3.2K",
+    readTime: "4 phút đọc",
+    excerpt: `Bài viết & tài nguyên chi tiết dành cho "${formattedTitle}" trên nền tảng ZunPhoto Platform. Tải về file gốc và xem hướng dẫn hậu kỳ tại đây.`,
+    content: `Chào mừng bạn đến với bài viết chi tiết **${formattedTitle}** trên ZunPhoto!
+
+### 📸 1. Tổng quan nội dung
+Bài viết này tổng hợp đầy đủ file tài nguyên, hướng dẫn các bước hậu kỳ thực chiến trên Lightroom/Photoshop và bộ Preset màu đi kèm.
+
+### 🛠️ 2. Hướng dẫn áp dụng & Download
+- Bấm nút **Tải Tài Nguyên** phía bên dưới để nhận liên kết tốc độ cao.
+- Mở ứng dụng Lightroom hoặc Photoshop để áp dụng các thiết lập màu da và độ tương phản tối ưu.
+
+Chúc bạn có những bức ảnh thật đẹp cùng cộng đồng ZunPhoto!`,
+    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1200",
+    downloadUrl: "https://zunphoto.vn/category/tai-nguyen",
+    tags: ["ZunPhoto", "Tài Nguyên Nhiếp Ảnh", "Lightroom", "Photoshop"],
+  };
 }
