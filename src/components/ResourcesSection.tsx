@@ -161,10 +161,10 @@ export default function ResourcesSection() {
               />
 
               {/* Gradient Bottom Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
 
               {/* Top Badges */}
-              <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10 pointer-events-none">
                 <span
                   className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold text-white shadow ${
                     item.badge === "Free" ? "bg-[#d9534f]" : "bg-amber-600"
@@ -181,7 +181,7 @@ export default function ResourcesSection() {
               </div>
 
               {/* Hover Actions */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 z-20">
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 z-20 pointer-events-none">
                 <span className="p-2.5 rounded-full bg-[#d9534f] text-white hover:scale-110 transition-transform">
                   <Download className="w-4 h-4" />
                 </span>
@@ -191,7 +191,7 @@ export default function ResourcesSection() {
               </div>
 
               {/* Bottom Title Overlay */}
-              <div className="absolute bottom-3 left-3 right-3 z-10">
+              <div className="absolute bottom-3 left-3 right-3 z-10 pointer-events-none">
                 <h4 className="text-sm font-bold text-white leading-tight line-clamp-2 drop-shadow">
                   {item.title}
                 </h4>
