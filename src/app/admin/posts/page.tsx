@@ -294,16 +294,43 @@ export default function AdminPostsPage() {
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="font-semibold text-slate-300">Đường Dẫn Ảnh Bìa Bài Viết (Cover URL)</label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={formImageUrl}
-                  onChange={(e) => setFormImageUrl(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
-                  required
-                />
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-300 flex items-center justify-between">
+                  <span>Ảnh Bìa Bài Viết (Cover Image)</span>
+                  <span className="text-[10px] text-[#00b4d8]">Tải file từ máy tính hoặc dán URL</span>
+                </label>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Dán URL ảnh hoặc chọn file từ máy..."
+                    value={formImageUrl}
+                    onChange={(e) => setFormImageUrl(e.target.value)}
+                    className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                    required
+                  />
+
+                  <label className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors flex-shrink-0">
+                    <ImageIcon className="w-4 h-4 text-[#00b4d8]" />
+                    <span>Tải từ máy</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = (evt) => {
+                          if (evt.target?.result) {
+                            setFormImageUrl(evt.target.result as string);
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
 
               <div className="space-y-1">
