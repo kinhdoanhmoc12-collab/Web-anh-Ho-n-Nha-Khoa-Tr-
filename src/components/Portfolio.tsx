@@ -169,15 +169,7 @@ export default function Portfolio() {
                   </span>
                 </div>
 
-                {/* Hover Action Overlay Button */}
-                <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                  <button className="p-3 rounded-full bg-rose-600 text-white shadow-lg shadow-rose-600/40 hover:scale-110 transition-transform">
-                    <Download className="w-5 h-5" />
-                  </button>
-                  <button className="p-3 rounded-full bg-slate-800 text-slate-200 hover:text-white border border-slate-700 hover:scale-110 transition-transform">
-                    <Eye className="w-5 h-5" />
-                  </button>
-                </div>
+
               </div>
 
               {/* Content Body */}

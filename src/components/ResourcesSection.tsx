@@ -180,15 +180,7 @@ export default function ResourcesSection() {
                 )}
               </div>
 
-              {/* Hover Actions */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 z-20 pointer-events-none">
-                <span className="p-2.5 rounded-full bg-[#d9534f] text-white hover:scale-110 transition-transform">
-                  <Download className="w-4 h-4" />
-                </span>
-                <span className="p-2.5 rounded-full bg-slate-800 text-white hover:scale-110 transition-transform">
-                  <Eye className="w-4 h-4" />
-                </span>
-              </div>
+
 
               {/* Bottom Title Overlay */}
               <div className="absolute bottom-3 left-3 right-3 z-10 pointer-events-none">
