@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import AdminSidebar from "@/components/AdminSidebar";
-import { Video, Plus, Search, Trash2, Edit3, CheckCircle2, PlayCircle, Star, Users } from "lucide-react";
+import { Video, Plus, Search, Trash2, Edit3, CheckCircle2, X, Save, Eye } from "lucide-react";
 
 interface CourseItem {
   id: string;
@@ -61,6 +61,88 @@ export default function AdminCoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [notice, setNotice] = useState("");
 
+  // Modal Edit State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<CourseItem | null>(null);
+
+  // Form State
+  const [formTitle, setFormTitle] = useState("");
+  const [formCategory, setFormCategory] = useState("Photoshop Masterclass");
+  const [formLessons, setFormLessons] = useState(20);
+  const [formDuration, setFormDuration] = useState("10 Giờ HD");
+  const [formPrice, setFormPrice] = useState("599.000đ");
+  const [formStatus, setFormStatus] = useState<"PUBLISHED" | "DRAFT">("PUBLISHED");
+  const [formImageUrl, setFormImageUrl] = useState("");
+
+  const handleOpenAddModal = () => {
+    setEditingCourse(null);
+    setFormTitle("");
+    setFormCategory("Photoshop Masterclass");
+    setFormLessons(15);
+    setFormDuration("8 Giờ HD");
+    setFormPrice("499.000đ");
+    setFormStatus("PUBLISHED");
+    setFormImageUrl("https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600");
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (course: CourseItem) => {
+    setEditingCourse(course);
+    setFormTitle(course.title);
+    setFormCategory(course.category);
+    setFormLessons(course.lessons);
+    setFormDuration(course.duration);
+    setFormPrice(course.price);
+    setFormStatus(course.status);
+    setFormImageUrl(course.imageUrl);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveCourse = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formTitle.trim()) return;
+
+    if (editingCourse) {
+      // Update existing course
+      const updatedList = courses.map((c) =>
+        c.id === editingCourse.id
+          ? {
+              ...c,
+              title: formTitle,
+              category: formCategory,
+              lessons: Number(formLessons),
+              duration: formDuration,
+              price: formPrice,
+              status: formStatus,
+              imageUrl: formImageUrl,
+            }
+          : c
+      );
+      setCourses(updatedList);
+      setNotice(`Đã cập nhật thông tin khóa học [${editingCourse.id}] thành công!`);
+    } else {
+      // Add new course
+      const newId = `CRS-${Math.floor(100 + Math.random() * 900)}`;
+      const newCourse: CourseItem = {
+        id: newId,
+        title: formTitle,
+        category: formCategory,
+        lessons: Number(formLessons),
+        duration: formDuration,
+        students: 0,
+        rating: 5.0,
+        price: formPrice,
+        status: formStatus,
+        imageUrl: formImageUrl || "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600",
+      };
+      setCourses([newCourse, ...courses]);
+      setNotice(`Đã tạo khóa học mới [${newId}] thành công!`);
+    }
+
+    setIsModalOpen(false);
+    setTimeout(() => setNotice(""), 3500);
+  };
+
   const handleDelete = (id: string) => {
     if (confirm("Xóa khóa học này khỏi hệ thống?")) {
       setCourses(courses.filter((c) => c.id !== id));
@@ -70,7 +152,8 @@ export default function AdminCoursesPage() {
   };
 
   const filtered = courses.filter((c) =>
-    c.title.toLowerCase().includes(searchTerm.toLowerCase())
+    c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -82,16 +165,16 @@ export default function AdminCoursesPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
           <div>
             <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              QUẢN LÝ KHÓA HỌC & BÀI GIẢNG VIDEO
+              <Video className="w-6 h-6 text-[#00b4d8]" /> QUẢN LÝ KHÓA HỌC & BÀI GIẢNG VIDEO
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Quản lý các khóa học Photoshop, kỹ năng blend màu điện ảnh và thiết lập ánh sáng studio.
+              Thêm, chỉnh sửa bài giảng, cập nhật học phí và chuyên mục khóa học Photoshop & Studio Lighting.
             </p>
           </div>
 
           <button
-            onClick={() => alert("Tính năng tạo khóa học mới sẵn sàng!")}
-            className="py-2.5 px-4 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            onClick={handleOpenAddModal}
+            className="py-2.5 px-4 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
           >
             <Plus className="w-4 h-4" /> Thêm Khóa Học Mới
           </button>
@@ -108,7 +191,7 @@ export default function AdminCoursesPage() {
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
-            placeholder="Tìm theo tên khóa học..."
+            placeholder="Tìm theo mã hoặc tên khóa học..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00b4d8]"
@@ -154,14 +237,28 @@ export default function AdminCoursesPage() {
                       {course.price}
                     </td>
                     <td className="p-4">
-                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold text-[10px]">
+                      <span
+                        className={`px-2 py-0.5 rounded font-bold text-[10px] ${
+                          course.status === "PUBLISHED"
+                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                            : "bg-amber-500/20 text-amber-400 border border-amber-500/40"
+                        }`}
+                      >
                         ✓ {course.status}
                       </span>
                     </td>
                     <td className="p-4 text-right space-x-2">
                       <button
+                        onClick={() => handleOpenEditModal(course)}
+                        className="p-1.5 rounded bg-[#00b4d8]/10 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white transition-colors cursor-pointer"
+                        title="Chỉnh sửa khóa học"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
                         onClick={() => handleDelete(course.id)}
-                        className="p-1.5 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors"
+                        className="p-1.5 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
                         title="Xóa khóa học"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -174,6 +271,136 @@ export default function AdminCoursesPage() {
           </div>
         </div>
       </main>
+
+      {/* Modal Dialog for Edit / Add Course */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <Edit3 className="w-4 h-4 text-[#00b4d8]" />
+                {editingCourse ? `Chỉnh Sửa Khóa Học [${editingCourse.id}]` : "Thêm Khóa Học Mới"}
+              </h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSaveCourse} className="space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-300">Tên Khóa Học Masterclass</label>
+                <input
+                  type="text"
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  placeholder="Ví dụ: LÀM CHỦ PHOTOSHOP RETOUCH CHUYÊN NGHIỆP..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-300">Chuyên Mục</label>
+                  <select
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                  >
+                    <option value="Photoshop Masterclass">Photoshop Masterclass</option>
+                    <option value="Studio Lighting">Studio Lighting</option>
+                    <option value="Color Grading">Color Grading</option>
+                    <option value="Lightroom Skill">Lightroom Skill</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-300">Học Phí (VNĐ)</label>
+                  <input
+                    type="text"
+                    value={formPrice}
+                    onChange={(e) => setFormPrice(e.target.value)}
+                    placeholder="999.000đ"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 font-bold focus:outline-none focus:border-[#00b4d8]"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-300">Số Bài Giảng (Bài)</label>
+                  <input
+                    type="number"
+                    value={formLessons}
+                    onChange={(e) => setFormLessons(Number(e.target.value))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-300">Thời Lượng (Giờ)</label>
+                  <input
+                    type="text"
+                    value={formDuration}
+                    onChange={(e) => setFormDuration(e.target.value)}
+                    placeholder="12 Giờ HD"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-300">Đường Dẫn Ảnh Bìa (Image URL)</label>
+                <input
+                  type="url"
+                  value={formImageUrl}
+                  onChange={(e) => setFormImageUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-300">Trạng Thái Hiển Thị</label>
+                <select
+                  value={formStatus}
+                  onChange={(e) => setFormStatus(e.target.value as "PUBLISHED" | "DRAFT")}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                >
+                  <option value="PUBLISHED">✓ PUBLISHED (Đã Xuất Bản)</option>
+                  <option value="DRAFT">⏳ DRAFT (Bản Nháp)</option>
+                </select>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors cursor-pointer"
+                >
+                  Hủy Bỏ
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold transition-colors shadow flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Save className="w-4 h-4" /> Lưu Thay Đổi
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

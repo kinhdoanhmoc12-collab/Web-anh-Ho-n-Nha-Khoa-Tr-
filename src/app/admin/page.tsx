@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import AdminSidebar from "@/components/AdminSidebar";
 import {
   DollarSign,
@@ -8,48 +11,84 @@ import {
   ArrowUpRight,
   Clock,
   CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { postsData } from "@/data/posts";
 
 export default function AdminDashboardPage() {
+  // Simulated initial state from backend/mock stores
+  const initialTransactions = [
+    { id: "TX-9901", userEmail: "minhanh@gmail.com", amount: 200000, status: "PENDING", createdAt: "5 phút trước" },
+    { id: "TX-9902", userEmail: "hoangnam@gmail.com", amount: 500000, status: "PENDING", createdAt: "12 phút trước" },
+    { id: "TX-9899", userEmail: "thanhtruc@gmail.com", amount: 100000, status: "APPROVED", createdAt: "25 phút trước" },
+    { id: "TX-9898", userEmail: "dungtran@gmail.com", amount: 1000000, status: "APPROVED", createdAt: "1 giờ trước" },
+  ];
+
+  const initialUsers = [
+    { id: "USR-930392", email: "user@zunphoto.pro", role: "VIP_MEMBER" },
+    { id: "USR-889922", email: "minhanh@gmail.com", role: "VIP_MEMBER" },
+    { id: "USR-445511", email: "hoangnam@gmail.com", role: "USER" },
+    { id: "USR-1001", email: "admin@zunphoto.pro", role: "ADMIN" },
+  ];
+
+  const initialResources = [
+    { id: "RES-101", title: "1a-2.zip (Stock Nắng Chiều)", downloads: 4800 },
+    { id: "RES-102", title: "Preset Lightroom Tone Hàn Quốc", downloads: 12400 },
+    { id: "RES-103", title: "Bộ 500+ Preset Độc Quyền ZunPhoto", downloads: 2300 },
+    { id: "RES-104", title: "Khóa Học Retouch Photoshop", downloads: 1100 },
+  ];
+
+  // Dynamic Metrics Calculation directly from codebase data
+  const approvedTotalRevenue = initialTransactions
+    .filter((t) => t.status === "APPROVED")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const pendingCount = initialTransactions.filter((t) => t.status === "PENDING").length;
+
+  const totalUsersCount = initialUsers.length;
+  // 4 resources + 3 courses + 4 posts = 11 total files/items
+  const totalResourceFiles = initialResources.length + 3 + postsData.length;
+
+  const totalDownloads = initialResources.reduce((sum, r) => sum + r.downloads, 0);
+
   const stats = [
     {
       title: "TỔNG DOANH THU NẠP TIỀN",
-      value: "45.850.000đ",
-      change: "+18.4% tháng này",
+      value: `${approvedTotalRevenue.toLocaleString("vi-VN")}đ`,
+      change: "Đã duyệt thành công (2 đơn)",
       icon: DollarSign,
       color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
     },
     {
       title: "TỔNG THÀNH VIÊN ĐĂNG KÝ",
-      value: "1,640 User",
-      change: "+124 user mới",
+      value: `${totalUsersCount} User`,
+      change: "Tài khoản thực tế",
       icon: Users,
       color: "bg-[#00b4d8]/10 text-[#00b4d8] border-[#00b4d8]/30",
     },
     {
       title: "TỔNG KHỎ TÀI NGUYÊN",
-      value: "248 File",
-      change: "Stock & Preset HD",
+      value: `${totalResourceFiles} File`,
+      change: "Stock, Preset & Khóa học",
       icon: FolderKanban,
       color: "bg-amber-500/10 text-amber-400 border-amber-500/30",
     },
     {
       title: "LƯỢT TẢI XUỐNG TÍCH LŨY",
-      value: "85.400 Lượt",
-      change: "Tốc độ tải cao",
+      value: `${totalDownloads.toLocaleString("vi-VN")} Lượt`,
+      change: "Tải về thực tế",
       icon: Download,
       color: "bg-purple-500/10 text-purple-400 border-purple-500/30",
     },
   ];
 
-  const recentLogs = [
-    { id: 1, user: "minhanh@gmail.com", action: "Nạp tiền 200.000đ (ZUN 889922)", status: "Thành công", time: "5 phút trước" },
-    { id: 2, user: "hoangnam@gmail.com", action: "Tải Stock Nắng Chiều Hoàng Hôn", status: "Thành công", time: "12 phút trước" },
-    { id: 3, user: "thanhtruc@gmail.com", action: "Nâng cấp VIP Member Pass", status: "Thành công", time: "25 phút trước" },
-    { id: 4, user: "quangretouch@gmail.com", action: "Đăng ký tài khoản mới", status: "Thành công", time: "1 giờ trước" },
-  ];
+  const recentLogs = initialTransactions.map((tx) => ({
+    id: tx.id,
+    user: tx.userEmail,
+    action: `Nạp tiền ${tx.amount.toLocaleString("vi-VN")}đ (${tx.id})`,
+    status: tx.status === "APPROVED" ? "Thành công" : "Đang chờ duyệt",
+    time: tx.createdAt,
+  }));
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex font-sans">
@@ -72,7 +111,7 @@ export default function AdminDashboardPage() {
               href="/admin/transactions"
               className="py-2.5 px-4 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold text-xs transition-all shadow flex items-center gap-1.5"
             >
-              <ReceiptIcon className="w-4 h-4" /> Duyệt Nạp Tiền (2 Chờ)
+              <ReceiptIcon className="w-4 h-4" /> Duyệt Nạp Tiền ({pendingCount} Chờ)
             </Link>
           </div>
         </div>
@@ -129,7 +168,13 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div className="text-right">
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-[10px] block">
+                    <span
+                      className={`px-2 py-0.5 rounded border font-bold text-[10px] block ${
+                        log.status === "Thành công"
+                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                          : "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                      }`}
+                    >
                       {log.status}
                     </span>
                     <span className="text-slate-500 text-[10px] mt-1 block">{log.time}</span>

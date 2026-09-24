@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowUp } from "lucide-react";
 
 export default function Footer() {
@@ -12,17 +13,25 @@ export default function Footer() {
       <footer className="mt-16 bg-[#0c0d10] py-6 text-slate-400 border-t border-slate-800 text-xs text-center">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-slate-400 font-medium">
-            © Bản quyền thuộc về <strong className="text-white">Zunphoto.pro</strong> & <strong className="text-white">Zunphoto.vn</strong>
+            © Bản quyền thuộc về <strong className="text-white">Zunphoto.vn</strong>
           </p>
 
-          <div className="flex items-center gap-4 text-slate-400 font-medium">
-            <a href="#hero" className="hover:text-[#00b4d8] transition-colors">Trang chủ</a>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-slate-400 font-medium">
+            <Link href="/" className="hover:text-[#00b4d8] transition-colors">
+              Trang chủ
+            </Link>
             <span>•</span>
-            <a href="#stock-free" className="hover:text-[#00b4d8] transition-colors">Stock Free</a>
+            <Link href="/category/stock-free" className="hover:text-[#00b4d8] transition-colors">
+              Stock Free
+            </Link>
             <span>•</span>
-            <a href="#preset-free" className="hover:text-[#00b4d8] transition-colors">Preset Free</a>
+            <Link href="/category/preset-free" className="hover:text-[#00b4d8] transition-colors">
+              Preset Free
+            </Link>
             <span>•</span>
-            <a href="#transaction" className="hover:text-[#00b4d8] transition-colors">Nạp tiền</a>
+            <Link href="/transaction" className="hover:text-[#00b4d8] transition-colors">
+              Nạp tiền
+            </Link>
           </div>
         </div>
       </footer>

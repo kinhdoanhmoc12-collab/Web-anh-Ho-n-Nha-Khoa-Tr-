@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AuthLoginSchema, applySecurityHeaders } from "@/lib/security";
-import { signJwtToken } from "@/lib/auth";
+import { signJwtToken, AUTH_COOKIE_NAME, AUTH_COOKIE_OPTIONS } from "@/lib/auth";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { Logger } from "@/lib/logger";
 
@@ -16,14 +16,17 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validatedData = AuthLoginSchema.schema.parse(body);
 
-    const fakeUserId = `user_existing_${Date.now()}`;
+    const isAdmin = validatedData.email.toLowerCase().includes("admin");
+    const role = isAdmin ? "ADMIN" : "VIP_MEMBER";
+    const fakeUserId = `user_${isAdmin ? "admin" : "member"}_${Date.now()}`;
+
     const token = signJwtToken({
       userId: fakeUserId,
       email: validatedData.email,
-      role: "VIP_MEMBER",
+      role,
     });
 
-    Logger.info("User logged in successfully", "AuthLoginAPI", { email: validatedData.email });
+    Logger.info("User logged in successfully", "AuthLoginAPI", { email: validatedData.email, role });
 
     const response = NextResponse.json(
       {
@@ -31,12 +34,15 @@ export async function POST(req: NextRequest) {
         user: {
           id: fakeUserId,
           email: validatedData.email,
-          role: "VIP_MEMBER",
+          role,
         },
         token,
       },
       { status: 200 }
     );
+
+    // Set HttpOnly cookie for security
+    response.cookies.set(AUTH_COOKIE_NAME, token, AUTH_COOKIE_OPTIONS);
 
     return applySecurityHeaders(response);
   } catch (err: unknown) {

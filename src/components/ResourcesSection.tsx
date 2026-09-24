@@ -198,9 +198,9 @@ export default function ResourcesSection() {
       </div>
 
       {/* Category Blocks */}
-      {renderCategoryBlock("Stock Free", "#stock-free", stockFreeItems)}
-      {renderCategoryBlock("Preset Free", "#preset-free", presetFreeItems)}
-      {renderCategoryBlock("Tài nguyên trả phí", "#paid-resources", paidItems)}
+      {renderCategoryBlock("Stock Free", "/category/stock-free", stockFreeItems)}
+      {renderCategoryBlock("Preset Free", "/category/preset-free", presetFreeItems)}
+      {renderCategoryBlock("Tài nguyên trả phí", "/category/tai-nguyen-tra-phi", paidItems)}
     </section>
   );
 }

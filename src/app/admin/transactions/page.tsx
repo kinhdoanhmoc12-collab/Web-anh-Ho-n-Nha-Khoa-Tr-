@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import AdminSidebar from "@/components/AdminSidebar";
-import { Receipt, Search, CheckCircle2, XCircle, Clock, ShieldCheck, Filter } from "lucide-react";
+import { Receipt, Search, CheckCircle2, Plus, Edit3, Trash2, X, Save } from "lucide-react";
 
 interface DepositTransaction {
   id: string;
@@ -64,6 +64,72 @@ export default function AdminTransactionsPage() {
   const [filterStatus, setFilterStatus] = useState<"ALL" | "PENDING" | "APPROVED">("ALL");
   const [notice, setNotice] = useState("");
 
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTx, setEditingTx] = useState<DepositTransaction | null>(null);
+
+  // Form State
+  const [formMemo, setFormMemo] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formAmount, setFormAmount] = useState(200000);
+  const [formStatus, setFormStatus] = useState<"PENDING" | "APPROVED" | "REJECTED">("APPROVED");
+
+  const handleOpenAddModal = () => {
+    setEditingTx(null);
+    setFormMemo("ZUN " + Math.floor(100000 + Math.random() * 900000));
+    setFormEmail("");
+    setFormAmount(200000);
+    setFormStatus("APPROVED");
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (tx: DepositTransaction) => {
+    setEditingTx(tx);
+    setFormMemo(tx.memoCode);
+    setFormEmail(tx.userEmail);
+    setFormAmount(tx.amount);
+    setFormStatus(tx.status);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveTransaction = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formEmail.trim()) return;
+
+    if (editingTx) {
+      const updated = transactions.map((t) =>
+        t.id === editingTx.id
+          ? {
+              ...t,
+              memoCode: formMemo,
+              userEmail: formEmail,
+              amount: Number(formAmount),
+              status: formStatus,
+            }
+          : t
+      );
+      setTransactions(updated);
+      setNotice(`Đã cập nhật lệnh nạp [${editingTx.id}] thành công!`);
+    } else {
+      const newId = `TX-${Math.floor(1000 + Math.random() * 9000)}`;
+      const newTx: DepositTransaction = {
+        id: newId,
+        memoCode: formMemo,
+        userEmail: formEmail,
+        amount: Number(formAmount),
+        bankName: "MB Bank",
+        accountNumber: "0988888888",
+        status: formStatus,
+        createdAt: new Date().toISOString().replace("T", " ").slice(0, 19),
+      };
+      setTransactions([newTx, ...transactions]);
+      setNotice(`Đã tạo lệnh nạp tiền mới [${newId}] thành công!`);
+    }
+
+    setIsModalOpen(false);
+    setTimeout(() => setNotice(""), 3500);
+  };
+
   const handleApprove = (id: string, email: string, amount: number) => {
     setTransactions(
       transactions.map((tx) =>
@@ -74,22 +140,19 @@ export default function AdminTransactionsPage() {
     setTimeout(() => setNotice(""), 3500);
   };
 
-  const handleReject = (id: string) => {
-    if (confirm("Bạn có chắc muốn từ chối lệnh nạp tiền này?")) {
-      setTransactions(
-        transactions.map((tx) =>
-          tx.id === id ? { ...tx, status: "REJECTED" as const } : tx
-        )
-      );
-      setNotice("Đã từ chối lệnh nạp tiền!");
-      setTimeout(() => setNotice(""), 3500);
+  const handleDelete = (id: string) => {
+    if (confirm("Xóa giao dịch này khỏi hệ thống?")) {
+      setTransactions(transactions.filter((t) => t.id !== id));
+      setNotice("Đã xóa giao dịch thành công!");
+      setTimeout(() => setNotice(""), 3000);
     }
   };
 
   const filtered = transactions.filter((tx) => {
     const matchesSearch =
       tx.memoCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tx.userEmail.toLowerCase().includes(searchTerm.toLowerCase());
+      tx.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tx.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === "ALL" || tx.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
@@ -103,12 +166,19 @@ export default function AdminTransactionsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
           <div>
             <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              DUYỆT NẠP TIỀN TỰ ĐỘNG & NGÂN HÀNG
+              <Receipt className="w-6 h-6 text-[#00b4d8]" /> DUYỆT NẠP TIỀN TỰ ĐỘNG & NGÂN HÀNG
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Kiểm tra lệnh chuyển khoản VietQR, xác nhận duyệt tiền và cộng số dư tài khoản tự động.
+              Duyệt lệnh nạp tiền VietQR, chỉnh sửa số tiền, điều chỉnh số dư và quản lý lịch sử giao dịch.
             </p>
           </div>
+
+          <button
+            onClick={handleOpenAddModal}
+            className="py-2.5 px-4 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
+          >
+            <Plus className="w-4 h-4" /> Tạo Lệnh Nạp Thủ Công
+          </button>
         </div>
 
         {notice && (
@@ -197,24 +267,28 @@ export default function AdminTransactionsPage() {
                       )}
                     </td>
                     <td className="p-4 text-right space-x-2">
-                      {tx.status === "PENDING" ? (
-                        <>
-                          <button
-                            onClick={() => handleApprove(tx.id, tx.userEmail, tx.amount)}
-                            className="py-1.5 px-3 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors shadow"
-                          >
-                            ✓ Duyệt Nạp Tiền
-                          </button>
-                          <button
-                            onClick={() => handleReject(tx.id)}
-                            className="py-1.5 px-2.5 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white font-bold text-xs transition-colors"
-                          >
-                            Từ chối
-                          </button>
-                        </>
-                      ) : (
-                        <span className="text-slate-500 text-[11px] font-bold">Đã xử lý</span>
+                      {tx.status === "PENDING" && (
+                        <button
+                          onClick={() => handleApprove(tx.id, tx.userEmail, tx.amount)}
+                          className="py-1.5 px-3 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors shadow cursor-pointer"
+                        >
+                          ✓ Duyệt Nạp
+                        </button>
                       )}
+                      <button
+                        onClick={() => handleOpenEditModal(tx)}
+                        className="p-1.5 rounded bg-[#00b4d8]/10 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white transition-colors cursor-pointer"
+                        title="Chỉnh sửa giao dịch"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(tx.id)}
+                        className="p-1.5 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
+                        title="Xóa giao dịch"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -223,6 +297,93 @@ export default function AdminTransactionsPage() {
           </div>
         </div>
       </main>
+
+      {/* Modal Edit / Add Transaction */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-lg space-y-4 relative shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Edit3 className="w-4 h-4 text-[#00b4d8]" />
+                {editingTx ? `Chỉnh Sửa Giao Dịch [${editingTx.id}]` : "Tạo Lệnh Nạp Thủ Công"}
+              </h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveTransaction} className="space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-300">Nội Dung Chuyển Khoản (Memo Code)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="ZUN 930392"
+                  value={formMemo}
+                  onChange={(e) => setFormMemo(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-mono font-bold focus:outline-none focus:border-[#00b4d8]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-300">Email Tài Khoản Nạp *</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="user@zunphoto.pro"
+                  value={formEmail}
+                  onChange={(e) => setFormEmail(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-300">Số Tiền Nạp (VNĐ)</label>
+                  <input
+                    type="number"
+                    value={formAmount}
+                    onChange={(e) => setFormAmount(Number(e.target.value))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 font-bold focus:outline-none focus:border-[#00b4d8]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-300">Trạng Thái Giao Dịch</label>
+                  <select
+                    value={formStatus}
+                    onChange={(e) => setFormStatus(e.target.value as "PENDING" | "APPROVED" | "REJECTED")}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                  >
+                    <option value="APPROVED">✓ APPROVED (Đã Duyệt)</option>
+                    <option value="PENDING">⏳ PENDING (Chờ Duyệt)</option>
+                    <option value="REJECTED">✕ REJECTED (Từ Chối)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors cursor-pointer"
+                >
+                  Hủy Bỏ
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold transition-colors shadow flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Save className="w-4 h-4" /> Lưu Giao Dịch
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

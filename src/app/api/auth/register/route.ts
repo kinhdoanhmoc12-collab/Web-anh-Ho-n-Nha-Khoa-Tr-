@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AuthRegisterSchema, applySecurityHeaders } from "@/lib/security";
-import { hashPassword, signJwtToken } from "@/lib/auth";
+import { hashPassword, signJwtToken, AUTH_COOKIE_NAME, AUTH_COOKIE_OPTIONS } from "@/lib/auth";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { Logger } from "@/lib/logger";
 
@@ -41,6 +41,9 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     );
+
+    // Set HttpOnly Cookie for security
+    response.cookies.set(AUTH_COOKIE_NAME, token, AUTH_COOKIE_OPTIONS);
 
     return applySecurityHeaders(response);
   } catch (err: unknown) {

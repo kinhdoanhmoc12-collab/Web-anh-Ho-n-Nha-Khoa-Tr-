@@ -43,7 +43,7 @@ export default function About() {
           <div className="relative rounded-3xl overflow-hidden border border-slate-800 bg-slate-900 shadow-2xl p-3">
             <div className="relative aspect-[4/5] rounded-2xl overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1554048612-b6a482bc67e5?auto=format&fit=crop&q=80&w=800"
+                src="/avatar.jpg?v=20260924"
                 alt="ZunPhoto"
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
               />

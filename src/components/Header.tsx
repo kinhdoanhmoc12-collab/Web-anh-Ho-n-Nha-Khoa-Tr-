@@ -149,7 +149,7 @@ export default function Header() {
             {/* Circular Avatar Frame */}
             <div className="relative w-24 h-24 rounded-full p-1 border-2 border-slate-700/80 bg-slate-900 overflow-hidden shadow-lg group">
               <img
-                src="https://www.kienkaka.pro/storage/uploads/431884417-2319772724879281-8354617236984082530-n.webp"
+                src="/avatar.jpg?v=20260924"
                 alt="ZunPhoto Avatar"
                 className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-300"
               />

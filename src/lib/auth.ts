@@ -9,6 +9,16 @@ export interface TokenPayload {
   role: string;
 }
 
+export const AUTH_COOKIE_NAME = "auth_token";
+
+export const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+};
+
 export async function hashPassword(password: string): Promise<string> {
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(password, salt);
@@ -29,3 +39,4 @@ export function verifyJwtToken(token: string): TokenPayload | null {
     return null;
   }
 }
+

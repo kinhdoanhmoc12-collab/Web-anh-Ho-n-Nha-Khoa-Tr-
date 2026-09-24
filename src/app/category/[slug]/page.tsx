@@ -33,19 +33,30 @@ const categoryMap: Record<string, { title: string; desc: string; icon: string }>
 
 const categoryItems: Record<string, Array<{ id: number; title: string; image: string; badge: string; downloads: string; price?: string }>> = {
   "stock-free": [
-    { id: 1, title: "1a-2.zip (Stock Nắng Chiều Hoàng Hôn RAW)", image: "https://www.kienkaka.pro/storage/uploads/1a-2.webp", badge: "Free", downloads: "4.8K" },
-    { id: 2, title: "Stock Nàng Thơ Bên Khung Cửa Sổ RAW Pack", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "8.2K" },
-    { id: 3, title: "Stock Cúc Tần Ấn Độ Đường Phố Hà Nội", image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "3.5K" },
-    { id: 4, title: "Stock Vintage Film Aesthetic 35mm RAW Pack", image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "6.1K" },
+    { id: 1, title: "1a-2.zip (Stock Nắng Chiều Hoàng Hôn RAW)", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "4.8K" },
+    { id: 2, title: "Stock Nàng Thơ Bên Khung Cửa Sổ RAW Pack", image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "8.2K" },
+    { id: 3, title: "Stock Cúc Tần Ấn Độ Đường Phố Hà Nội", image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "3.5K" },
+    { id: 4, title: "Stock Vintage Film Aesthetic 35mm RAW Pack", image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "6.1K" },
   ],
   "preset-free": [
     { id: 5, title: "Preset Lightroom Tone Hàn Quốc Trong Trẻo", image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "12.4K" },
     { id: 6, title: "Preset Color Grading Cinematic Moody Film", image: "https://images.unsplash.com/photo-1554048612-b6a482bc67e5?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "9.8K" },
     { id: 7, title: "Preset Tone Nắng Mùa Hè Rực Rỡ Mobile/PC", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "15.1K" },
   ],
+  "tai-nguyen": [
+    { id: 8, title: "Full Bộ Overlay Nắng Hoàng Hôn & Vệt Nắng Chiếu 4K", image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "7.9K" },
+    { id: 9, title: "Plugin Retouch4me Tự Động Làm Mịn Da 1-Click", image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "11.2K" },
+    { id: 10, title: "Bộ LUTs Color Grading Điện Ảnh 4K Cho Premiere & Photoshop", image: "https://images.unsplash.com/photo-1493863641943-9b68992a8d07?auto=format&fit=crop&q=80&w=600", badge: "Free", downloads: "5.4K" },
+  ],
+  "kinh-nghiep": [
+    { id: 11, title: "Kỹ thuật canh góc & Bố cục ánh sáng Chân Dung Studio", image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=600", badge: "Bài Viết", downloads: "14.2K" },
+    { id: 12, title: "Quy trình làm sạch da Frequency Separation Photoshop Pro", image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600", badge: "Bài Viết", downloads: "18.9K" },
+    { id: 13, title: "Bí quyết setup đèn Flash Studio & Softbox Chuyên Nghiệp", image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=600", badge: "Bài Viết", downloads: "9.5K" },
+    { id: 14, title: "Kinh nghiệm chọn Ống kính Portrait Chuyên nghiệp năm 2026", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600", badge: "Bài Viết", downloads: "21.0K" },
+  ],
   "tai-nguyen-tra-phi": [
-    { id: 8, title: "Bộ 500+ Preset Độc Quyền ZunPhoto Full Pack", image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=600", badge: "VIP", price: "499.000đ", downloads: "2.3K" },
-    { id: 9, title: "Full Khóa Học Retouch Photoshop Chuyên Nghiệp", image: "https://images.unsplash.com/photo-1493863641943-9b68992a8d07?auto=format&fit=crop&q=80&w=600", badge: "VIP", price: "999.000đ", downloads: "1.1K" },
+    { id: 15, title: "Bộ 500+ Preset Độc Quyền ZunPhoto Full Pack", image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=600", badge: "VIP", price: "499.000đ", downloads: "2.3K" },
+    { id: 16, title: "Full Khóa Học Retouch Photoshop Chuyên Nghiệp", image: "https://images.unsplash.com/photo-1493863641943-9b68992a8d07?auto=format&fit=crop&q=80&w=600", badge: "VIP", price: "999.000đ", downloads: "1.1K" },
   ],
 };
 

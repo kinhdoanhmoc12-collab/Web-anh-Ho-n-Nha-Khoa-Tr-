@@ -14,52 +14,125 @@ export interface UserAccount {
 interface AuthContextType {
   user: UserAccount | null;
   isLoggedIn: boolean;
+  isAdminAuthenticated: boolean;
   login: (email: string, name?: string) => void;
   logout: () => void;
+  adminLogin: (passcode: string) => boolean;
+  adminLogout: () => void;
   updateBalance: (newBalance: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoggedIn: false,
+  isAdminAuthenticated: false,
   login: () => {},
   logout: () => {},
+  adminLogin: () => false,
+  adminLogout: () => {},
   updateBalance: () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserAccount | null>(null);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
-    // Read saved user session from localStorage if exists
-    const savedSession = localStorage.getItem("zunphoto_session");
-    if (savedSession) {
-      try {
-        setUser(JSON.parse(savedSession));
-      } catch {
-        localStorage.removeItem("zunphoto_session");
-      }
+    // Check HttpOnly Cookie session via /api/auth/me
+    fetch("/api/auth/me")
+      .then((res) => {
+        if (res.ok) return res.json();
+        return null;
+      })
+      .then((data) => {
+        if (data?.authenticated && data.user) {
+          const shortId = Math.floor(100000 + Math.random() * 900000).toString();
+          const activeUser: UserAccount = {
+            id: data.user.id || `USR-${shortId}`,
+            email: data.user.email,
+            name: data.user.email.split("@")[0],
+            role: data.user.role || "USER",
+            balance: 150000,
+            transferCode: `ZUN ${shortId}`,
+          };
+          setUser(activeUser);
+          if (data.user.role === "ADMIN") {
+            setIsAdminAuthenticated(true);
+          }
+        } else {
+          // Read saved local session as fallback
+          const savedSession = localStorage.getItem("zunphoto_session");
+          if (savedSession) {
+            try {
+              setUser(JSON.parse(savedSession));
+            } catch {
+              localStorage.removeItem("zunphoto_session");
+            }
+          }
+        }
+      })
+      .catch(() => {
+        const savedSession = localStorage.getItem("zunphoto_session");
+        if (savedSession) {
+          try {
+            setUser(JSON.parse(savedSession));
+          } catch {
+            localStorage.removeItem("zunphoto_session");
+          }
+        }
+      });
+
+    // Read saved admin session
+    const savedAdminSession = localStorage.getItem("zunphoto_admin_session");
+    if (savedAdminSession === "authenticated") {
+      setIsAdminAuthenticated(true);
     }
   }, []);
 
   const login = (email: string, name?: string) => {
-    // Generate unique account ID & transfer code bound to user
     const shortId = Math.floor(100000 + Math.random() * 900000).toString();
+    const isAdmin = email.toLowerCase().includes("admin");
     const newUser: UserAccount = {
       id: `USR-${shortId}`,
       email: email,
       name: name || email.split("@")[0],
-      role: "VIP_MEMBER",
+      role: isAdmin ? "ADMIN" : "VIP_MEMBER",
       balance: 150000,
       transferCode: `ZUN ${shortId}`,
     };
     setUser(newUser);
+    if (isAdmin) {
+      setIsAdminAuthenticated(true);
+      localStorage.setItem("zunphoto_admin_session", "authenticated");
+    }
     localStorage.setItem("zunphoto_session", JSON.stringify(newUser));
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // ignore network errors
+    }
     setUser(null);
+    setIsAdminAuthenticated(false);
     localStorage.removeItem("zunphoto_session");
+    localStorage.removeItem("zunphoto_admin_session");
+  };
+
+  const adminLogin = (passcode: string): boolean => {
+    // Admin Master Passcode
+    if (passcode === "admin2026" || passcode === "zunphoto@2026" || passcode === "admin") {
+      setIsAdminAuthenticated(true);
+      localStorage.setItem("zunphoto_admin_session", "authenticated");
+      return true;
+    }
+    return false;
+  };
+
+  const adminLogout = () => {
+    setIsAdminAuthenticated(false);
+    localStorage.removeItem("zunphoto_admin_session");
   };
 
   const updateBalance = (addedAmount: number) => {
@@ -74,8 +147,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isLoggedIn: !!user,
+        isAdminAuthenticated,
         login,
         logout,
+        adminLogin,
+        adminLogout,
         updateBalance,
       }}
     >

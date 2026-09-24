@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -13,10 +14,13 @@ import {
   ArrowLeft,
   Aperture,
   ShieldCheck,
+  Image as ImageIcon,
+  Lock,
 } from "lucide-react";
 
 const adminNavItems = [
   { href: "/admin", label: "Tổng Quan Analytics", icon: LayoutDashboard },
+  { href: "/admin/banners", label: "Quản Lý Hero Slider", icon: ImageIcon },
   { href: "/admin/resources", label: "Quản Lý Tài Nguyên", icon: FolderKanban },
   { href: "/admin/transactions", label: "Duyệt Nạp Tiền", icon: Receipt },
   { href: "/admin/users", label: "Quản Lý Thành Viên", icon: Users },
@@ -27,6 +31,7 @@ const adminNavItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { adminLogout } = useAuth();
 
   return (
     <aside className="w-64 bg-[#0f172a] text-slate-200 border-r border-slate-800 flex flex-col justify-between h-screen sticky top-0 flex-shrink-0">
@@ -73,11 +78,18 @@ export default function AdminSidebar() {
         </nav>
       </div>
 
-      {/* Footer Back to Site Link */}
-      <div className="p-4 border-t border-slate-800 bg-slate-950/60">
+      {/* Footer Back to Site Link & Lock Session */}
+      <div className="p-4 border-t border-slate-800 bg-slate-950/60 space-y-2">
+        <button
+          onClick={adminLogout}
+          className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white text-xs font-bold transition-all border border-rose-500/30 cursor-pointer"
+        >
+          <Lock className="w-3.5 h-3.5" /> Khóa Khỏi Admin (Log Out)
+        </button>
+
         <Link
           href="/"
-          className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-200 hover:text-white text-xs font-bold transition-all border border-slate-700/80"
+          className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition-all border border-slate-700/80"
         >
           <ArrowLeft className="w-4 h-4" /> Quay Lại Website
         </Link>
