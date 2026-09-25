@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { addDeposit, getDeposits } from "@/lib/depositStore";
+import { updateUserBalanceByTransferCode } from "@/lib/userStore";
 
 // SePAY (sepay.vn) Webhook Handler - Instant Auto Approval 24/7
 // Webhook URL: https://zunphoto.vn/api/sepay/webhook
@@ -44,6 +45,9 @@ export async function POST(req: Request) {
       accountNumber: accountNumber || "0979487405",
       referenceCode: referenceCode || "",
     });
+
+    // Update balance in central UserStore
+    updateUserBalanceByTransferCode(memoCode, amount);
 
     return NextResponse.json(
       {

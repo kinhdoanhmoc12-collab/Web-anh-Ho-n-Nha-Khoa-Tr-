@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminSidebar from "@/components/AdminSidebar";
-import { Users, Search, Edit3, Trash2, Plus, X, Save, CheckCircle2, Crown, ShieldAlert } from "lucide-react";
+import { Users, Search, Edit3, Trash2, Plus, X, Save, CheckCircle2 } from "lucide-react";
 
 interface UserItem {
   id: string;
@@ -53,6 +53,27 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [notice, setNotice] = useState("");
 
+  // Live Sync Users from Central Store
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("/api/admin/users");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.users && Array.isArray(data.users)) {
+          setUsers(data.users);
+        }
+      }
+    } catch {
+      // quiet poll
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    const interval = setInterval(fetchUsers, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
@@ -81,46 +102,67 @@ export default function AdminUsersPage() {
     setIsModalOpen(true);
   };
 
-  const handleSaveUser = (e: React.FormEvent) => {
+  const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formEmail.trim()) return;
 
     if (editingUser) {
-      const updated = users.map((u) =>
-        u.id === editingUser.id
-          ? {
-              ...u,
-              name: formName || formEmail.split("@")[0],
-              email: formEmail,
-              role: formRole,
-              balance: Number(formBalance),
-            }
-          : u
-      );
-      setUsers(updated);
-      setNotice(`Đã cập nhật thông tin tài khoản [${editingUser.id}] thành công!`);
+      try {
+        const res = await fetch("/api/admin/users", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editingUser.id,
+            name: formName || formEmail.split("@")[0],
+            email: formEmail,
+            role: formRole,
+            balance: Number(formBalance),
+          }),
+        });
+
+        if (res.ok) {
+          setNotice(`Đã cập nhật thông tin tài khoản [${editingUser.id}] thành công!`);
+          fetchUsers();
+        }
+      } catch {
+        setNotice("Lỗi khi cập nhật tài khoản");
+      }
     } else {
-      const newId = `USR-${Math.floor(100000 + Math.random() * 900000)}`;
-      const newUser: UserItem = {
-        id: newId,
-        name: formName || formEmail.split("@")[0],
-        email: formEmail,
-        role: formRole,
-        balance: Number(formBalance),
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-      setUsers([newUser, ...users]);
-      setNotice(`Đã thêm thành viên mới [${newId}] thành công!`);
+      try {
+        const res = await fetch("/api/admin/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formName || formEmail.split("@")[0],
+            email: formEmail,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setNotice(`Đã thêm thành viên mới [${data.user.id}] thành công!`);
+          fetchUsers();
+        }
+      } catch {
+        setNotice("Lỗi khi tạo tài khoản mới");
+      }
     }
 
     setIsModalOpen(false);
     setTimeout(() => setNotice(""), 3500);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Xóa tài khoản thành viên này khỏi hệ thống?")) {
-      setUsers(users.filter((u) => u.id !== id));
-      setNotice("Đã xóa tài khoản thành công!");
+      try {
+        const res = await fetch(`/api/admin/users?id=${id}`, { method: "DELETE" });
+        if (res.ok) {
+          setNotice("Đã xóa tài khoản thành công!");
+          fetchUsers();
+        }
+      } catch {
+        setNotice("Lỗi khi xóa tài khoản");
+      }
       setTimeout(() => setNotice(""), 3000);
     }
   };
@@ -144,7 +186,7 @@ export default function AdminUsersPage() {
               <Users className="w-6 h-6 text-[#00b4d8]" /> QUẢN LÝ THÀNH VIÊN & HỘI VIÊN VIP
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Thêm mới, chỉnh sửa thông tin tài khoản, thay đổi quyền VIP/Admin và số dư ví.
+              Hệ thống tự động cập nhật danh sách khi thành viên mới đăng ký tài khoản trên ZunPhoto.vn.
             </p>
           </div>
 

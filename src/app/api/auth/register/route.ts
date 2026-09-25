@@ -3,6 +3,7 @@ import { AuthRegisterSchema, applySecurityHeaders } from "@/lib/security";
 import { hashPassword, signJwtToken, AUTH_COOKIE_NAME, AUTH_COOKIE_OPTIONS } from "@/lib/auth";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { Logger } from "@/lib/logger";
+import { registerUser } from "@/lib/userStore";
 
 export async function POST(req: NextRequest) {
   const clientIp = req.headers.get("x-forwarded-for") || "127.0.0.1";
@@ -16,14 +17,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validatedData = AuthRegisterSchema.schema.parse(body);
 
+    // Register user in central store
+    const registeredUser = registerUser(validatedData.email, validatedData.name);
+
     // Hash password & generate token
-    const passwordHash = await hashPassword(validatedData.password);
-    const fakeUserId = `user_${Date.now()}`;
+    await hashPassword(validatedData.password);
 
     const token = signJwtToken({
-      userId: fakeUserId,
-      email: validatedData.email,
-      role: "USER",
+      userId: registeredUser.id,
+      email: registeredUser.email,
+      role: registeredUser.role,
     });
 
     Logger.info("User registered successfully", "AuthRegisterAPI", { email: validatedData.email });
@@ -31,12 +34,7 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json(
       {
         message: "Đăng ký tài khoản thành công!",
-        user: {
-          id: fakeUserId,
-          email: validatedData.email,
-          name: validatedData.name || "ZunPhoto Member",
-          role: "USER",
-        },
+        user: registeredUser,
         token,
       },
       { status: 201 }
