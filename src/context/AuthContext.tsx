@@ -48,14 +48,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       .then((data) => {
         if (data?.authenticated && data.user) {
-          const shortId = Math.floor(100000 + Math.random() * 900000).toString();
           const activeUser: UserAccount = {
-            id: data.user.id || `USR-${shortId}`,
+            id: data.user.id,
             email: data.user.email,
-            name: data.user.email.split("@")[0],
+            name: data.user.name || data.user.email.split("@")[0],
             role: data.user.role || "USER",
-            balance: 0,
-            transferCode: `ZUN ${shortId}`,
+            balance: data.user.balance || 0,
+            transferCode: data.user.transferCode || `ZUN ${data.user.id.replace("USR-", "")}`,
           };
           setUser(activeUser);
           if (data.user.role === "ADMIN") {
@@ -131,9 +130,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, [user?.transferCode]);
 
-  const login = (email: string, name?: string) => {
-    const shortId = Math.floor(100000 + Math.random() * 900000).toString();
+  const login = async (email: string, name?: string) => {
     const isAdmin = email.toLowerCase().includes("admin");
+    
+    // Register or sync user on backend
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) {
+          const activeUser: UserAccount = {
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            role: data.user.role,
+            balance: data.user.balance,
+            transferCode: data.user.transferCode,
+          };
+          setUser(activeUser);
+          if (data.user.role === "ADMIN") {
+            setIsAdminAuthenticated(true);
+            localStorage.setItem("zunphoto_admin_session", "authenticated");
+          }
+          localStorage.setItem("zunphoto_session", JSON.stringify(activeUser));
+          return;
+        }
+      }
+    } catch {
+      // fallback local
+    }
+
+    const shortId = Math.floor(100000 + Math.random() * 900000).toString();
     const newUser: UserAccount = {
       id: `USR-${shortId}`,
       email: email,

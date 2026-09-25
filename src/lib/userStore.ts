@@ -1,4 +1,5 @@
-// Global Centralized User Store for Realtime Persistence across Web & Admin
+import fs from "fs";
+import path from "path";
 
 export interface UserRecord {
   id: string;
@@ -10,101 +11,108 @@ export interface UserRecord {
   createdAt: string;
 }
 
-const globalStore = globalThis as unknown as {
-  __zunphoto_users: UserRecord[];
-};
+const DATA_DIR = path.join(process.cwd(), "data");
+const DATA_FILE = path.join(DATA_DIR, "users.json");
 
-if (!globalStore.__zunphoto_users) {
-  globalStore.__zunphoto_users = [
-    {
-      id: "USR-930392",
-      name: "Thành Viên VIP",
-      email: "user@zunphoto.pro",
-      role: "VIP_MEMBER",
-      balance: 150000,
-      transferCode: "ZUN 930392",
-      createdAt: "2026-09-15",
-    },
-    {
-      id: "USR-889922",
-      name: "Minh Anh Photographer",
-      email: "minhanh@gmail.com",
-      role: "VIP_MEMBER",
-      balance: 350000,
-      transferCode: "ZUN 889922",
-      createdAt: "2026-09-10",
-    },
-    {
-      id: "USR-445511",
-      name: "Hoàng Nam Designer",
-      email: "hoangnam@gmail.com",
-      role: "USER",
-      balance: 50000,
-      transferCode: "ZUN 445511",
-      createdAt: "2026-09-18",
-    },
-    {
-      id: "USR-1001",
-      name: "ZunPhoto Admin",
-      email: "admin@zunphoto.pro",
-      role: "ADMIN",
-      balance: 10000000,
-      transferCode: "ZUN 100001",
-      createdAt: "2026-01-01",
-    },
-  ];
+function ensureStoreFile() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    if (!fs.existsSync(DATA_FILE)) {
+      fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2), "utf-8");
+    }
+  } catch (e) {
+    console.error("Error creating data folder/file:", e);
+  }
 }
 
 export function getAllUsers(): UserRecord[] {
-  return globalStore.__zunphoto_users;
+  ensureStoreFile();
+  try {
+    const content = fs.readFileSync(DATA_FILE, "utf-8");
+    const parsed = JSON.parse(content);
+    if (Array.isArray(parsed)) return parsed;
+    return [];
+  } catch {
+    return [];
+  }
 }
 
-export function registerUser(email: string, name?: string): UserRecord {
-  const existing = globalStore.__zunphoto_users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-  if (existing) {
-    return existing;
+function saveUsers(users: UserRecord[]) {
+  ensureStoreFile();
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2), "utf-8");
+  } catch (err) {
+    console.error("Error writing users JSON:", err);
+  }
+}
+
+export function registerUser(email: string, name?: string, transferCodeOverride?: string): UserRecord {
+  const users = getAllUsers();
+  const cleanEmail = email.trim().toLowerCase();
+  
+  const existingIndex = users.findIndex((u) => u.email.toLowerCase() === cleanEmail);
+  if (existingIndex !== -1) {
+    // Return existing user
+    if (name && (!users[existingIndex].name || users[existingIndex].name === cleanEmail.split("@")[0])) {
+      users[existingIndex].name = name;
+      saveUsers(users);
+    }
+    return users[existingIndex];
   }
 
+  // Create new user with 0 VND balance
   const numCode = Math.floor(100000 + Math.random() * 900000);
+  const transferCode = transferCodeOverride || `ZUN ${numCode}`;
+  
   const newUser: UserRecord = {
     id: `USR-${numCode}`,
-    name: name || email.split("@")[0],
-    email,
-    role: email.toLowerCase().includes("admin") ? "ADMIN" : "USER",
+    name: name || cleanEmail.split("@")[0],
+    email: cleanEmail,
+    role: cleanEmail.includes("admin") ? "ADMIN" : "USER",
     balance: 0,
-    transferCode: `ZUN ${numCode}`,
+    transferCode,
     createdAt: new Date().toISOString().split("T")[0],
   };
 
-  globalStore.__zunphoto_users.unshift(newUser);
+  users.unshift(newUser);
+  saveUsers(users);
   return newUser;
 }
 
 export function updateUser(id: string, updates: Partial<Omit<UserRecord, "id">>): UserRecord | null {
-  const idx = globalStore.__zunphoto_users.findIndex((u) => u.id === id);
+  const users = getAllUsers();
+  const idx = users.findIndex((u) => u.id === id);
   if (idx === -1) return null;
 
-  globalStore.__zunphoto_users[idx] = {
-    ...globalStore.__zunphoto_users[idx],
+  users[idx] = {
+    ...users[idx],
     ...updates,
   };
-  return globalStore.__zunphoto_users[idx];
+
+  saveUsers(users);
+  return users[idx];
 }
 
 export function deleteUser(id: string): boolean {
-  const initialLen = globalStore.__zunphoto_users.length;
-  globalStore.__zunphoto_users = globalStore.__zunphoto_users.filter((u) => u.id !== id);
-  return globalStore.__zunphoto_users.length < initialLen;
+  let users = getAllUsers();
+  const initialLen = users.length;
+  users = users.filter((u) => u.id !== id);
+  saveUsers(users);
+  return users.length < initialLen;
 }
 
 export function updateUserBalanceByTransferCode(transferCode: string, addedAmount: number): boolean {
+  const users = getAllUsers();
   const cleanTarget = transferCode.replaceAll(" ", "").toUpperCase();
-  const user = globalStore.__zunphoto_users.find(
+  const user = users.find(
     (u) => u.transferCode.replaceAll(" ", "").toUpperCase() === cleanTarget
   );
 
   if (user) {
     user.balance += addedAmount;
+    saveUsers(users);
     return true;
   }
   return false;

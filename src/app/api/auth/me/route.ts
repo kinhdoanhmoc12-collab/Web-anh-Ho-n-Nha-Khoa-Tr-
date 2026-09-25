@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyJwtToken, AUTH_COOKIE_NAME } from "@/lib/auth";
 import { applySecurityHeaders } from "@/lib/security";
+import { registerUser } from "@/lib/userStore";
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get(AUTH_COOKIE_NAME)?.value;
@@ -16,13 +17,11 @@ export async function GET(req: NextRequest) {
     return applySecurityHeaders(res);
   }
 
+  const userRecord = registerUser(payload.email);
+
   const res = NextResponse.json({
     authenticated: true,
-    user: {
-      id: payload.userId,
-      email: payload.email,
-      role: payload.role,
-    },
+    user: userRecord,
   });
 
   return applySecurityHeaders(res);
