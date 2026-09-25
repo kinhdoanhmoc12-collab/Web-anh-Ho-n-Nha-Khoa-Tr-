@@ -291,27 +291,6 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                 </form>
               </div>
 
-              {/* Sidebar Box 1: Kiên Ka Ka ACADEMY */}
-              <div className="space-y-2.5">
-                <div className="text-base font-bold text-[#1a202c] border-l-4 border-amber-500 pl-2.5">
-                  Kiên Ka Ka ACADEMY
-                </div>
-                <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs">
-                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
-                    Tham gia group{" "}
-                    <a
-                      href="https://facebook.com"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-600 font-bold hover:underline inline-flex items-baseline gap-0.5"
-                    >
-                      Kiên Ka Ka photography group
-                    </a>{" "}
-                    Group dùng để anh em trao đổi, học hỏi, giao lưu về nhiếp ảnh và thiết bị
-                  </p>
-                </div>
-              </div>
-
               {/* Sidebar Box 2: Danh mục */}
               <div className="space-y-2.5">
                 <div className="text-base font-bold text-[#1a202c] border-l-4 border-amber-500 pl-2.5">
