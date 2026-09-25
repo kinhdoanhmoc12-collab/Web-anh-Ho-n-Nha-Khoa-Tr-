@@ -197,7 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deductBalance = async (amount: number): Promise<boolean> => {
+  const deductBalance = (amount: number): boolean => {
     if (!user || user.balance < amount) {
       return false;
     }
@@ -206,19 +206,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updated);
     localStorage.setItem("zunphoto_session", JSON.stringify(updated));
 
-    // Sync to backend UserStore
-    try {
-      await fetch("/api/admin/users", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: user.id,
-          balance: newBal,
-        }),
-      });
-    } catch {
-      // ignore
-    }
+    // Sync to backend UserStore (fire & forget)
+    fetch("/api/admin/users", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: user.id,
+        balance: newBal,
+      }),
+    }).catch(() => {});
+
     return true;
   };
 
