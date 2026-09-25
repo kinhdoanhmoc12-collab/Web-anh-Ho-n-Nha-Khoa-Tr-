@@ -282,8 +282,8 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
               </section>
             </div>
 
-            {/* Right Sidebar Column (4 Cols on desktop) */}
-            <aside className="lg:col-span-4 space-y-6">
+            {/* Right Sidebar Column (4 Cols on desktop - Sticky fixed on scroll) */}
+            <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-8 self-start">
               
               {/* Search Widget */}
               <div className="relative">
