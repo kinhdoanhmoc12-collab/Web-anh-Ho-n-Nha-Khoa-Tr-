@@ -14,7 +14,7 @@ export default function TransactionPage() {
   const [depositNotice, setDepositNotice] = useState<boolean>(false);
 
   const transferMemo = user?.transferCode || "ZUN 888888";
-  const qrUrl = "https://img.vietqr.io/image/MB-0988888888-compact2.png?amount=" + amount + "&addInfo=" + encodeURIComponent(transferMemo) + "&accountName=ZUNPHOTO%20OFFICIAL";
+  const qrUrl = "https://img.vietqr.io/image/MB-0979487405-compact2.png?amount=" + amount + "&addInfo=" + encodeURIComponent(transferMemo) + "&accountName=HOAN%20NT";
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -113,9 +113,9 @@ export default function TransactionPage() {
                       <div className="flex items-center justify-between border-b border-slate-800/60 pb-2">
                         <span className="text-slate-400">Số tài khoản:</span>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-extrabold text-amber-400 font-mono">0988888888</span>
+                          <span className="font-extrabold text-amber-400 font-mono">0979487405</span>
                           <button
-                            onClick={() => handleCopy("0988888888")}
+                            onClick={() => handleCopy("0979487405")}
                             className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300"
                           >
                             <Copy className="w-3 h-3" />
@@ -125,7 +125,7 @@ export default function TransactionPage() {
 
                       <div className="flex items-center justify-between border-b border-slate-800/60 pb-2">
                         <span className="text-slate-400">Chủ tài khoản:</span>
-                        <span className="font-bold uppercase text-white">ZUNPHOTO OFFICIAL</span>
+                        <span className="font-bold uppercase text-white">HOAN NT</span>
                       </div>
 
                       <div className="flex items-center justify-between pt-1">
