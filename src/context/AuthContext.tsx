@@ -21,6 +21,7 @@ interface AuthContextType {
   adminLogout: () => void;
   updateBalance: (newBalance: number) => void;
   deductBalance: (amount: number) => boolean;
+  refreshUserSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -33,55 +34,51 @@ const AuthContext = createContext<AuthContextType>({
   adminLogout: () => {},
   updateBalance: () => {},
   deductBalance: () => false,
+  refreshUserSession: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserAccount | null>(null);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
 
-  useEffect(() => {
-    // Check HttpOnly Cookie session via /api/auth/me
-    fetch("/api/auth/me")
-      .then((res) => {
-        if (res.ok) return res.json();
-        return null;
-      })
-      .then((data) => {
+  const fetchCurrentSession = async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const data = await res.json();
         if (data?.authenticated && data.user) {
           const activeUser: UserAccount = {
             id: data.user.id,
             email: data.user.email,
             name: data.user.name || data.user.email.split("@")[0],
             role: data.user.role || "USER",
-            balance: data.user.balance || 0,
+            balance: typeof data.user.balance === "number" ? data.user.balance : 0,
             transferCode: data.user.transferCode || `ZUN ${data.user.id.replace("USR-", "")}`,
           };
           setUser(activeUser);
+          localStorage.setItem("zunphoto_session", JSON.stringify(activeUser));
           if (data.user.role === "ADMIN") {
             setIsAdminAuthenticated(true);
           }
-        } else {
-          // Read saved local session as fallback
-          const savedSession = localStorage.getItem("zunphoto_session");
-          if (savedSession) {
-            try {
-              setUser(JSON.parse(savedSession));
-            } catch {
-              localStorage.removeItem("zunphoto_session");
-            }
-          }
+          return;
         }
-      })
-      .catch(() => {
-        const savedSession = localStorage.getItem("zunphoto_session");
-        if (savedSession) {
-          try {
-            setUser(JSON.parse(savedSession));
-          } catch {
-            localStorage.removeItem("zunphoto_session");
-          }
-        }
-      });
+      }
+    } catch {
+      // fallback local if network error
+    }
+
+    const savedSession = localStorage.getItem("zunphoto_session");
+    if (savedSession) {
+      try {
+        setUser(JSON.parse(savedSession));
+      } catch {
+        localStorage.removeItem("zunphoto_session");
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentSession();
 
     // Read saved admin session
     const savedAdminSession = localStorage.getItem("zunphoto_admin_session");
@@ -90,50 +87,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Instant Realtime SePAY Balance Auto-Sync Polling
+  // 100% Realtime Synchronized Session & Balance Polling (Every 3s)
   useEffect(() => {
-    if (!user?.transferCode) return;
+    if (!user?.email) return;
 
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/sepay/webhook?code=${encodeURIComponent(user.transferCode)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.deposits && data.deposits.length > 0) {
-            const processedKey = `processed_tx_${user.transferCode}`;
-            const processedIds: string[] = JSON.parse(localStorage.getItem(processedKey) || "[]");
-
-            let newBalanceAdd = 0;
-            data.deposits.forEach((tx: { id: string; amount: number }) => {
-              if (!processedIds.includes(tx.id)) {
-                newBalanceAdd += tx.amount;
-                processedIds.push(tx.id);
-              }
-            });
-
-            if (newBalanceAdd > 0) {
-              localStorage.setItem(processedKey, JSON.stringify(processedIds));
-              setUser((prev) => {
-                if (!prev) return prev;
-                const updated = { ...prev, balance: prev.balance + newBalanceAdd };
-                localStorage.setItem("zunphoto_session", JSON.stringify(updated));
-                return updated;
-              });
-            }
-          }
-        }
-      } catch {
-        // quiet poll
-      }
-    }, 4000);
+    const interval = setInterval(() => {
+      fetchCurrentSession();
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, [user?.transferCode]);
+  }, [user?.email]);
 
   const login = async (email: string, name?: string) => {
     const isAdmin = email.toLowerCase().includes("admin");
-    
-    // Register or sync user on backend
+
     try {
       const res = await fetch("/api/admin/users", {
         method: "POST",
@@ -149,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: data.user.email,
             name: data.user.name,
             role: data.user.role,
-            balance: data.user.balance,
+            balance: data.user.balance || 0,
             transferCode: data.user.transferCode,
           };
           setUser(activeUser);
@@ -162,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch {
-      // fallback local
+      // fallback
     }
 
     const shortId = Math.floor(100000 + Math.random() * 900000).toString();
@@ -208,20 +175,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("zunphoto_admin_session");
   };
 
-  const updateBalance = (addedAmount: number) => {
+  const updateBalance = async (addedAmount: number) => {
     if (!user) return;
-    const updated = { ...user, balance: user.balance + addedAmount };
+    const newBal = user.balance + addedAmount;
+    const updated = { ...user, balance: newBal };
     setUser(updated);
     localStorage.setItem("zunphoto_session", JSON.stringify(updated));
+
+    // Sync to backend UserStore
+    try {
+      await fetch("/api/admin/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: user.id,
+          balance: newBal,
+        }),
+      });
+    } catch {
+      // ignore
+    }
   };
 
-  const deductBalance = (amount: number): boolean => {
+  const deductBalance = async (amount: number): Promise<boolean> => {
     if (!user || user.balance < amount) {
       return false;
     }
-    const updated = { ...user, balance: user.balance - amount };
+    const newBal = user.balance - amount;
+    const updated = { ...user, balance: newBal };
     setUser(updated);
     localStorage.setItem("zunphoto_session", JSON.stringify(updated));
+
+    // Sync to backend UserStore
+    try {
+      await fetch("/api/admin/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: user.id,
+          balance: newBal,
+        }),
+      });
+    } catch {
+      // ignore
+    }
     return true;
   };
 
@@ -237,6 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         adminLogout,
         updateBalance,
         deductBalance,
+        refreshUserSession: fetchCurrentSession,
       }}
     >
       {children}
