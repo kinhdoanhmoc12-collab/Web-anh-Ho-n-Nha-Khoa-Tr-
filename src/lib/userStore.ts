@@ -70,8 +70,8 @@ export function registerUser(email: string, name?: string): UserRecord {
     id: `USR-${numCode}`,
     name: name || email.split("@")[0],
     email,
-    role: email.toLowerCase().includes("admin") ? "ADMIN" : "VIP_MEMBER",
-    balance: 150000,
+    role: email.toLowerCase().includes("admin") ? "ADMIN" : "USER",
+    balance: 0,
     transferCode: `ZUN ${numCode}`,
     createdAt: new Date().toISOString().split("T")[0],
   };

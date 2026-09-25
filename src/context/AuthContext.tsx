@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: data.user.email,
             name: data.user.email.split("@")[0],
             role: data.user.role || "USER",
-            balance: 150000,
+            balance: 0,
             transferCode: `ZUN ${shortId}`,
           };
           setUser(activeUser);
@@ -138,8 +138,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       id: `USR-${shortId}`,
       email: email,
       name: name || email.split("@")[0],
-      role: isAdmin ? "ADMIN" : "VIP_MEMBER",
-      balance: 150000,
+      role: isAdmin ? "ADMIN" : "USER",
+      balance: 0,
       transferCode: `ZUN ${shortId}`,
     };
     setUser(newUser);
