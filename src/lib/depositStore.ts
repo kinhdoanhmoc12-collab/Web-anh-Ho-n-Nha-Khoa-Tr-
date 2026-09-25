@@ -1,4 +1,5 @@
-// Global Deposit & Transaction Store for SePAY Instant Auto-Approval
+import fs from "fs";
+import path from "path";
 
 export interface DepositRecord {
   id: string;
@@ -7,52 +8,78 @@ export interface DepositRecord {
   amount: number;
   bankName: string;
   accountNumber: string;
-  status: "APPROVED"; // Always APPROVED automatically
+  status: "APPROVED" | "PENDING" | "REJECTED";
   createdAt: string;
   referenceCode?: string;
 }
 
-// Global in-memory storage (persisted across requests during server runtime)
-const globalStore = globalThis as unknown as {
-  __sepay_deposits: DepositRecord[];
-};
+const DATA_DIR = path.join(process.cwd(), "data");
+const DATA_FILE = path.join(DATA_DIR, "transactions.json");
 
-if (!globalStore.__sepay_deposits) {
-  globalStore.__sepay_deposits = [
-    {
-      id: "TX-9901",
-      memoCode: "ZUN 889922",
-      userEmail: "minhanh@gmail.com",
-      amount: 200000,
-      bankName: "MB Bank",
-      accountNumber: "0979487405",
-      status: "APPROVED",
-      createdAt: "2026-09-19 17:15:30",
-    },
-    {
-      id: "TX-9902",
-      memoCode: "ZUN 930392",
-      userEmail: "hoangnam@gmail.com",
-      amount: 500000,
-      bankName: "MB Bank",
-      accountNumber: "0979487405",
-      status: "APPROVED",
-      createdAt: "2026-09-19 17:10:00",
-    },
-  ];
+function ensureStoreFile() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    if (!fs.existsSync(DATA_FILE)) {
+      fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2), "utf-8");
+    }
+  } catch (e) {
+    console.error("Error creating transactions folder/file:", e);
+  }
 }
 
 export function getDeposits(): DepositRecord[] {
-  return globalStore.__sepay_deposits;
+  ensureStoreFile();
+  try {
+    const content = fs.readFileSync(DATA_FILE, "utf-8");
+    const parsed = JSON.parse(content);
+    if (Array.isArray(parsed)) return parsed;
+    return [];
+  } catch {
+    return [];
+  }
 }
 
-export function addDeposit(record: Omit<DepositRecord, "id" | "status" | "createdAt">): DepositRecord {
+function saveDeposits(deposits: DepositRecord[]) {
+  ensureStoreFile();
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(deposits, null, 2), "utf-8");
+  } catch (err) {
+    console.error("Error writing transactions JSON:", err);
+  }
+}
+
+export function addDeposit(record: Omit<DepositRecord, "id" | "status" | "createdAt"> & { status?: "APPROVED" | "PENDING" | "REJECTED" }): DepositRecord {
+  const deposits = getDeposits();
   const newRecord: DepositRecord = {
     ...record,
     id: `TX-${Math.floor(100000 + Math.random() * 900000)}`,
-    status: "APPROVED",
+    status: record.status || "APPROVED",
     createdAt: new Date().toISOString().replace("T", " ").slice(0, 19),
   };
-  globalStore.__sepay_deposits.unshift(newRecord);
+  deposits.unshift(newRecord);
+  saveDeposits(deposits);
   return newRecord;
+}
+
+export function updateDeposit(id: string, updates: Partial<Omit<DepositRecord, "id">>): DepositRecord | null {
+  const deposits = getDeposits();
+  const idx = deposits.findIndex((d) => d.id === id);
+  if (idx === -1) return null;
+
+  deposits[idx] = {
+    ...deposits[idx],
+    ...updates,
+  };
+  saveDeposits(deposits);
+  return deposits[idx];
+}
+
+export function deleteDeposit(id: string): boolean {
+  let deposits = getDeposits();
+  const initialLen = deposits.length;
+  deposits = deposits.filter((d) => d.id !== id);
+  saveDeposits(deposits);
+  return deposits.length < initialLen;
 }

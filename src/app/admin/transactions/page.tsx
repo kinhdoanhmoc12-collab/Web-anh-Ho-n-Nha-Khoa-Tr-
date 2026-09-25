@@ -7,7 +7,7 @@ import { Receipt, Search, CheckCircle2, Plus, Edit3, Trash2, X, Save } from "luc
 interface DepositTransaction {
   id: string;
   memoCode: string;
-  userEmail: string;
+  userEmail?: string;
   amount: number;
   bankName: string;
   accountNumber: string;
@@ -15,71 +15,28 @@ interface DepositTransaction {
   createdAt: string;
 }
 
-const initialTransactions: DepositTransaction[] = [
-  {
-    id: "TX-9901",
-    memoCode: "ZUN 889922",
-    userEmail: "minhanh@gmail.com",
-    amount: 200000,
-    bankName: "MB Bank",
-    accountNumber: "0979487405",
-    status: "APPROVED",
-    createdAt: "2026-09-19 17:15:30",
-  },
-  {
-    id: "TX-9902",
-    memoCode: "ZUN 930392",
-    userEmail: "hoangnam@gmail.com",
-    amount: 500000,
-    bankName: "MB Bank",
-    accountNumber: "0979487405",
-    status: "APPROVED",
-    createdAt: "2026-09-19 17:10:00",
-  },
-  {
-    id: "TX-9899",
-    memoCode: "ZUN 445511",
-    userEmail: "thanhtruc@gmail.com",
-    amount: 100000,
-    bankName: "MB Bank",
-    accountNumber: "0979487405",
-    status: "APPROVED",
-    createdAt: "2026-09-19 16:45:12",
-  },
-  {
-    id: "TX-9898",
-    memoCode: "ZUN 112233",
-    userEmail: "dungtran@gmail.com",
-    amount: 1000000,
-    bankName: "MB Bank",
-    accountNumber: "0979487405",
-    status: "APPROVED",
-    createdAt: "2026-09-19 15:30:00",
-  },
-];
-
 export default function AdminTransactionsPage() {
-  const [transactions, setTransactions] = useState<DepositTransaction[]>(initialTransactions);
+  const [transactions, setTransactions] = useState<DepositTransaction[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<"ALL" | "PENDING" | "APPROVED">("ALL");
   const [notice, setNotice] = useState("");
 
   // Live Auto Fetch SePAY Webhook Deposits
-  useEffect(() => {
-    const fetchLiveDeposits = async () => {
-      try {
-        const res = await fetch("/api/sepay/webhook");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.deposits && Array.isArray(data.deposits)) {
-            setTransactions(data.deposits);
-          }
+  const fetchLiveDeposits = async () => {
+    try {
+      const res = await fetch("/api/sepay/webhook");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.deposits && Array.isArray(data.deposits)) {
+          setTransactions(data.deposits);
         }
-      } catch {
-        // ignore network error
       }
-    };
+    } catch {
+      // ignore network error
+    }
+  };
 
+  useEffect(() => {
     fetchLiveDeposits();
     const interval = setInterval(fetchLiveDeposits, 3000);
     return () => clearInterval(interval);
@@ -107,64 +64,95 @@ export default function AdminTransactionsPage() {
   const handleOpenEditModal = (tx: DepositTransaction) => {
     setEditingTx(tx);
     setFormMemo(tx.memoCode);
-    setFormEmail(tx.userEmail);
+    setFormEmail(tx.userEmail || "");
     setFormAmount(tx.amount);
     setFormStatus(tx.status);
     setIsModalOpen(true);
   };
 
-  const handleSaveTransaction = (e: React.FormEvent) => {
+  const handleSaveTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formEmail.trim()) return;
 
     if (editingTx) {
-      const updated = transactions.map((t) =>
-        t.id === editingTx.id
-          ? {
-              ...t,
-              memoCode: formMemo,
-              userEmail: formEmail,
-              amount: Number(formAmount),
-              status: formStatus,
-            }
-          : t
-      );
-      setTransactions(updated);
-      setNotice(`Đã cập nhật lệnh nạp [${editingTx.id}] thành công!`);
+      try {
+        const res = await fetch("/api/sepay/webhook", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editingTx.id,
+            memoCode: formMemo,
+            userEmail: formEmail,
+            amount: Number(formAmount),
+            status: formStatus,
+          }),
+        });
+
+        if (res.ok) {
+          setNotice(`Đã cập nhật lệnh nạp [${editingTx.id}] thành công!`);
+          fetchLiveDeposits();
+        }
+      } catch {
+        setNotice("Lỗi khi cập nhật giao dịch");
+      }
     } else {
-      const newId = `TX-${Math.floor(1000 + Math.random() * 9000)}`;
-      const newTx: DepositTransaction = {
-        id: newId,
-        memoCode: formMemo,
-        userEmail: formEmail,
-        amount: Number(formAmount),
-        bankName: "MB Bank",
-        accountNumber: "0979487405",
-        status: formStatus,
-        createdAt: new Date().toISOString().replace("T", " ").slice(0, 19),
-      };
-      setTransactions([newTx, ...transactions]);
-      setNotice(`Đã tạo lệnh nạp tiền mới [${newId}] thành công!`);
+      try {
+        const res = await fetch("/api/sepay/webhook", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            memoCode: formMemo,
+            userEmail: formEmail,
+            amount: Number(formAmount),
+            status: formStatus,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setNotice(`Đã tạo lệnh nạp tiền mới [${data.transaction?.id || "OK"}] thành công!`);
+          fetchLiveDeposits();
+        }
+      } catch {
+        setNotice("Lỗi khi tạo giao dịch mới");
+      }
     }
 
     setIsModalOpen(false);
     setTimeout(() => setNotice(""), 3500);
   };
 
-  const handleApprove = (id: string, email: string, amount: number) => {
-    setTransactions(
-      transactions.map((tx) =>
-        tx.id === id ? { ...tx, status: "APPROVED" as const } : tx
-      )
-    );
-    setNotice(`Đã duyệt thành công lệnh nạp ${amount.toLocaleString("vi-VN")}đ cho tài khoản ${email}!`);
+  const handleApprove = async (id: string, email: string | undefined, amount: number) => {
+    try {
+      const res = await fetch("/api/sepay/webhook", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          status: "APPROVED",
+        }),
+      });
+
+      if (res.ok) {
+        setNotice(`Đã duyệt thành công lệnh nạp ${amount.toLocaleString("vi-VN")}đ!`);
+        fetchLiveDeposits();
+      }
+    } catch {
+      setNotice("Lỗi khi duyệt nạp tiền");
+    }
     setTimeout(() => setNotice(""), 3500);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Xóa giao dịch này khỏi hệ thống?")) {
-      setTransactions(transactions.filter((t) => t.id !== id));
-      setNotice("Đã xóa giao dịch thành công!");
+  const handleDelete = async (id: string) => {
+    if (confirm("Xóa giao dịch này vĩnh viễn khỏi hệ thống?")) {
+      try {
+        const res = await fetch(`/api/sepay/webhook?id=${id}`, { method: "DELETE" });
+        if (res.ok) {
+          setNotice("Đã xóa vĩnh viễn giao dịch khỏi hệ thống!");
+          fetchLiveDeposits();
+        }
+      } catch {
+        setNotice("Lỗi khi xóa giao dịch");
+      }
       setTimeout(() => setNotice(""), 3000);
     }
   };
@@ -172,7 +160,7 @@ export default function AdminTransactionsPage() {
   const filtered = transactions.filter((tx) => {
     const matchesSearch =
       tx.memoCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tx.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (tx.userEmail && tx.userEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
       tx.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === "ALL" || tx.status === filterStatus;
     return matchesSearch && matchesFilter;
@@ -190,7 +178,7 @@ export default function AdminTransactionsPage() {
               <Receipt className="w-6 h-6 text-[#00b4d8]" /> DUYỆT NẠP TIỀN TỰ ĐỘNG & NGÂN HÀNG
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Duyệt lệnh nạp tiền VietQR, chỉnh sửa số tiền, điều chỉnh số dư và quản lý lịch sử giao dịch.
+              Giao dịch tự động ghi nhận 24/7 từ SePAY. Bạn có thể xem lịch sử, tạo lệnh thủ công hoặc xóa vĩnh viễn.
             </p>
           </div>
 
@@ -257,62 +245,70 @@ export default function AdminTransactionsPage() {
                   <th className="p-4">Số Tiền (VNĐ)</th>
                   <th className="p-4">Thời Gian</th>
                   <th className="p-4">Trạng Thái</th>
-                  <th className="p-4 text-right">Thao Tác Duyệt</th>
+                  <th className="p-4 text-right">Thao Tác Quản Trị</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-medium">
-                {filtered.map((tx) => (
-                  <tr key={tx.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="p-4 font-bold text-slate-400">{tx.id}</td>
-                    <td className="p-4 font-black text-amber-400 text-sm">{tx.memoCode}</td>
-                    <td className="p-4 font-bold text-white">{tx.userEmail}</td>
-                    <td className="p-4 font-extrabold text-[#00b4d8] text-sm">
-                      {tx.amount.toLocaleString("vi-VN")}đ
-                    </td>
-                    <td className="p-4 text-slate-400">{tx.createdAt}</td>
-                    <td className="p-4">
-                      {tx.status === "PENDING" && (
-                        <span className="px-2.5 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold text-[10px]">
-                          ⏳ CHỜ DUYỆT
-                        </span>
-                      )}
-                      {tx.status === "APPROVED" && (
-                        <span className="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold text-[10px]">
-                          ✓ ĐÃ DUYỆT
-                        </span>
-                      )}
-                      {tx.status === "REJECTED" && (
-                        <span className="px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30 font-bold text-[10px]">
-                          ✕ TỪ CHỐI
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4 text-right space-x-2">
-                      {tx.status === "PENDING" && (
-                        <button
-                          onClick={() => handleApprove(tx.id, tx.userEmail, tx.amount)}
-                          className="py-1.5 px-3 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors shadow cursor-pointer"
-                        >
-                          ✓ Duyệt Nạp
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleOpenEditModal(tx)}
-                        className="p-1.5 rounded bg-[#00b4d8]/10 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white transition-colors cursor-pointer"
-                        title="Chỉnh sửa giao dịch"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(tx.id)}
-                        className="p-1.5 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
-                        title="Xóa giao dịch"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="p-8 text-center text-slate-500 text-xs font-semibold">
+                      Chưa có giao dịch nạp tiền nào trong hệ thống.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filtered.map((tx) => (
+                    <tr key={tx.id} className="hover:bg-slate-800/40 transition-colors">
+                      <td className="p-4 font-bold text-slate-400">{tx.id}</td>
+                      <td className="p-4 font-black text-amber-400 text-sm">{tx.memoCode}</td>
+                      <td className="p-4 font-bold text-white">{tx.userEmail || "Tự động SePAY"}</td>
+                      <td className="p-4 font-extrabold text-[#00b4d8] text-sm">
+                        {tx.amount.toLocaleString("vi-VN")}đ
+                      </td>
+                      <td className="p-4 text-slate-400">{tx.createdAt}</td>
+                      <td className="p-4">
+                        {tx.status === "PENDING" && (
+                          <span className="px-2.5 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold text-[10px]">
+                            ⏳ CHỜ DUYỆT
+                          </span>
+                        )}
+                        {tx.status === "APPROVED" && (
+                          <span className="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold text-[10px]">
+                            ✓ ĐÃ DUYỆT
+                          </span>
+                        )}
+                        {tx.status === "REJECTED" && (
+                          <span className="px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30 font-bold text-[10px]">
+                            ✕ TỪ CHỐI
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        {tx.status === "PENDING" && (
+                          <button
+                            onClick={() => handleApprove(tx.id, tx.userEmail, tx.amount)}
+                            className="py-1.5 px-3 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors shadow cursor-pointer"
+                          >
+                            ✓ Duyệt Nạp
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleOpenEditModal(tx)}
+                          className="p-1.5 rounded bg-[#00b4d8]/10 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white transition-colors cursor-pointer"
+                          title="Chỉnh sửa giao dịch"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(tx.id)}
+                          className="p-1.5 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
+                          title="Xóa vĩnh viễn giao dịch"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -350,10 +346,9 @@ export default function AdminTransactionsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-300">Email Tài Khoản Nạp *</label>
+                <label className="font-semibold text-slate-300">Email Tài Khoản Nạp</label>
                 <input
                   type="email"
-                  required
                   placeholder="user@zunphoto.pro"
                   value={formEmail}
                   onChange={(e) => setFormEmail(e.target.value)}
