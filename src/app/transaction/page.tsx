@@ -36,7 +36,8 @@ export default function TransactionPage() {
     <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans">
       <Header />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-12">
+      <div className="xl:pl-[240px] flex-1 flex flex-col min-w-0">
+        <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 pt-20 xl:pt-8">
         {!isLoggedIn ? (
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-12 text-center max-w-md mx-auto shadow-2xl space-y-6">
             <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
@@ -192,6 +193,7 @@ export default function TransactionPage() {
       </main>
 
       <Footer />
+      </div>
     </div>
   );
 }
