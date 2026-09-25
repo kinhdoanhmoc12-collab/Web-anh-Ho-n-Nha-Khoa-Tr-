@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminSidebar from "@/components/AdminSidebar";
 import { Receipt, Search, CheckCircle2, Plus, Edit3, Trash2, X, Save } from "lucide-react";
 
