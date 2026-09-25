@@ -38,6 +38,15 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
   // Related posts (exclude current post)
   const relatedPosts = postsData.filter((p) => p.id !== post.id).slice(0, 3);
 
+  // Latest 5 posts for right sidebar (prioritizing pinned posts)
+  const latestPosts = [...postsData]
+    .sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    })
+    .slice(0, 5);
+
   // Category list for sidebar matching reference image
   const categoryTags = [
     { label: "Stock", href: "/category/stock-free" },
@@ -289,6 +298,36 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                     />
                   </div>
                 </form>
+              </div>
+
+              {/* Sidebar Box 1: Bài viết mới nhất (Top 5 Pinned/Latest) */}
+              <div className="space-y-2.5">
+                <div className="text-base font-bold text-[#1a202c] border-l-4 border-amber-500 pl-2.5">
+                  Bài viết mới nhất
+                </div>
+                <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs space-y-3">
+                  {latestPosts.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/post/${item.slug}`}
+                      className="flex items-start gap-3 group border-b border-slate-100/80 pb-3 last:border-0 last:pb-0"
+                    >
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="w-16 h-14 rounded-lg object-cover bg-slate-900 flex-shrink-0 group-hover:opacity-90 transition-opacity border border-slate-100"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs sm:text-sm font-bold text-[#1a202c] group-hover:text-[#00b4d8] transition-colors line-clamp-1 leading-snug">
+                          {item.title}
+                        </h4>
+                        <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
+                          {item.excerpt}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
 
               {/* Sidebar Box 2: Danh mục */}

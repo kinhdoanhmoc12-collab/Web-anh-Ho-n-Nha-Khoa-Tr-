@@ -13,6 +13,7 @@ export interface Post {
   imageUrl: string;
   downloadUrl?: string;
   tags?: string[];
+  isPinned?: boolean;
 }
 
 export const postsData: Post[] = [
@@ -24,6 +25,7 @@ export const postsData: Post[] = [
     author: "ZunPhoto",
     authorAvatar: "/avatar.jpg?v=20260924",
     date: "2026-09-20",
+    isPinned: true,
     views: "8.4K",
     readTime: "4 phút đọc",
     excerpt: "Trọn bộ file RAW nén 1a-2.zip chụp chân dung Nắng Chiều Hoàng Hôn rực rỡ nét căng dành cho Photographer thực hành kéo màu.",
