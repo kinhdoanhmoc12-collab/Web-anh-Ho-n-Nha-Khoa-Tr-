@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getPostBySlug, postsData } from "@/data/posts";
-import { Calendar, User, Eye, Clock, Tag, ArrowLeft, Share2, Download, BookOpen, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Calendar, User, Eye, Clock, Tag, ArrowLeft, Download, Search, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   return {
-    title: `${post.title} | ZunPhoto Blog`,
+    title: `${post.title} | ZunPhoto`,
     description: post.excerpt,
     openGraph: {
       title: post.title,
@@ -35,232 +35,305 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
     notFound();
   }
 
-  // Filter related posts (exclude current post)
+  // Related posts (exclude current post)
   const relatedPosts = postsData.filter((p) => p.id !== post.id).slice(0, 3);
 
+  // Category list for sidebar matching reference image
+  const categoryTags = [
+    { label: "Stock", href: "/category/stock-free" },
+    { label: "Preset", href: "/category/preset-free" },
+    { label: "Tài nguyên free", href: "/category/tai-nguyen" },
+    { label: "kinh nghiệm chụp và hậu kì", href: "/category/kinh-nghiep" },
+    { label: "Tài nguyên trả phí", href: "/category/tai-nguyen-tra-phi" },
+    { label: "Phụ kiện chụp ảnh", href: "/category/tai-nguyen" },
+    { label: "ẩn", href: "/" },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#edf2f7] text-[#1a202c] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f4f6f9] text-[#1a202c] flex flex-col font-sans">
       <Header />
 
       <div className="xl:pl-[240px] flex-1 flex flex-col min-w-0">
-        <main className="flex-1 p-4 sm:p-6 lg:p-10 max-w-5xl w-full mx-auto pt-20 xl:pt-8 space-y-8">
-          {/* Breadcrumb Navigation */}
-          <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
-            <Link href="/" className="hover:text-[#00b4d8] transition-colors whitespace-nowrap">
-              Trang Chủ
-            </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-            <span className="text-[#00b4d8] font-bold whitespace-nowrap">{post.category}</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-            <span className="text-slate-700 truncate max-w-[200px] sm:max-w-xs">{post.title}</span>
-          </nav>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pt-20 xl:pt-8 space-y-6">
+          
+          {/* Main 2-Column Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            {/* Left Content Column (8 Cols on desktop) */}
+            <div className="lg:col-span-8 space-y-4">
+              
+              {/* Top Meta Header Box */}
+              <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-3">
+                {/* Breadcrumbs */}
+                <nav className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500 font-medium">
+                  <Link href="/" className="font-bold text-slate-800 hover:text-[#00b4d8] transition-colors">
+                    Home
+                  </Link>
+                  <span>/</span>
+                  <Link href="/category/stock-free" className="text-slate-600 hover:text-[#00b4d8] transition-colors">
+                    {post.category || "Tài nguyên free"}
+                  </Link>
+                  <span>/</span>
+                  <span className="text-slate-400 truncate max-w-[280px] sm:max-w-md">{post.slug}</span>
+                </nav>
 
-          {/* Main Article Container */}
-          <article className="bg-white rounded-3xl border border-slate-200 shadow-md p-6 sm:p-10 space-y-8">
-            {/* Header Meta */}
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="px-3 py-1 rounded-full bg-[#00b4d8]/10 text-[#00b4d8] text-xs font-bold border border-[#00b4d8]/20 flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5" /> {post.category}
-                </span>
-                {post.readTime && (
-                  <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" /> {post.readTime}
-                  </span>
-                )}
-                {post.views && (
-                  <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
-                    <Eye className="w-3.5 h-3.5 text-slate-400" /> {post.views} lượt xem
-                  </span>
-                )}
-              </div>
-
-              {/* Title */}
-              <h1 className="text-2xl sm:text-4xl font-black text-[#0f2744] leading-tight tracking-tight uppercase">
-                {post.title}
-              </h1>
-
-              {/* Author & Publish Info Bar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-b border-slate-100 py-4">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={post.authorAvatar || "/avatar.jpg?v=20260924"}
-                    alt={post.author}
-                    className="w-11 h-11 rounded-full object-cover border-2 border-[#00b4d8] shadow-sm"
-                  />
-                  <div>
-                    <div className="text-sm font-bold text-[#0f2744] flex items-center gap-1">
-                      <span>{post.author}</span>
-                      <CheckCircle2 className="w-4 h-4 text-[#00b4d8] fill-[#00b4d8]/10" />
-                    </div>
-                    <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                      <Calendar className="w-3 h-3" /> Ngày đăng: {post.date}
-                    </div>
-                  </div>
+                {/* Author badge */}
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 pt-1 font-medium">
+                  <User className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{post.author || "admin"}</span>
                 </div>
 
-                {/* Back & Share Buttons */}
-                <div className="flex items-center gap-2">
+                {/* Post Title */}
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#1a202c] leading-tight tracking-tight uppercase">
+                  {post.title}
+                </h1>
+
+                {/* Date stamp */}
+                <div className="flex items-center gap-2 text-xs text-slate-400 pt-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>{post.date} 02:36:10</span>
+                </div>
+              </div>
+
+              {/* Main Content Card Box */}
+              <article className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 sm:p-8 space-y-6">
+                
+                {/* Content Section Title */}
+                <div className="border-b border-slate-200/80 pb-3">
+                  <h2 className="text-base font-bold text-slate-800">
+                    Nội dung
+                  </h2>
+                </div>
+
+                {/* Featured Image */}
+                {post.imageUrl && (
+                  <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-xs">
+                    <img
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Excerpt Lead Paragraph */}
+                {post.excerpt && (
+                  <div className="p-4 rounded-xl bg-slate-50 border-l-4 border-[#00b4d8] text-slate-700 text-sm leading-relaxed font-medium">
+                    "{post.excerpt}"
+                  </div>
+                )}
+
+                {/* Render Article Paragraphs */}
+                <div className="prose max-w-none text-slate-800 text-sm sm:text-base leading-relaxed space-y-6">
+                  {post.content.split("\n\n").map((paragraph, index) => {
+                    const renderFormattedText = (str: string) => {
+                      const parts = str.split(/(\*\*.*?\*\*)/g);
+                      return parts.map((part, i) => {
+                        if (part.startsWith("**") && part.endsWith("**")) {
+                          return (
+                            <strong key={i} className="font-bold text-slate-900">
+                              {part.slice(2, -2)}
+                            </strong>
+                          );
+                        }
+                        return part;
+                      });
+                    };
+
+                    if (paragraph.startsWith("### ")) {
+                      const headingText = paragraph.replace("### ", "");
+                      return (
+                        <h2
+                          key={index}
+                          className="text-lg sm:text-xl font-extrabold text-[#1a202c] pt-3 mt-4 leading-tight"
+                        >
+                          {renderFormattedText(headingText)}
+                        </h2>
+                      );
+                    }
+                    if (paragraph.startsWith("- ")) {
+                      return (
+                        <ul key={index} className="space-y-2 my-3 pl-2">
+                          {paragraph.split("\n").map((item, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-slate-700 text-sm sm:text-base">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#00b4d8] mt-2 flex-shrink-0" />
+                              <span>{renderFormattedText(item.replace("- ", ""))}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      );
+                    }
+                    if (/^\d+\./.test(paragraph)) {
+                      return (
+                        <ol key={index} className="space-y-2 my-3 pl-2">
+                          {paragraph.split("\n").map((item, idx) => (
+                            <li key={idx} className="text-slate-700 text-sm sm:text-base leading-relaxed font-medium">
+                              {renderFormattedText(item)}
+                            </li>
+                          ))}
+                        </ol>
+                      );
+                    }
+                    return (
+                      <p key={index} className="text-slate-800 text-sm sm:text-base leading-relaxed font-normal">
+                        {renderFormattedText(paragraph)}
+                      </p>
+                    );
+                  })}
+                </div>
+
+                {/* Download Resource Action Card */}
+                {post.downloadUrl && (
+                  <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-slate-900 to-[#0f2744] text-white space-y-3 shadow-lg">
+                    <div className="flex items-center gap-2 text-[#00b4d8] text-xs font-bold uppercase tracking-wider">
+                      <Download className="w-4 h-4" /> TÀI NGUYÊN MIỄN PHÍ
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold">
+                      Tải Về Trọn Bộ Preset & Stock File RAW (Google Drive Tốc Độ Cao)
+                    </h3>
+                    <p className="text-xs text-slate-300">
+                      Bấm vào nút bên dưới để truy cập liên kết tải xuống tốc độ cao miễn phí.
+                    </p>
+                    <div className="pt-2">
+                      <a
+                        href={post.downloadUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 py-2.5 px-6 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold text-xs transition-all shadow-md"
+                      >
+                        <Download className="w-4 h-4" /> Link Google Drive Tải Ngay
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* Article Tags */}
+                {post.tags && post.tags.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 pt-6 border-t border-slate-100">
+                    <span className="text-xs font-bold text-slate-500 mr-2">Thẻ bài viết:</span>
+                    {post.tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium cursor-pointer transition-colors"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Back Link */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                   <Link
                     href="/"
-                    className="py-2 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition-colors"
+                    className="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition-colors"
                   >
-                    <ArrowLeft className="w-4 h-4" /> Quay lại
+                    <ArrowLeft className="w-4 h-4" /> Quay lại trang chủ
                   </Link>
                 </div>
-              </div>
-            </div>
+              </article>
 
-            {/* Featured Image Banner */}
-            <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-slate-900 shadow-inner border border-slate-200">
-              <img
-                src={post.imageUrl}
-                alt={post.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
+              {/* Related Posts Section */}
+              <section className="space-y-4 pt-4">
+                <h3 className="text-lg font-bold text-[#1a202c] uppercase tracking-wide border-l-4 border-[#00b4d8] pl-2.5">
+                  Bài Viết Liên Quan
+                </h3>
 
-            {/* Lead Excerpt Summary Box */}
-            <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-[#00b4d8] text-slate-700 text-sm leading-relaxed font-medium">
-              "{post.excerpt}"
-            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {relatedPosts.map((rel) => (
+                    <Link
+                      key={rel.id}
+                      href={`/post/${rel.slug}`}
+                      className="group bg-white rounded-xl overflow-hidden border border-slate-200/80 shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                    >
+                      <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                        <img
+                          src={rel.imageUrl}
+                          alt={rel.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-2.5 left-2.5">
+                          <span className="px-2 py-0.5 rounded-full bg-[#00b4d8] text-white text-[10px] font-bold">
+                            {rel.category}
+                          </span>
+                        </div>
+                      </div>
 
-            {/* Article Main Text Content */}
-            <div className="prose max-w-none text-slate-800 text-sm sm:text-base leading-relaxed space-y-6 font-sans">
-              {post.content.split("\n\n").map((paragraph, index) => {
-                if (paragraph.startsWith("### ")) {
-                  return (
-                    <h3 key={index} className="text-lg sm:text-xl font-bold text-[#0f2744] pt-4 border-t border-slate-100 mt-6">
-                      {paragraph.replace("### ", "")}
-                    </h3>
-                  );
-                }
-                if (paragraph.startsWith("- ")) {
-                  return (
-                    <ul key={index} className="space-y-2 my-3 pl-2">
-                      {paragraph.split("\n").map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-slate-700 text-sm">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#00b4d8] mt-2 flex-shrink-0" />
-                          <span>{item.replace("- ", "")}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  );
-                }
-                if (/^\d+\./.test(paragraph)) {
-                  return (
-                    <ol key={index} className="space-y-2 my-3 pl-2">
-                      {paragraph.split("\n").map((item, idx) => (
-                        <li key={idx} className="text-slate-700 text-sm leading-relaxed font-medium">
-                          {item}
-                        </li>
-                      ))}
-                    </ol>
-                  );
-                }
-                return (
-                  <p key={index} className="text-slate-700 text-sm sm:text-base leading-relaxed">
-                    {paragraph}
-                  </p>
-                );
-              })}
-            </div>
-
-            {/* Download Action Box (If Resource Link Exists) */}
-            {post.downloadUrl && (
-              <div className="p-6 rounded-2xl bg-gradient-to-r from-slate-900 to-[#0f2744] text-white space-y-3 shadow-xl">
-                <div className="flex items-center gap-2 text-[#00b4d8] text-xs font-bold uppercase tracking-wider">
-                  <Download className="w-4 h-4" /> TÀI NGUYÊN BÀI VIẾT
+                      <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
+                        <h4 className="text-xs font-bold text-[#1a202c] group-hover:text-[#00b4d8] transition-colors line-clamp-2 uppercase">
+                          {rel.title}
+                        </h4>
+                        <div className="text-[11px] text-slate-400 flex items-center gap-1 pt-1">
+                          <Calendar className="w-3 h-3" /> {rel.date}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-                <h4 className="text-base sm:text-lg font-bold">
-                  Tải Về Trọn Bộ Preset & Stock File RAW (Miễn Phí)
-                </h4>
-                <p className="text-xs text-slate-300">
-                  Truy cập kho tài nguyên ZunPhoto để tải xuống trọn bộ file chất lượng cao.
-                </p>
-                <div className="pt-2">
-                  <Link
-                    href={post.downloadUrl}
-                    className="inline-flex items-center gap-2 py-2.5 px-6 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold text-xs transition-all shadow-md"
-                  >
-                    <Download className="w-4 h-4" /> Truy Cập Kho Tải Nguyên
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {/* Tags list */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100">
-                <span className="text-xs font-bold text-slate-500 mr-2">Thẻ bài viết:</span>
-                {post.tags.map((tag, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium cursor-pointer transition-colors"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Author Card Box */}
-            <div className="p-5 rounded-2xl bg-slate-900 text-white flex items-center gap-4 border border-slate-800">
-              <img
-                src={post.authorAvatar || "/avatar.jpg?v=20260924"}
-                alt={post.author}
-                className="w-14 h-14 rounded-full object-cover border-2 border-[#00b4d8]"
-              />
-              <div>
-                <div className="text-sm font-bold text-white flex items-center gap-1">
-                  <span>Tác giả: {post.author}</span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-[#00b4d8] text-white font-bold">PRO</span>
-                </div>
-                <p className="text-xs text-slate-400 mt-1">
-                  Nhiếp ảnh gia chuyên nghiệp & Biên tập viên sáng tạo nội dung tại ZunPhoto Platform.
-                </p>
-              </div>
+              </section>
             </div>
-          </article>
 
-          {/* Related Articles Section */}
-          <section className="space-y-6 pt-4">
-            <h3 className="text-xl sm:text-2xl font-black text-[#0f2744] uppercase tracking-wide title-underline pb-2">
-              BÀI VIẾT LIÊN QUAN
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {relatedPosts.map((rel) => (
-                <Link
-                  key={rel.id}
-                  href={`/post/${rel.slug}`}
-                  className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
-                >
-                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
-                    <img
-                      src={rel.imageUrl}
-                      alt={rel.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            {/* Right Sidebar Column (4 Cols on desktop) */}
+            <aside className="lg:col-span-4 space-y-6">
+              
+              {/* Search Widget */}
+              <div className="relative">
+                <form action="/category/stock-free" method="GET" className="relative">
+                  <div className="relative flex items-center">
+                    <Search className="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      name="q"
+                      placeholder="Nhập nội dung tìm kiếm"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-slate-200 shadow-2xs text-xs text-slate-700 focus:outline-none focus:border-amber-500 transition-all placeholder:text-slate-400"
                     />
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#00b4d8] text-white text-[11px] font-bold">
-                        {rel.category}
-                      </span>
-                    </div>
                   </div>
+                </form>
+              </div>
 
-                  <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
-                    <h4 className="text-xs sm:text-sm font-bold text-[#0f2744] group-hover:text-[#00b4d8] transition-colors line-clamp-2 uppercase">
-                      {rel.title}
-                    </h4>
-                    <div className="text-[11px] text-slate-400 flex items-center gap-1 pt-2">
-                      <Calendar className="w-3 h-3" /> {rel.date}
-                    </div>
+              {/* Sidebar Box 1: Kiên Ka Ka ACADEMY */}
+              <div className="space-y-2.5">
+                <div className="text-base font-bold text-[#1a202c] border-l-4 border-amber-500 pl-2.5">
+                  Kiên Ka Ka ACADEMY
+                </div>
+                <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs">
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
+                    Tham gia group{" "}
+                    <a
+                      href="https://facebook.com"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 font-bold hover:underline inline-flex items-baseline gap-0.5"
+                    >
+                      Kiên Ka Ka photography group
+                    </a>{" "}
+                    Group dùng để anh em trao đổi, học hỏi, giao lưu về nhiếp ảnh và thiết bị
+                  </p>
+                </div>
+              </div>
+
+              {/* Sidebar Box 2: Danh mục */}
+              <div className="space-y-2.5">
+                <div className="text-base font-bold text-[#1a202c] border-l-4 border-amber-500 pl-2.5">
+                  Danh mục
+                </div>
+                <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs">
+                  <div className="flex flex-wrap gap-2">
+                    {categoryTags.map((cat, idx) => (
+                      <Link
+                        key={idx}
+                        href={cat.href}
+                        className="px-3 py-1.5 rounded-full border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 text-xs font-medium transition-all shadow-2xs"
+                      >
+                        {cat.label}
+                      </Link>
+                    ))}
                   </div>
-                </Link>
-              ))}
-            </div>
-          </section>
+                </div>
+              </div>
+
+            </aside>
+          </div>
         </main>
 
         <Footer />
@@ -268,3 +341,4 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
     </div>
   );
 }
+
