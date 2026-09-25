@@ -20,6 +20,7 @@ interface AuthContextType {
   adminLogin: (passcode: string) => boolean;
   adminLogout: () => void;
   updateBalance: (newBalance: number) => void;
+  deductBalance: (amount: number) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextType>({
   adminLogin: () => false,
   adminLogout: () => {},
   updateBalance: () => {},
+  deductBalance: () => false,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -142,6 +144,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("zunphoto_session", JSON.stringify(updated));
   };
 
+  const deductBalance = (amount: number): boolean => {
+    if (!user || user.balance < amount) {
+      return false;
+    }
+    const updated = { ...user, balance: user.balance - amount };
+    setUser(updated);
+    localStorage.setItem("zunphoto_session", JSON.stringify(updated));
+    return true;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -153,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         adminLogin,
         adminLogout,
         updateBalance,
+        deductBalance,
       }}
     >
       {children}
