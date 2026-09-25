@@ -91,6 +91,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Instant Realtime SePAY Balance Auto-Sync Polling
+  useEffect(() => {
+    if (!user?.transferCode) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/sepay/webhook?code=${encodeURIComponent(user.transferCode)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.deposits && data.deposits.length > 0) {
+            const processedKey = `processed_tx_${user.transferCode}`;
+            const processedIds: string[] = JSON.parse(localStorage.getItem(processedKey) || "[]");
+
+            let newBalanceAdd = 0;
+            data.deposits.forEach((tx: { id: string; amount: number }) => {
+              if (!processedIds.includes(tx.id)) {
+                newBalanceAdd += tx.amount;
+                processedIds.push(tx.id);
+              }
+            });
+
+            if (newBalanceAdd > 0) {
+              localStorage.setItem(processedKey, JSON.stringify(processedIds));
+              setUser((prev) => {
+                if (!prev) return prev;
+                const updated = { ...prev, balance: prev.balance + newBalanceAdd };
+                localStorage.setItem("zunphoto_session", JSON.stringify(updated));
+                return updated;
+              });
+            }
+          }
+        }
+      } catch {
+        // quiet poll
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [user?.transferCode]);
+
   const login = (email: string, name?: string) => {
     const shortId = Math.floor(100000 + Math.random() * 900000).toString();
     const isAdmin = email.toLowerCase().includes("admin");
@@ -123,7 +163,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const adminLogin = (passcode: string): boolean => {
-    // Admin Master Passcode
     if (passcode === "admin2026" || passcode === "zunphoto@2026" || passcode === "admin") {
       setIsAdminAuthenticated(true);
       localStorage.setItem("zunphoto_admin_session", "authenticated");

@@ -23,7 +23,7 @@ const initialTransactions: DepositTransaction[] = [
     amount: 200000,
     bankName: "MB Bank",
     accountNumber: "0979487405",
-    status: "PENDING",
+    status: "APPROVED",
     createdAt: "2026-09-19 17:15:30",
   },
   {
@@ -33,7 +33,7 @@ const initialTransactions: DepositTransaction[] = [
     amount: 500000,
     bankName: "MB Bank",
     accountNumber: "0979487405",
-    status: "PENDING",
+    status: "APPROVED",
     createdAt: "2026-09-19 17:10:00",
   },
   {
@@ -63,6 +63,27 @@ export default function AdminTransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<"ALL" | "PENDING" | "APPROVED">("ALL");
   const [notice, setNotice] = useState("");
+
+  // Live Auto Fetch SePAY Webhook Deposits
+  useEffect(() => {
+    const fetchLiveDeposits = async () => {
+      try {
+        const res = await fetch("/api/sepay/webhook");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.deposits && Array.isArray(data.deposits)) {
+            setTransactions(data.deposits);
+          }
+        }
+      } catch {
+        // ignore network error
+      }
+    };
+
+    fetchLiveDeposits();
+    const interval = setInterval(fetchLiveDeposits, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
