@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   Aperture,
+  User,
 } from "lucide-react";
 
 const navItems = [
@@ -34,7 +35,7 @@ const navItems = [
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user, logout } = useAuth();
 
   return (
     <>
@@ -49,12 +50,19 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/login"
-            className="px-3 py-1 rounded bg-[#d9534f] text-white text-xs font-medium hover:bg-rose-600"
-          >
-            Đăng nhập
-          </Link>
+          {isLoggedIn && user ? (
+            <div className="flex items-center gap-1.5 text-xs font-bold text-white bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+              <User className="w-3.5 h-3.5 text-white" />
+              <span>{user.name || "Hoàn NT"} - {(user.balance || 0).toLocaleString('vi-VN')}<u>đ</u></span>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="px-3 py-1 rounded bg-[#d9534f] text-white text-xs font-medium hover:bg-rose-600"
+            >
+              Đăng nhập
+            </Link>
+          )}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-1.5 rounded bg-slate-800 text-white"
@@ -95,21 +103,36 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Auth Buttons */}
-            <div className="grid grid-cols-2 gap-2 w-full mt-4">
-              <Link
-                href="/login"
-                className="py-1.5 text-center text-xs font-medium rounded bg-[#d9534f] text-white hover:bg-rose-600 transition-colors"
-              >
-                Đăng nhập
-              </Link>
-              <Link
-                href="/register"
-                className="py-1.5 text-center text-xs font-medium rounded bg-[#d9534f] text-white hover:bg-rose-600 transition-colors"
-              >
-                Đăng ký
-              </Link>
-            </div>
+            {/* Auth Buttons or User Badge */}
+            {isLoggedIn && user ? (
+              <div className="flex flex-col items-center gap-1 mt-4 w-full">
+                <div className="flex items-center justify-center gap-1.5 text-sm font-bold text-white tracking-wide">
+                  <User className="w-4.5 h-4.5 text-white" />
+                  <span>{user.name || "Hoàn NT"} - {(user.balance || 0).toLocaleString('vi-VN')}<u>đ</u></span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="text-[11px] text-slate-400 hover:text-rose-400 transition-colors mt-0.5 cursor-pointer underline"
+                >
+                  [Đăng xuất]
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 w-full mt-4">
+                <Link
+                  href="/login"
+                  className="py-1.5 text-center text-xs font-medium rounded bg-[#d9534f] text-white hover:bg-rose-600 transition-colors"
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  href="/register"
+                  className="py-1.5 text-center text-xs font-medium rounded bg-[#d9534f] text-white hover:bg-rose-600 transition-colors"
+                >
+                  Đăng ký
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Navigation Menu */}
