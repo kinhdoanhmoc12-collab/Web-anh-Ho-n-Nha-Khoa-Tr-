@@ -66,8 +66,8 @@ export default function Contact() {
                 </div>
                 <div>
                   <span className="text-xs text-slate-400 block font-medium">Hotline / Zalo hỗ trợ</span>
-                  <a href="tel:0988888888" className="text-sm font-bold text-white hover:text-rose-400 transition-colors">
-                    0988 888 888
+                  <a href="tel:0979487405" className="text-sm font-bold text-white hover:text-rose-400 transition-colors">
+                    0979 487 405
                   </a>
                 </div>
               </div>

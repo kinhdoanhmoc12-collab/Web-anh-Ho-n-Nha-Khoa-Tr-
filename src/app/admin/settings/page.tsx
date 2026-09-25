@@ -6,8 +6,8 @@ import { Settings, Landmark, Save, ShieldCheck, CheckCircle2 } from "lucide-reac
 
 export default function AdminSettingsPage() {
   const [bankName, setBankName] = useState("MB BANK (Quân Đội)");
-  const [accountNumber, setAccountNumber] = useState("0988888888");
-  const [accountName, setAccountName] = useState("ZUNPHOTO OFFICIAL");
+  const [accountNumber, setAccountNumber] = useState("0979487405");
+  const [accountName, setAccountName] = useState("HOAN NT");
   const [dailyLimitFree, setDailyLimitFree] = useState(5);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [notice, setNotice] = useState("");
