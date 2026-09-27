@@ -68,18 +68,35 @@ export default function TransactionPage() {
                   <QrCode className="w-5 h-5 text-[#00b4d8]" /> Quét Mã VietQR Chuyển Khoản Nạp Tiền
                 </h2>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400">1. Chọn số tiền nạp vào tài khoản:</label>
-                  <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-slate-300">1. Chọn số tiền nạp hoặc tự điền số tiền tùy ý:</label>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                     {[50000, 100000, 200000, 500000, 1000000, 2000000].map((pkg) => (
                       <button
                         key={pkg}
+                        type="button"
                         onClick={() => setAmount(pkg)}
-                        className={"py-2.5 px-3 rounded-xl text-xs font-bold transition-all border " + (amount === pkg ? "bg-[#00b4d8] text-slate-950 border-[#00b4d8] shadow-md shadow-[#00b4d8]/20" : "bg-slate-900 text-slate-300 border-slate-800 hover:border-[#00b4d8]")}
+                        className={"py-2 px-2.5 rounded-xl text-xs font-bold transition-all border cursor-pointer " + (amount === pkg ? "bg-[#00b4d8] text-slate-950 border-[#00b4d8] shadow-md shadow-[#00b4d8]/20" : "bg-slate-900 text-slate-300 border-slate-800 hover:border-[#00b4d8]")}
                       >
-                        {pkg.toLocaleString("vi-VN")}đ
+                        {(pkg / 1000)}K
                       </button>
                     ))}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-400">Hoặc tự điền số tiền tùy chọn (VNĐ):</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min={10000}
+                        step={10000}
+                        value={amount || ""}
+                        onChange={(e) => setAmount(Math.max(0, Number(e.target.value)))}
+                        placeholder="Ví dụ: 150000"
+                        className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 font-black text-sm focus:outline-none focus:border-[#00b4d8]"
+                      />
+                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">VNĐ</span>
+                    </div>
                   </div>
                 </div>
 
