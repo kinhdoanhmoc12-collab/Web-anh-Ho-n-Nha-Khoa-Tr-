@@ -32,7 +32,17 @@ export function getAllUsers(): UserRecord[] {
   try {
     const content = fs.readFileSync(DATA_FILE, "utf-8");
     const parsed = JSON.parse(content);
-    if (Array.isArray(parsed)) return parsed;
+    if (Array.isArray(parsed)) {
+      return parsed.map((u, index) => ({
+        id: u?.id || `USR-${1000 + index}`,
+        name: u?.name || u?.email?.split("@")[0] || "Thành viên",
+        email: u?.email || "user@zunphoto.pro",
+        role: u?.role || "USER",
+        balance: typeof u?.balance === "number" ? u.balance : 0,
+        transferCode: u?.transferCode || `ZUN ${100000 + index}`,
+        createdAt: u?.createdAt || new Date().toISOString().split("T")[0],
+      }));
+    }
     return [];
   } catch {
     return [];

@@ -34,7 +34,19 @@ export function getDeposits(): DepositRecord[] {
   try {
     const content = fs.readFileSync(DATA_FILE, "utf-8");
     const parsed = JSON.parse(content);
-    if (Array.isArray(parsed)) return parsed;
+    if (Array.isArray(parsed)) {
+      return parsed.map((d, index) => ({
+        id: d?.id || `TX-${1000 + index}`,
+        memoCode: d?.memoCode || "ZUN 888888",
+        userEmail: d?.userEmail || "user@zunphoto.pro",
+        amount: typeof d?.amount === "number" ? d.amount : 0,
+        bankName: d?.bankName || "MB Bank",
+        accountNumber: d?.accountNumber || "0979487405",
+        status: d?.status || "APPROVED",
+        createdAt: d?.createdAt || new Date().toISOString().replace("T", " ").slice(0, 19),
+        referenceCode: d?.referenceCode || "",
+      }));
+    }
     return [];
   } catch {
     return [];

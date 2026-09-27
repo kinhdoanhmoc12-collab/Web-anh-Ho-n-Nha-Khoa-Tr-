@@ -73,11 +73,11 @@ export default function AdminDashboardPage() {
 
   // 100% Realtime Metrics Calculation
   const approvedTotalRevenue = transactions
-    .filter((t) => t.status === "APPROVED")
-    .reduce((sum, t) => sum + t.amount, 0);
+    .filter((t) => t && t.status === "APPROVED")
+    .reduce((sum, t) => sum + (t?.amount ?? 0), 0);
 
-  const approvedCount = transactions.filter((t) => t.status === "APPROVED").length;
-  const pendingCount = transactions.filter((t) => t.status === "PENDING").length;
+  const approvedCount = transactions.filter((t) => t && t.status === "APPROVED").length;
+  const pendingCount = transactions.filter((t) => t && t.status === "PENDING").length;
 
   const totalUsersCount = users.length;
   // Total real posts and resources across the site
@@ -115,11 +115,11 @@ export default function AdminDashboardPage() {
   ];
 
   const recentLogs = transactions.slice(0, 5).map((tx) => ({
-    id: tx.id,
-    user: tx.userEmail || tx.memoCode,
-    action: `Nạp tiền ${tx.amount.toLocaleString("vi-VN")}đ (${tx.memoCode})`,
-    status: tx.status === "APPROVED" ? "Thành công" : tx.status === "PENDING" ? "Chờ duyệt" : "Từ chối",
-    time: tx.createdAt,
+    id: tx?.id || "TX-000",
+    user: tx?.userEmail || tx?.memoCode || "Tự động",
+    action: `Nạp tiền ${(tx?.amount ?? 0).toLocaleString("vi-VN")}đ (${tx?.memoCode || "ZUN"})`,
+    status: tx?.status === "APPROVED" ? "Thành công" : tx?.status === "PENDING" ? "Chờ duyệt" : "Từ chối",
+    time: tx?.createdAt || "N/A",
   }));
 
   return (

@@ -169,9 +169,10 @@ export default function AdminUsersPage() {
 
   const filtered = users.filter(
     (u) =>
-      u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.id.toLowerCase().includes(searchTerm.toLowerCase())
+      u &&
+      ((u.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (u.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (u.id || "").toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -235,8 +236,8 @@ export default function AdminUsersPage() {
                 {filtered.map((u) => (
                   <tr key={u.id} className="hover:bg-slate-800/40 transition-colors">
                     <td className="p-4 font-bold text-[#00b4d8]">{u.id}</td>
-                    <td className="p-4 font-bold text-white">{u.name}</td>
-                    <td className="p-4 text-slate-300">{u.email}</td>
+                    <td className="p-4 font-bold text-white">{u.name || "N/A"}</td>
+                    <td className="p-4 text-slate-300">{u.email || "N/A"}</td>
                     <td className="p-4">
                       {u.role === "ADMIN" && (
                         <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40 font-bold text-[10px]">
@@ -248,16 +249,16 @@ export default function AdminUsersPage() {
                           👑 VIP MEMBER
                         </span>
                       )}
-                      {u.role === "USER" && (
+                      {(!u.role || u.role === "USER") && (
                         <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-bold text-[10px]">
                           👤 USER FREE
                         </span>
                       )}
                     </td>
                     <td className="p-4 font-extrabold text-emerald-400 text-sm">
-                      {u.balance.toLocaleString("vi-VN")}đ
+                      {(u.balance ?? 0).toLocaleString("vi-VN")}đ
                     </td>
-                    <td className="p-4 text-slate-400">{u.createdAt}</td>
+                    <td className="p-4 text-slate-400">{u.createdAt || "N/A"}</td>
                     <td className="p-4 text-right space-x-2">
                       <button
                         onClick={() => handleOpenEditModal(u)}

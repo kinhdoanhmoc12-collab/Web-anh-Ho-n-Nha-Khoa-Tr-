@@ -257,7 +257,7 @@ export default function AdminCoursesPage() {
                       🎥 {course.lessons} bài ({course.duration})
                     </td>
                     <td className="p-4 font-semibold text-slate-300">
-                      👥 {course.students.toLocaleString("vi-VN")}
+                      👥 {(course.students ?? 0).toLocaleString("vi-VN")}
                     </td>
                     <td className="p-4 font-extrabold text-emerald-400 text-sm">
                       {course.price}

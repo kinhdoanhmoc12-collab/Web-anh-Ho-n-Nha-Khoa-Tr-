@@ -65,7 +65,7 @@ export default function TransactionPage() {
                   <div>
                     <span className="text-[11px] text-slate-400 font-medium block">Số dư hiện tại</span>
                     <span className="text-xl font-black text-emerald-400">
-                      {user?.balance.toLocaleString("vi-VN")}đ
+                      {(user?.balance ?? 0).toLocaleString("vi-VN")}đ
                     </span>
                   </div>
                 </div>

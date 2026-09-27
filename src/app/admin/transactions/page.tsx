@@ -158,10 +158,11 @@ export default function AdminTransactionsPage() {
   };
 
   const filtered = transactions.filter((tx) => {
+    if (!tx) return false;
     const matchesSearch =
-      tx.memoCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (tx.memoCode || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (tx.userEmail && tx.userEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      tx.id.toLowerCase().includes(searchTerm.toLowerCase());
+      (tx.id || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === "ALL" || tx.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
@@ -262,7 +263,7 @@ export default function AdminTransactionsPage() {
                       <td className="p-4 font-black text-amber-400 text-sm">{tx.memoCode}</td>
                       <td className="p-4 font-bold text-white">{tx.userEmail || "Tự động SePAY"}</td>
                       <td className="p-4 font-extrabold text-[#00b4d8] text-sm">
-                        {tx.amount.toLocaleString("vi-VN")}đ
+                        {(tx.amount ?? 0).toLocaleString("vi-VN")}đ
                       </td>
                       <td className="p-4 text-slate-400">{tx.createdAt}</td>
                       <td className="p-4">
