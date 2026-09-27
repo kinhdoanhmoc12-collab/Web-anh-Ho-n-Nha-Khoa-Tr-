@@ -1,17 +1,13 @@
 import fs from "fs";
 import path from "path";
 import { getAllPosts } from "@/lib/postStore";
+import { BannerItem, defaultBanners, normalizeBannerItem } from "@/lib/bannerTypes";
+
+export type { BannerItem };
+export { defaultBanners, normalizeBannerItem };
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "banners.json");
-
-export const defaultBanners: string[] = [
-  "https://www.kienkaka.pro/storage/uploads/1a-2.webp",
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1920",
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1920",
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1920",
-  "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1920",
-];
 
 function ensureStoreFile() {
   try {
@@ -23,14 +19,14 @@ function ensureStoreFile() {
   }
 }
 
-export function getAllBanners(): string[] {
+export function getAllBanners(): BannerItem[] {
   ensureStoreFile();
   try {
     if (fs.existsSync(DATA_FILE)) {
       const content = fs.readFileSync(DATA_FILE, "utf-8");
       const parsed = JSON.parse(content);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        return parsed.map(normalizeBannerItem);
       }
     }
   } catch {
@@ -40,8 +36,12 @@ export function getAllBanners(): string[] {
   try {
     const posts = getAllPosts();
     if (posts && posts.length > 0) {
-      const postImgs = posts.map((p) => p.imageUrl).filter(Boolean).slice(0, 5);
-      if (postImgs.length > 0) return postImgs;
+      const postBanners = posts.slice(0, 5).map((p) => ({
+        image: p.imageUrl,
+        link: `/post/${p.slug}`,
+        title: p.title,
+      }));
+      if (postBanners.length > 0) return postBanners;
     }
   } catch {
     // fallback
@@ -50,12 +50,13 @@ export function getAllBanners(): string[] {
   return defaultBanners;
 }
 
-export function saveBanners(banners: string[]): string[] {
+export function saveBanners(banners: (string | BannerItem)[]): BannerItem[] {
   ensureStoreFile();
+  const normalized = banners.map(normalizeBannerItem);
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(banners, null, 2), "utf-8");
+    fs.writeFileSync(DATA_FILE, JSON.stringify(normalized, null, 2), "utf-8");
   } catch (err) {
     console.error("Error writing banners JSON:", err);
   }
-  return banners;
+  return normalized;
 }

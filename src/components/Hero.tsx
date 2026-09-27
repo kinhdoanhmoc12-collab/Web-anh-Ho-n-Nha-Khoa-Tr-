@@ -6,35 +6,35 @@ import { ChevronLeft, ChevronRight, Pause, Play, Eye } from "lucide-react";
 
 interface BannerSlide {
   image: string;
-  slug: string;
+  link: string;
   title: string;
 }
 
 const defaultSlides: BannerSlide[] = [
   {
+    image: "https://www.kienkaka.pro/storage/uploads/1a-2.webp",
+    link: "/post/1a-2-zip-stock-nang-chieu-hoang-hon",
+    title: "1a-2.zip (Stock Nắng Chiều Hoàng Hôn RAW Pack)",
+  },
+  {
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1920",
-    slug: "1a-2-zip-stock-nang-chieu-hoang-hon",
-    title: "Bộ Stock Chân Dung Nắng Chiều Hoàng Hôn RAW Pack",
+    link: "/post/stock-chan-dung-indoor-nhe-nhang-mua-he",
+    title: "Stock Nàng Thơ Bên Khung Cửa Sổ RAW Pack",
   },
   {
     image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1920",
-    slug: "stock-cuc-tan-an-do-duong-pho-ha-noi",
+    link: "/post/stock-cuc-tan-an-do-duong-pho-ha-noi",
     title: "Stock Cúc Tần Ấn Độ Đường Phố Hà Nội",
   },
   {
     image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1920",
-    slug: "stock-vintage-film-aesthetic-35mm-raw-pack",
+    link: "/post/stock-vintage-film-aesthetic-35mm-raw-pack",
     title: "Stock Vintage Film Aesthetic 35mm RAW Pack",
   },
   {
     image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1920",
-    slug: "preset-lightroom-tone-han-quoc-trong-treo",
+    link: "/post/preset-lightroom-tone-han-quoc-trong-treo",
     title: "Preset Lightroom Tone Hàn Quốc Trong Trẻo",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=1920",
-    slug: "bo-500-preset-doc-quyen-zunphoto-full-pack",
-    title: "Bộ 500+ Preset Độc Quyền ZunPhoto Full Pack",
   },
 ];
 
@@ -64,12 +64,19 @@ export default function Hero() {
           const data = await res.json();
           if (data.banners && Array.isArray(data.banners) && data.banners.length > 0) {
             setSlides(
-              data.banners.map((imgUrl: string, idx: number) => {
-                const matched = livePosts.find((p) => p.imageUrl === imgUrl) || livePosts[idx % Math.max(1, livePosts.length)];
+              data.banners.map((item: any, idx: number) => {
+                const image = typeof item === "string" ? item : item?.image || "";
+                const customLink = typeof item === "object" ? item?.link || "" : "";
+                const customTitle = typeof item === "object" ? item?.title || "" : "";
+
+                const matched = livePosts.find((p) => p.imageUrl === image) || livePosts[idx % Math.max(1, livePosts.length)];
+                const defaultSlug = matched?.slug || defaultSlides[idx % defaultSlides.length]?.link || "/post/1a-2-zip-stock-nang-chieu-hoang-hon";
+                const fallbackLink = defaultSlug.startsWith("/") ? defaultSlug : `/post/${defaultSlug}`;
+
                 return {
-                  image: imgUrl,
-                  slug: matched?.slug || defaultSlides[idx % defaultSlides.length]?.slug || "1a-2-zip-stock-nang-chieu-hoang-hon",
-                  title: matched?.title || defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết tài nguyên chi tiết",
+                  image,
+                  link: customLink ? customLink : fallbackLink,
+                  title: customTitle || matched?.title || defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết chi tiết",
                 };
               })
             );
@@ -86,11 +93,18 @@ export default function Hero() {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
             setSlides(
-              parsed.map((imgUrl: string, idx: number) => ({
-                image: imgUrl,
-                slug: defaultSlides[idx % defaultSlides.length]?.slug || "1a-2-zip-stock-nang-chieu-hoang-hon",
-                title: defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết tài nguyên chi tiết",
-              }))
+              parsed.map((item: any, idx: number) => {
+                const image = typeof item === "string" ? item : item?.image || "";
+                const customLink = typeof item === "object" ? item?.link || "" : "";
+                const customTitle = typeof item === "object" ? item?.title || "" : "";
+                const fallbackLink = defaultSlides[idx % defaultSlides.length]?.link || "/post/1a-2-zip-stock-nang-chieu-hoang-hon";
+
+                return {
+                  image,
+                  link: customLink || fallbackLink,
+                  title: customTitle || defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết chi tiết",
+                };
+              })
             );
           }
         }
@@ -122,42 +136,65 @@ export default function Hero() {
     setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
-  const activeSlide = slides[currentIndex] || slides[0];
-
   return (
     <section id="hero" className="relative w-full h-[55vh] min-h-[380px] max-h-[600px] overflow-hidden bg-slate-900 shadow-lg rounded-2xl group border border-slate-200/80">
       {/* Background Images with Link */}
-      {slides.map((slide, index) => (
-        <Link
-          key={`${slide.image}-${index}`}
-          href={`/post/${slide.slug}`}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out cursor-pointer ${
-            index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-          }`}
-        >
-          <img
-            src={slide.image}
-            alt={slide.title}
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-          />
+      {slides.map((slide, index) => {
+        const isExternal = slide.link.startsWith("http://") || slide.link.startsWith("https://");
+        const slideContent = (
+          <>
+            <img
+              src={slide.image}
+              alt={slide.title}
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+            />
 
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
 
-          {/* Slide Title Banner */}
-          <div className="absolute bottom-10 left-6 sm:left-10 max-w-xl text-white space-y-2 z-20">
-            <span className="px-3 py-1 rounded-full bg-[#0284c7] text-white text-xs font-bold shadow-md inline-flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5" /> BÀI VIẾT NỔI BẬT
-            </span>
-            <h2 className="text-xl sm:text-3xl font-black line-clamp-2 drop-shadow-md leading-tight text-white">
-              {slide.title}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-200 line-clamp-1 font-medium">
-              Bấm vào banner để xem toàn bộ bài viết hướng dẫn & link download file RAW/Preset
-            </p>
-          </div>
-        </Link>
-      ))}
+            {/* Slide Title Banner */}
+            <div className="absolute bottom-10 left-6 sm:left-10 max-w-xl text-white space-y-2 z-20">
+              <span className="px-3 py-1 rounded-full bg-[#0284c7] text-white text-xs font-bold shadow-md inline-flex items-center gap-1">
+                <Eye className="w-3.5 h-3.5" /> BÀI VIẾT NỔI BẬT
+              </span>
+              <h2 className="text-xl sm:text-3xl font-black line-clamp-2 drop-shadow-md leading-tight text-white">
+                {slide.title}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-200 line-clamp-1 font-medium">
+                Bấm vào banner để chuyển hướng đến bài viết / link tài nguyên
+              </p>
+            </div>
+          </>
+        );
+
+        if (isExternal) {
+          return (
+            <a
+              key={`${slide.image}-${index}`}
+              href={slide.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out cursor-pointer ${
+                index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+              }`}
+            >
+              {slideContent}
+            </a>
+          );
+        }
+
+        return (
+          <Link
+            key={`${slide.image}-${index}`}
+            href={slide.link.startsWith("/") ? slide.link : `/${slide.link}`}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out cursor-pointer ${
+              index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+            }`}
+          >
+            {slideContent}
+          </Link>
+        );
+      })}
 
       {/* Floating Controls at Bottom Right */}
       <div className="absolute bottom-4 right-4 z-30 flex items-center gap-1.5 p-1.5 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-slate-200/80">

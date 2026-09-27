@@ -15,15 +15,10 @@ import {
   Edit3,
   X,
   Save,
+  Link as LinkIcon,
+  Heading,
 } from "lucide-react";
-
-const defaultBanners = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1920",
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1920",
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1920",
-  "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1920",
-  "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=1920",
-];
+import { BannerItem, normalizeBannerItem, defaultBanners as defaultStoreBanners } from "@/lib/bannerTypes";
 
 function compressImageFile(file: File, maxWidth = 1600, quality = 0.70): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -61,7 +56,7 @@ function compressImageFile(file: File, maxWidth = 1600, quality = 0.70): Promise
 }
 
 export default function AdminBannersPage() {
-  const [banners, setBanners] = useState<string[]>(defaultBanners);
+  const [banners, setBanners] = useState<BannerItem[]>(defaultStoreBanners);
   const [notice, setNotice] = useState("");
   const [previewIndex, setPreviewIndex] = useState(0);
 
@@ -69,6 +64,8 @@ export default function AdminBannersPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editUrl, setEditUrl] = useState("");
+  const [editLink, setEditLink] = useState("");
+  const [editTitle, setEditTitle] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -78,8 +75,9 @@ export default function AdminBannersPage() {
       if (res.ok) {
         const data = await res.json();
         if (data.banners && Array.isArray(data.banners) && data.banners.length > 0) {
-          setBanners(data.banners);
-          localStorage.setItem("zunphoto_hero_banners", JSON.stringify(data.banners));
+          const normalized = data.banners.map(normalizeBannerItem);
+          setBanners(normalized);
+          localStorage.setItem("zunphoto_hero_banners", JSON.stringify(normalized));
           return;
         }
       }
@@ -92,7 +90,7 @@ export default function AdminBannersPage() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setBanners(parsed);
+          setBanners(parsed.map(normalizeBannerItem));
         }
       }
     } catch {
@@ -104,10 +102,11 @@ export default function AdminBannersPage() {
     fetchBanners();
   }, []);
 
-  const saveBanners = async (updated: string[]) => {
-    setBanners(updated);
+  const saveBanners = async (updated: BannerItem[]) => {
+    const normalized = updated.map(normalizeBannerItem);
+    setBanners(normalized);
     try {
-      localStorage.setItem("zunphoto_hero_banners", JSON.stringify(updated));
+      localStorage.setItem("zunphoto_hero_banners", JSON.stringify(normalized));
     } catch {
       // localStorage error
     }
@@ -116,13 +115,13 @@ export default function AdminBannersPage() {
       await fetch("/api/banners", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ banners: updated }),
+        body: JSON.stringify({ banners: normalized }),
       });
     } catch {
       console.error("Failed to sync banners to server API");
     }
 
-    setNotice("Đã cập nhật danh sách Banner Slider thành công!");
+    setNotice("Đã cập nhật danh sách Banner Slider & Link thành công!");
     setTimeout(() => setNotice(""), 3500);
   };
 
@@ -137,10 +136,11 @@ export default function AdminBannersPage() {
 
     try {
       const base64Image = await compressImageFile(file, 1600, 0.70);
-      const updated = [...banners, base64Image];
+      const newItem: BannerItem = { image: base64Image, link: "", title: "" };
+      const updated = [...banners, newItem];
       await saveBanners(updated);
       setPreviewIndex(updated.length - 1);
-      setNotice(`Đã tải lên thành công ảnh [${file.name}] từ máy tính!`);
+      setNotice(`Đã tải lên thành công ảnh [${file.name}] từ máy tính! Hãy nhập link gán phía dưới.`);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -151,8 +151,11 @@ export default function AdminBannersPage() {
 
   // Open Edit Modal
   const handleOpenEditModal = (index: number) => {
+    const item = banners[index];
     setEditIndex(index);
-    setEditUrl(banners[index] || "");
+    setEditUrl(item?.image || "");
+    setEditLink(item?.link || "");
+    setEditTitle(item?.title || "");
     setIsEditModalOpen(true);
   };
 
@@ -180,10 +183,30 @@ export default function AdminBannersPage() {
     if (editIndex === null || !editUrl.trim()) return;
 
     const updated = [...banners];
-    updated[editIndex] = editUrl.trim();
+    updated[editIndex] = {
+      image: editUrl.trim(),
+      link: editLink.trim(),
+      title: editTitle.trim(),
+    };
     saveBanners(updated);
     setPreviewIndex(editIndex);
     setIsEditModalOpen(false);
+  };
+
+  const handleItemLinkChange = (index: number, val: string) => {
+    const updated = [...banners];
+    updated[index] = { ...updated[index], link: val };
+    setBanners(updated);
+  };
+
+  const handleItemTitleChange = (index: number, val: string) => {
+    const updated = [...banners];
+    updated[index] = { ...updated[index], title: val };
+    setBanners(updated);
+  };
+
+  const handleSaveAllItems = () => {
+    saveBanners(banners);
   };
 
   const handleDelete = (index: number) => {
@@ -218,7 +241,7 @@ export default function AdminBannersPage() {
 
   const handleResetDefault = () => {
     if (confirm("Khôi phục danh sách Banner mặc định của ZunPhoto?")) {
-      saveBanners(defaultBanners);
+      saveBanners(defaultStoreBanners);
       setPreviewIndex(0);
     }
   };
@@ -232,20 +255,29 @@ export default function AdminBannersPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
           <div>
             <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              <ImageIcon className="w-6 h-6 text-[#00b4d8]" /> QUẢN LÝ HERO BANNER SLIDER
+              <ImageIcon className="w-6 h-6 text-[#00b4d8]" /> QUẢN LÝ HERO BANNER SLIDER & GÁN LINK
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Chọn ảnh trực tiếp từ máy tính lên để thêm mới, thay thế, xóa hoặc chỉnh thứ tự Banner Hero Slider.
+              Tải ảnh trực tiếp từ máy tính, gán link trỏ về (Khi khách click vào banner) & nhập tiêu đề hiển thị.
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleResetDefault}
-            className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs shadow flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-700"
-          >
-            <RefreshCw className="w-4 h-4" /> Khôi Phục Mặc Định
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleSaveAllItems}
+              className="py-2.5 px-4 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Save className="w-4 h-4" /> Lưu Tất Cả Link
+            </button>
+            <button
+              type="button"
+              onClick={handleResetDefault}
+              className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs shadow flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-700"
+            >
+              <RefreshCw className="w-4 h-4" /> Mặc Định
+            </button>
+          </div>
         </div>
 
         {notice && (
@@ -295,81 +327,122 @@ export default function AdminBannersPage() {
             </div>
 
             {/* Banner List */}
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl p-5 space-y-3">
-              <h2 className="text-sm font-bold text-white flex items-center justify-between border-b border-slate-800 pb-3">
-                <span>Danh Sách Ảnh Slider Hiện Tại ({banners.length})</span>
-                <span className="text-xs text-slate-400 font-normal">Kéo/Chỉnh thứ tự slide</span>
-              </h2>
+            <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Danh Sách Banner & Link Gán ({banners.length})</span>
+                </h2>
+                <button
+                  type="button"
+                  onClick={handleSaveAllItems}
+                  className="px-3 py-1.5 rounded-lg bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold text-xs flex items-center gap-1 shadow cursor-pointer transition-all"
+                >
+                  <Save className="w-3.5 h-3.5" /> Lưu Thay Đổi
+                </button>
+              </div>
 
-              <div className="space-y-2.5">
-                {banners.map((url, idx) => (
+              <div className="space-y-3">
+                {banners.map((item, idx) => (
                   <div
-                    key={`${url.slice(0, 30)}-${idx}`}
-                    className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                    key={`${item.image.slice(0, 30)}-${idx}`}
+                    className={`p-4 rounded-xl border space-y-3 transition-all ${
                       previewIndex === idx
                         ? "bg-slate-800/80 border-[#00b4d8]"
                         : "bg-slate-950 border-slate-800/80 hover:border-slate-700"
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0 flex-1 mr-2">
-                      <span className="w-6 text-center font-mono text-xs font-bold text-slate-500">#{idx + 1}</span>
-                      <img
-                        src={url}
-                        alt={`Slide ${idx + 1}`}
-                        className="w-16 h-10 rounded-lg object-cover bg-slate-900 border border-slate-800 flex-shrink-0"
-                      />
-                      <span className="text-xs font-bold text-slate-200 truncate">
-                        📷 Ảnh Slider #{idx + 1} {url.startsWith("data:image") ? "(Tải Từ Máy)" : "(Mặc Định)"}
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0 flex-1 mr-2">
+                        <span className="w-6 text-center font-mono text-xs font-bold text-slate-500">#{idx + 1}</span>
+                        <img
+                          src={item.image}
+                          alt={`Slide ${idx + 1}`}
+                          className="w-16 h-10 rounded-lg object-cover bg-slate-900 border border-slate-800 flex-shrink-0"
+                        />
+                        <span className="text-xs font-bold text-slate-200 truncate">
+                          📷 Ảnh Slider #{idx + 1} {item.image.startsWith("data:image") ? "(Tải Từ Máy)" : "(Mặc Định)"}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewIndex(idx)}
+                          className="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+                          title="Xem trước slide này"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditModal(idx)}
+                          className="p-1.5 rounded bg-[#00b4d8]/10 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white transition-colors"
+                          title="Thay thế ảnh & chỉnh sửa link"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleMoveUp(idx)}
+                          disabled={idx === 0}
+                          className="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 transition-colors"
+                          title="Di chuyển lên"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleMoveDown(idx)}
+                          disabled={idx === banners.length - 1}
+                          className="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 transition-colors"
+                          title="Di chuyển xuống"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(idx)}
+                          className="p-1.5 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors"
+                          title="Xóa banner"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => setPreviewIndex(idx)}
-                        className="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
-                        title="Xem trước slide này"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
+                    {/* Inputs for Link & Title */}
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs pt-1 border-t border-slate-800/80">
+                      <div className="sm:col-span-7 space-y-1">
+                        <label className="text-[11px] font-bold text-cyan-400 flex items-center gap-1">
+                          <LinkIcon className="w-3 h-3" /> Ô Gán Link Trỏ Về (Khi khách bấm vào banner):
+                        </label>
+                        <input
+                          type="text"
+                          value={item.link || ""}
+                          onChange={(e) => handleItemLinkChange(idx, e.target.value)}
+                          onBlur={handleSaveAllItems}
+                          placeholder="Ví dụ: /post/slug-bai-viet hoặc https://..."
+                          className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-cyan-300 font-mono text-xs focus:outline-none focus:border-[#00b4d8]"
+                        />
+                      </div>
 
-                      <button
-                        type="button"
-                        onClick={() => handleOpenEditModal(idx)}
-                        className="p-1.5 rounded bg-[#00b4d8]/10 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white transition-colors"
-                        title="Thay thế ảnh này từ máy tính"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleMoveUp(idx)}
-                        disabled={idx === 0}
-                        className="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 transition-colors"
-                        title="Di chuyển lên"
-                      >
-                        <ArrowUp className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleMoveDown(idx)}
-                        disabled={idx === banners.length - 1}
-                        className="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 transition-colors"
-                        title="Di chuyển xuống"
-                      >
-                        <ArrowDown className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(idx)}
-                        className="p-1.5 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors"
-                        title="Xóa banner"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="sm:col-span-5 space-y-1">
+                        <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                          <Heading className="w-3 h-3 text-slate-400" /> Tiêu Đề Banner:
+                        </label>
+                        <input
+                          type="text"
+                          value={item.title || ""}
+                          onChange={(e) => handleItemTitleChange(idx, e.target.value)}
+                          onBlur={handleSaveAllItems}
+                          placeholder="Nhập tiêu đề hiển thị..."
+                          className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-[#00b4d8]"
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -385,14 +458,24 @@ export default function AdminBannersPage() {
 
             {banners.length > 0 ? (
               <div className="space-y-3">
-                <div className="relative w-full h-56 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner">
+                <div className="relative w-full h-56 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner group">
                   <img
-                    src={banners[previewIndex] || banners[0]}
+                    src={banners[previewIndex]?.image || banners[0].image}
                     alt="Preview Slide"
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute bottom-2 left-3 bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded text-[10px] font-bold text-white">
-                    Slide #{previewIndex + 1} / {banners.length}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                  
+                  <div className="absolute bottom-3 left-3 right-3 text-white space-y-1">
+                    <span className="text-[10px] bg-[#00b4d8] text-white px-2 py-0.5 rounded font-bold">
+                      SLIDE #{previewIndex + 1}
+                    </span>
+                    <h3 className="text-sm font-bold line-clamp-1">
+                      {banners[previewIndex]?.title || "Xem bài viết tài nguyên chi tiết"}
+                    </h3>
+                    <p className="text-[10px] text-cyan-300 truncate font-mono">
+                      Link: {banners[previewIndex]?.link || "Trỏ về bài viết tương ứng"}
+                    </p>
                   </div>
                 </div>
 
@@ -425,7 +508,7 @@ export default function AdminBannersPage() {
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-[#00b4d8]" />
-                Thay Thế Ảnh Banner #{editIndex + 1} Từ Máy Tính
+                Thay Thế Ảnh & Gán Link Banner #{editIndex + 1}
               </h3>
               <button
                 type="button"
@@ -439,20 +522,48 @@ export default function AdminBannersPage() {
             <form onSubmit={handleSaveEdit} className="space-y-4 text-xs">
               {/* Preview Current Image */}
               <div className="space-y-1">
-                <label className="font-semibold text-slate-300">Ảnh Hiện Tại</label>
-                <div className="relative w-full h-44 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                <label className="font-semibold text-slate-300">Ảnh Banner</label>
+                <div className="relative w-full h-36 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
                   <img src={editUrl} alt="Banner Preview" className="w-full h-full object-cover" />
                 </div>
               </div>
 
               {/* Upload New File Dropzone */}
               <div className="space-y-2">
-                <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-700 hover:border-[#00b4d8] bg-slate-950 rounded-xl cursor-pointer transition-colors text-center space-y-1.5">
-                  <Upload className="w-6 h-6 text-[#00b4d8]" />
+                <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-700 hover:border-[#00b4d8] bg-slate-950 rounded-xl cursor-pointer transition-colors text-center space-y-1">
+                  <Upload className="w-5 h-5 text-[#00b4d8]" />
                   <span className="text-xs font-bold text-white">Bấm để chọn file ảnh mới thay thế từ máy tính</span>
                   <span className="text-[10px] text-slate-400">JPG, PNG, WEBP, GIF (Tối đa 15MB)</span>
                   <input type="file" accept="image/*" onChange={handleEditFileUpload} className="hidden" />
                 </label>
+              </div>
+
+              {/* Input for Link */}
+              <div className="space-y-1">
+                <label className="font-bold text-cyan-400 flex items-center gap-1">
+                  <LinkIcon className="w-3.5 h-3.5" /> Ô Gán Link (Link trỏ về khi bấm vào banner):
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ví dụ: /post/stock-raw-nang-chieu hoặc https://..."
+                  value={editLink}
+                  onChange={(e) => setEditLink(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-cyan-300 font-mono text-xs focus:outline-none focus:border-[#00b4d8]"
+                />
+              </div>
+
+              {/* Input for Title */}
+              <div className="space-y-1">
+                <label className="font-bold text-slate-300 flex items-center gap-1">
+                  <Heading className="w-3.5 h-3.5 text-slate-400" /> Tiêu Đề Banner:
+                </label>
+                <input
+                  type="text"
+                  placeholder="Nhập tiêu đề banner hiển thị..."
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-[#00b4d8]"
+                />
               </div>
 
               <div className="flex gap-2 pt-3 border-t border-slate-800">
