@@ -142,7 +142,7 @@ export default function ResourcesSection() {
           badge: (p.badge as "Free" | "Trả phí") || "Free",
           price: p.price,
           category: p.category,
-        })).slice(0, 4));
+        })));
       }
 
       // Filter Preset Free
@@ -156,7 +156,7 @@ export default function ResourcesSection() {
           badge: (p.badge as "Free" | "Trả phí") || "Free",
           price: p.price,
           category: p.category,
-        })).slice(0, 4));
+        })));
       }
 
       // Filter Paid Items
@@ -170,7 +170,7 @@ export default function ResourcesSection() {
           badge: "Trả phí" as "Free" | "Trả phí",
           price: p.price || "499.000đ",
           category: p.category,
-        })).slice(0, 4));
+        })));
       }
     };
 

@@ -32,7 +32,7 @@ import {
 import Link from "next/link";
 import { Post, formatPriceString } from "@/data/posts";
 
-function compressImageFile(file: File, maxWidth = 1200, quality = 0.82): Promise<string> {
+function compressImageFile(file: File, maxWidth = 1000, quality = 0.68): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -110,7 +110,7 @@ function WordPressRichEditor({ value, onChange }: WordPressEditorProps) {
     }
 
     try {
-      const base64 = await compressImageFile(file, 1200, 0.82);
+      const base64 = await compressImageFile(file, 900, 0.65);
       const imgHtml = `<img src="${base64}" alt="Ảnh bài viết" style="max-width:100%; height:auto; border-radius:12px; margin: 16px auto; display:block;" />`;
       exec("insertHTML", imgHtml);
     } catch {
@@ -521,7 +521,7 @@ export default function AdminResourcesPage() {
     }
 
     try {
-      const compressed = await compressImageFile(file, 1200, 0.82);
+      const compressed = await compressImageFile(file, 1000, 0.70);
       setFormImageUrl(compressed);
     } catch {
       alert("Lỗi khi tải ảnh bìa! Vui lòng thử tệp ảnh khác.");
