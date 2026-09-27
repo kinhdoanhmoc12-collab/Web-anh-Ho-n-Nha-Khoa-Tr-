@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import AdminSidebar from "@/components/AdminSidebar";
-import { Video, Plus, Search, Trash2, Edit3, CheckCircle2, X, Save, Eye } from "lucide-react";
+import { Video, Plus, Search, Trash2, Edit3, CheckCircle2, X, Save, Upload } from "lucide-react";
 
 interface CourseItem {
   id: string;
@@ -74,6 +74,8 @@ export default function AdminCoursesPage() {
   const [formStatus, setFormStatus] = useState<"PUBLISHED" | "DRAFT">("PUBLISHED");
   const [formImageUrl, setFormImageUrl] = useState("");
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleOpenAddModal = () => {
     setEditingCourse(null);
     setFormTitle("");
@@ -98,9 +100,33 @@ export default function AdminCoursesPage() {
     setIsModalOpen(true);
   };
 
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 15MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (result) {
+        setFormImageUrl(result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSaveCourse = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formTitle.trim()) return;
+
+    if (!formImageUrl) {
+      alert("Vui lòng chọn ảnh bìa từ máy tính!");
+      return;
+    }
 
     if (editingCourse) {
       // Update existing course
@@ -133,10 +159,10 @@ export default function AdminCoursesPage() {
         rating: 5.0,
         price: formPrice,
         status: formStatus,
-        imageUrl: formImageUrl || "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600",
+        imageUrl: formImageUrl,
       };
       setCourses([newCourse, ...courses]);
-      setNotice(`Đã tạo khóa học mới [${newId}] thành công!`);
+      setNotice(`Đã tạo khóa học mới từ máy tính [${newId}] thành công!`);
     }
 
     setIsModalOpen(false);
@@ -168,7 +194,7 @@ export default function AdminCoursesPage() {
               <Video className="w-6 h-6 text-[#00b4d8]" /> QUẢN LÝ KHÓA HỌC & BÀI GIẢNG VIDEO
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Thêm, chỉnh sửa bài giảng, cập nhật học phí và chuyên mục khóa học Photoshop & Studio Lighting.
+              Thêm mới và chỉnh sửa khóa học bằng cách tải ảnh bìa trực tiếp từ máy tính.
             </p>
           </div>
 
@@ -204,7 +230,7 @@ export default function AdminCoursesPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-950 text-slate-400 font-bold uppercase border-b border-slate-800">
                 <tr>
-                  <th className="p-4">Mã Khóa Học</th>
+                  <th className="p-4">Mã / Ảnh Tải Từ Máy</th>
                   <th className="p-4">Tên Khóa Học Masterclass</th>
                   <th className="p-4">Chuyên Mục</th>
                   <th className="p-4">Bài Giảng</th>
@@ -357,16 +383,40 @@ export default function AdminCoursesPage() {
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="font-semibold text-slate-300">Đường Dẫn Ảnh Bìa (Image URL)</label>
-                <input
-                  type="url"
-                  value={formImageUrl}
-                  onChange={(e) => setFormImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
-                  required
-                />
+              {/* DEVICE FILE UPLOAD FOR COURSE BANNERS */}
+              <div className="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <label className="font-bold text-slate-200 flex items-center justify-between text-xs">
+                  <span className="flex items-center gap-1.5 text-[#00b4d8]">
+                    <Upload className="w-4 h-4" /> 📁 Tải Ảnh Bìa Khóa Học Từ Máy Tính *
+                  </span>
+                </label>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-14 rounded-lg overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center flex-shrink-0">
+                    {formImageUrl ? (
+                      <img src={formImageUrl} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[10px] text-slate-500">Chưa chọn</span>
+                    )}
+                  </div>
+
+                  <div className="flex-1">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageFileUpload}
+                      className="hidden"
+                      id="course-cover-upload"
+                    />
+                    <label
+                      htmlFor="course-cover-upload"
+                      className="w-full py-2.5 px-4 rounded-xl bg-slate-900 border border-slate-700 hover:border-[#00b4d8] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                    >
+                      <Upload className="w-4 h-4 text-[#00b4d8]" /> Bấm để chọn file ảnh từ máy
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-1">

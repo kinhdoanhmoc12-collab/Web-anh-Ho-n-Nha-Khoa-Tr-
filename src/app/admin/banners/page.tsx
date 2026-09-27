@@ -12,7 +12,6 @@ import {
   ArrowUp,
   ArrowDown,
   Upload,
-  Link as LinkIcon,
   Edit3,
   X,
   Save,
@@ -28,8 +27,6 @@ const defaultBanners = [
 
 export default function AdminBannersPage() {
   const [banners, setBanners] = useState<string[]>(defaultBanners);
-  const [addMode, setAddMode] = useState<"file" | "url">("file");
-  const [newUrl, setNewUrl] = useState("");
   const [notice, setNotice] = useState("");
   const [previewIndex, setPreviewIndex] = useState(0);
 
@@ -37,7 +34,6 @@ export default function AdminBannersPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editUrl, setEditUrl] = useState("");
-  const [editMode, setEditMode] = useState<"file" | "url">("file");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -70,8 +66,8 @@ export default function AdminBannersPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 10MB.");
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 15MB.");
       return;
     }
 
@@ -91,20 +87,10 @@ export default function AdminBannersPage() {
     reader.readAsDataURL(file);
   };
 
-  const handleAddBannerUrl = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newUrl.trim()) return;
-    const updated = [...banners, newUrl.trim()];
-    saveBanners(updated);
-    setPreviewIndex(updated.length - 1);
-    setNewUrl("");
-  };
-
   // Open Edit Modal
   const handleOpenEditModal = (index: number) => {
     setEditIndex(index);
     setEditUrl(banners[index] || "");
-    setEditMode(banners[index]?.startsWith("data:image") ? "file" : "url");
     setIsEditModalOpen(true);
   };
 
@@ -113,8 +99,8 @@ export default function AdminBannersPage() {
     const file = e.target.files?.[0];
     if (!file || editIndex === null) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 10MB.");
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 15MB.");
       return;
     }
 
@@ -189,7 +175,7 @@ export default function AdminBannersPage() {
               <ImageIcon className="w-6 h-6 text-[#00b4d8]" /> QUẢN LÝ HERO BANNER SLIDER
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Thêm, chỉnh sửa/thay thế, xóa và sắp xếp thứ tự hình ảnh Banner trình chiếu trên Trang Chủ ZunPhoto.
+              Chọn ảnh trực tiếp từ máy tính lên để thêm mới, thay thế, xóa hoặc chỉnh thứ tự Banner Hero Slider.
             </p>
           </div>
 
@@ -211,86 +197,41 @@ export default function AdminBannersPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Banner Addition Form & List */}
           <div className="lg:col-span-7 space-y-6">
-            {/* Mode Selector Tabs */}
+            {/* File Upload Only Box */}
             <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-[#00b4d8]" /> Thêm Ảnh Banner Mới Về Slider
+                  <Upload className="w-4 h-4 text-[#00b4d8]" /> Tải Ảnh Banner Mới Từ Máy Tính
                 </h2>
-
-                <div className="flex gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
-                  <button
-                    type="button"
-                    onClick={() => setAddMode("file")}
-                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
-                      addMode === "file"
-                        ? "bg-[#00b4d8] text-white shadow"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    <Upload className="w-3.5 h-3.5" /> Tải từ Thư Mục
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAddMode("url")}
-                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
-                      addMode === "url"
-                        ? "bg-[#00b4d8] text-white shadow"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    <LinkIcon className="w-3.5 h-3.5" /> Dán Link URL
-                  </button>
-                </div>
+                <span className="text-[10px] text-cyan-400 font-bold">100% Upload file máy tính</span>
               </div>
 
-              {/* Mode 1: File Upload From Local Machine */}
-              {addMode === "file" ? (
-                <div className="space-y-3">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="banner-file-input"
-                  />
-                  <label
-                    htmlFor="banner-file-input"
-                    className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-700 hover:border-[#00b4d8] bg-slate-950 rounded-2xl cursor-pointer transition-colors group text-center space-y-2"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-[#00b4d8]/10 text-[#00b4d8] flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Upload className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-bold text-white block">
-                        Bấm vào đây để chọn ảnh từ thư mục máy tính
-                      </span>
-                      <span className="text-xs text-slate-400">
-                        Hỗ trợ file JPG, PNG, WEBP, GIF (Tối đa 10MB)
-                      </span>
-                    </div>
-                  </label>
-                </div>
-              ) : (
-                /* Mode 2: URL Link Input */
-                <form onSubmit={handleAddBannerUrl} className="flex gap-2">
-                  <input
-                    type="url"
-                    placeholder="Dán đường dẫn URL ảnh banner (http://... hoặc https://...)"
-                    value={newUrl}
-                    onChange={(e) => setNewUrl(e.target.value)}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00b4d8]"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="py-2.5 px-5 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold text-xs shadow flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
-                  >
-                    <Plus className="w-4 h-4" /> Thêm Banner
-                  </button>
-                </form>
-              )}
+              <div className="space-y-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="banner-file-input"
+                />
+                <label
+                  htmlFor="banner-file-input"
+                  className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-700 hover:border-[#00b4d8] bg-slate-950 rounded-2xl cursor-pointer transition-colors group text-center space-y-2"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#00b4d8]/10 text-[#00b4d8] flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Upload className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-bold text-white block">
+                      Bấm vào đây để chọn ảnh từ thư mục máy tính
+                    </span>
+                    <span className="text-xs text-slate-400">
+                      Hỗ trợ file JPG, PNG, WEBP, GIF (Tối đa 15MB)
+                    </span>
+                  </div>
+                </label>
+              </div>
             </div>
 
             {/* Banner List */}
@@ -317,8 +258,8 @@ export default function AdminBannersPage() {
                         alt={`Slide ${idx + 1}`}
                         className="w-16 h-10 rounded-lg object-cover bg-slate-900 border border-slate-800 flex-shrink-0"
                       />
-                      <span className="text-xs font-medium text-slate-300 truncate max-w-xs">
-                        {url.startsWith("data:image") ? "📷 Ảnh Tải Từ Thư Mục Máy Tính" : url}
+                      <span className="text-xs font-bold text-slate-200 truncate">
+                        📷 Ảnh Slider #{idx + 1} {url.startsWith("data:image") ? "(Tải Từ Máy)" : "(Mặc Định)"}
                       </span>
                     </div>
 
@@ -332,12 +273,11 @@ export default function AdminBannersPage() {
                         <Eye className="w-3.5 h-3.5" />
                       </button>
 
-                      {/* EDIT / REPLACE BUTTON */}
                       <button
                         type="button"
                         onClick={() => handleOpenEditModal(idx)}
                         className="p-1.5 rounded bg-[#00b4d8]/10 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white transition-colors"
-                        title="Chỉnh sửa / Thay thế ảnh này"
+                        title="Thay thế ảnh này từ máy tính"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                       </button>
@@ -425,7 +365,7 @@ export default function AdminBannersPage() {
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-[#00b4d8]" />
-                Thay Thế / Chỉnh Sửa Ảnh Banner #{editIndex + 1}
+                Thay Thế Ảnh Banner #{editIndex + 1} Từ Máy Tính
               </h3>
               <button
                 type="button"
@@ -440,55 +380,20 @@ export default function AdminBannersPage() {
               {/* Preview Current Image */}
               <div className="space-y-1">
                 <label className="font-semibold text-slate-300">Ảnh Hiện Tại</label>
-                <div className="relative w-full h-40 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                <div className="relative w-full h-44 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
                   <img src={editUrl} alt="Banner Preview" className="w-full h-full object-cover" />
                 </div>
               </div>
 
-              {/* Mode Toggle */}
-              <div className="flex gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
-                <button
-                  type="button"
-                  onClick={() => setEditMode("file")}
-                  className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-                    editMode === "file" ? "bg-[#00b4d8] text-white shadow" : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <Upload className="w-3.5 h-3.5" /> Chọn từ Thư Mục Máy Tính
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditMode("url")}
-                  className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-                    editMode === "url" ? "bg-[#00b4d8] text-white shadow" : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <LinkIcon className="w-3.5 h-3.5" /> Nhập Link URL
-                </button>
+              {/* Upload New File Dropzone */}
+              <div className="space-y-2">
+                <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-700 hover:border-[#00b4d8] bg-slate-950 rounded-xl cursor-pointer transition-colors text-center space-y-1.5">
+                  <Upload className="w-6 h-6 text-[#00b4d8]" />
+                  <span className="text-xs font-bold text-white">Bấm để chọn file ảnh mới thay thế từ máy tính</span>
+                  <span className="text-[10px] text-slate-400">JPG, PNG, WEBP, GIF (Tối đa 15MB)</span>
+                  <input type="file" accept="image/*" onChange={handleEditFileUpload} className="hidden" />
+                </label>
               </div>
-
-              {editMode === "file" ? (
-                <div className="space-y-2">
-                  <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-700 hover:border-[#00b4d8] bg-slate-950 rounded-xl cursor-pointer transition-colors text-center space-y-1">
-                    <Upload className="w-6 h-6 text-[#00b4d8]" />
-                    <span className="text-xs font-bold text-white">Bấm để chọn file ảnh mới thay thế</span>
-                    <span className="text-[10px] text-slate-400">JPG, PNG, WEBP, GIF (Tối đa 10MB)</span>
-                    <input type="file" accept="image/*" onChange={handleEditFileUpload} className="hidden" />
-                  </label>
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-300">Đường Dẫn URL Ảnh Mới</label>
-                  <input
-                    type="url"
-                    placeholder="https://..."
-                    value={editUrl}
-                    onChange={(e) => setEditUrl(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
-                    required
-                  />
-                </div>
-              )}
 
               <div className="flex gap-2 pt-3 border-t border-slate-800">
                 <button
