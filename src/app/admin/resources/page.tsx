@@ -417,6 +417,7 @@ export default function AdminResourcesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [notice, setNotice] = useState("");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -593,12 +594,34 @@ export default function AdminResourcesPage() {
         const res = await fetch(`/api/admin/posts?id=${id}`, { method: "DELETE" });
         if (res.ok) {
           setNotice("Đã xóa bài viết khỏi hệ thống thành công!");
+          setSelectedIds(selectedIds.filter((item) => item !== id));
           fetchResources();
         }
       } catch {
         setNotice("Lỗi khi xóa bài viết");
       }
       setTimeout(() => setNotice(""), 3000);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (
+      confirm(
+        `Bạn có chắc chắn muốn XÓA HÀNG LOẠT ${selectedIds.length} bài viết / tài nguyên đã chọn khỏi hệ thống? (Thao tác này không thể hoàn tác)`
+      )
+    ) {
+      try {
+        await Promise.all(
+          selectedIds.map((id) => fetch(`/api/admin/posts?id=${id}`, { method: "DELETE" }))
+        );
+        setNotice(`Đã xóa thành công ${selectedIds.length} bài viết / tài nguyên khỏi hệ thống!`);
+        setSelectedIds([]);
+        fetchResources();
+      } catch {
+        setNotice("Lỗi khi xóa tài nguyên hàng loạt");
+      }
+      setTimeout(() => setNotice(""), 3500);
     }
   };
 
@@ -610,6 +633,24 @@ export default function AdminResourcesPage() {
     const matchesCat = selectedCategory === "ALL" || item.category === selectedCategory;
     return matchesSearch && matchesCat;
   });
+
+  const isAllSelected = filtered.length > 0 && filtered.every((item) => selectedIds.includes(item.id));
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filtered.map((item) => item.id));
+    }
+  };
+
+  const toggleSelectRow = (id: string) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((item) => item !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex font-sans">
@@ -638,6 +679,32 @@ export default function AdminResourcesPage() {
         {notice && (
           <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" /> {notice}
+          </div>
+        )}
+
+        {/* Bulk Action Bar */}
+        {selectedIds.length > 0 && (
+          <div className="flex items-center justify-between bg-rose-500/10 border border-rose-500/30 p-4 rounded-2xl text-xs font-bold text-rose-300 shadow-lg animate-in fade-in duration-200">
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-rose-400" />
+              Đã chọn <strong className="text-white text-sm">{selectedIds.length}</strong> bài viết / tài nguyên
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors cursor-pointer"
+              >
+                Hủy chọn
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkDelete}
+                className="px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold flex items-center gap-1.5 shadow transition-colors cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" /> Xóa {selectedIds.length} mục đã chọn
+              </button>
+            </div>
           </div>
         )}
 
@@ -676,6 +743,15 @@ export default function AdminResourcesPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-950 text-slate-400 font-bold uppercase border-b border-slate-800">
                 <tr>
+                  <th className="p-4 w-10 text-center">
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 rounded border-slate-700 bg-slate-950 text-[#00b4d8] focus:ring-0 cursor-pointer"
+                      title="Chọn tất cả"
+                    />
+                  </th>
                   <th className="p-4">Mã ID / Ảnh Tải Từ Máy</th>
                   <th className="p-4">Tiêu đề bài viết / tài nguyên</th>
                   <th className="p-4">Danh mục</th>
@@ -686,16 +762,31 @@ export default function AdminResourcesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-medium">
-                {filtered.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="p-4 flex items-center gap-3">
-                      <img
-                        src={item.imageUrl}
-                        alt={item.title}
-                        className="w-10 h-10 rounded-lg object-cover bg-slate-950 flex-shrink-0 border border-slate-800"
-                      />
-                      <span className="font-bold text-[#00b4d8]">{item.id}</span>
-                    </td>
+                {filtered.map((item) => {
+                  const isSelected = selectedIds.includes(item.id);
+                  return (
+                    <tr
+                      key={item.id}
+                      className={`hover:bg-slate-800/40 transition-colors ${
+                        isSelected ? "bg-[#00b4d8]/5" : ""
+                      }`}
+                    >
+                      <td className="p-4 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelectRow(item.id)}
+                          className="w-4 h-4 rounded border-slate-700 bg-slate-950 text-[#00b4d8] focus:ring-0 cursor-pointer"
+                        />
+                      </td>
+                      <td className="p-4 flex items-center gap-3">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="w-10 h-10 rounded-lg object-cover bg-slate-950 flex-shrink-0 border border-slate-800"
+                        />
+                        <span className="font-bold text-[#00b4d8]">{item.id}</span>
+                      </td>
                     <td className="p-4 font-bold text-white max-w-sm">
                       <Link
                         href={`/post/${item.slug}`}
@@ -747,7 +838,8 @@ export default function AdminResourcesPage() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
               </tbody>
             </table>
           </div>
