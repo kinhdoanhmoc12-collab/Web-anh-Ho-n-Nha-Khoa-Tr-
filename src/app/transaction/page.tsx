@@ -14,22 +14,12 @@ export default function TransactionPage() {
   const [depositNotice, setDepositNotice] = useState<boolean>(false);
 
   const transferMemo = user?.transferCode || "ZUN 888888";
-  const qrUrl = "https://img.vietqr.io/image/MB-0979487405-compact2.png?amount=" + amount + "&addInfo=" + encodeURIComponent(transferMemo) + "&accountName=HOAN%20NT";
+  const qrUrl = "https://img.vietqr.io/image/MB-0979487405-compact2.png?amount=" + amount + "&addInfo=" + encodeURIComponent(transferMemo) + "&accountName=NGUYEN%20THANH%20HOAN";
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
-  };
-
-  const handleSimulateDeposit = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setIsRefreshing(false);
-      updateBalance(amount);
-      setDepositNotice(true);
-      setTimeout(() => setDepositNotice(false), 4000);
-    }, 1500);
   };
 
   return (
@@ -125,7 +115,7 @@ export default function TransactionPage() {
 
                       <div className="flex items-center justify-between border-b border-slate-800/60 pb-2">
                         <span className="text-slate-400">Chủ tài khoản:</span>
-                        <span className="font-bold uppercase text-white">HOAN NT</span>
+                        <span className="font-bold uppercase text-white">NGUYEN THANH HOAN</span>
                       </div>
 
                       <div className="flex items-center justify-between pt-1">
@@ -142,30 +132,16 @@ export default function TransactionPage() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={handleSimulateDeposit}
-                      disabled={isRefreshing}
-                      className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors shadow flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <RefreshCw className={"w-4 h-4 " + (isRefreshing ? "animate-spin" : "")} />
-                      {isRefreshing ? "Đang Kiểm Tra Đã Chuyển Khoản..." : "Xác Nhận Đã Chuyển Khoản (Cộng Tiền Ngay)"}
-                    </button>
+                    <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-2.5">
+                      <RefreshCw className="w-4 h-4 animate-spin flex-shrink-0 text-emerald-400" />
+                      <span>Hệ thống SePAY tự động quét &amp; cộng tiền tức thì trong 3-5 giây sau khi bạn chuyển khoản!</span>
+                    </div>
                   </div>
                 </div>
 
                 {copied && (
                   <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" /> Đã sao chép nội dung chuyển khoản!
-                  </div>
-                )}
-
-                {depositNotice && (
-                  <div className="p-4 rounded-2xl bg-emerald-600 text-white text-xs font-bold flex items-center gap-3 animate-fade-in shadow-lg">
-                    <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                    <span>
-                      Thành công! Đã cộng <strong>{amount.toLocaleString("vi-VN")}đ</strong> vào số dư tài khoản{" "}
-                      <strong>{user?.email}</strong>!
-                    </span>
                   </div>
                 )}
               </div>
