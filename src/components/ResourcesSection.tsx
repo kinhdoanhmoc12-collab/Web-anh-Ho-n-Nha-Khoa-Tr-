@@ -130,49 +130,70 @@ export default function ResourcesSection() {
   const [paidItems, setPaidItems] = useState<ResourceItem[]>(defaultPaidItems);
 
   useEffect(() => {
-    const posts: Post[] = getStoredPosts();
-    
-    // Filter Stock Free
-    const stockPosts = posts.filter(p => p.category === "Stock Free" || p.category === "Stock RAW Free");
-    if (stockPosts.length > 0) {
-      setStockFreeItems(stockPosts.map(p => ({
-        id: p.id,
-        slug: p.slug,
-        title: p.title,
-        image: p.imageUrl,
-        badge: (p.badge as "Free" | "Trả phí") || "Free",
-        price: p.price,
-        category: p.category,
-      })).slice(0, 4));
-    }
+    const processPosts = (posts: Post[]) => {
+      // Filter Stock Free
+      const stockPosts = posts.filter(p => p.category === "Stock Free" || p.category === "Stock RAW Free");
+      if (stockPosts.length > 0) {
+        setStockFreeItems(stockPosts.map(p => ({
+          id: p.id,
+          slug: p.slug,
+          title: p.title,
+          image: p.imageUrl,
+          badge: (p.badge as "Free" | "Trả phí") || "Free",
+          price: p.price,
+          category: p.category,
+        })).slice(0, 4));
+      }
 
-    // Filter Preset Free
-    const presetPosts = posts.filter(p => p.category === "Preset Free");
-    if (presetPosts.length > 0) {
-      setPresetFreeItems(presetPosts.map(p => ({
-        id: p.id,
-        slug: p.slug,
-        title: p.title,
-        image: p.imageUrl,
-        badge: (p.badge as "Free" | "Trả phí") || "Free",
-        price: p.price,
-        category: p.category,
-      })).slice(0, 4));
-    }
+      // Filter Preset Free
+      const presetPosts = posts.filter(p => p.category === "Preset Free");
+      if (presetPosts.length > 0) {
+        setPresetFreeItems(presetPosts.map(p => ({
+          id: p.id,
+          slug: p.slug,
+          title: p.title,
+          image: p.imageUrl,
+          badge: (p.badge as "Free" | "Trả phí") || "Free",
+          price: p.price,
+          category: p.category,
+        })).slice(0, 4));
+      }
 
-    // Filter Paid Items
-    const paid = posts.filter(p => p.category === "Tài nguyên trả phí" || p.price);
-    if (paid.length > 0) {
-      setPaidItems(paid.map(p => ({
-        id: p.id,
-        slug: p.slug,
-        title: p.title,
-        image: p.imageUrl,
-        badge: "Trả phí" as "Free" | "Trả phí",
-        price: p.price || "499.000đ",
-        category: p.category,
-      })).slice(0, 4));
-    }
+      // Filter Paid Items
+      const paid = posts.filter(p => p.category === "Tài nguyên trả phí" || p.price);
+      if (paid.length > 0) {
+        setPaidItems(paid.map(p => ({
+          id: p.id,
+          slug: p.slug,
+          title: p.title,
+          image: p.imageUrl,
+          badge: "Trả phí" as "Free" | "Trả phí",
+          price: p.price || "499.000đ",
+          category: p.category,
+        })).slice(0, 4));
+      }
+    };
+
+    const fetchLivePosts = async () => {
+      try {
+        const res = await fetch("/api/admin/posts");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.posts && Array.isArray(data.posts) && data.posts.length > 0) {
+            processPosts(data.posts);
+            return;
+          }
+        }
+      } catch {
+        // quiet catch
+      }
+      const posts: Post[] = getStoredPosts();
+      processPosts(posts);
+    };
+
+    fetchLivePosts();
+    const interval = setInterval(fetchLivePosts, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   const renderCategoryBlock = (

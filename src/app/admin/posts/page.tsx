@@ -406,9 +406,25 @@ export default function AdminPostsPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const fetchPosts = async () => {
+    try {
+      const res = await fetch("/api/admin/posts");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.posts && Array.isArray(data.posts)) {
+          setPosts(data.posts);
+          saveStoredPosts(data.posts);
+        }
+      }
+    } catch {
+      // quiet poll
+    }
+  };
+
   useEffect(() => {
-    const loaded = getStoredPosts();
-    setPosts(loaded);
+    fetchPosts();
+    const interval = setInterval(fetchPosts, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   const updatePostsState = (newPosts: Post[]) => {
@@ -487,7 +503,7 @@ export default function AdminPostsPage() {
     reader.readAsDataURL(file);
   };
 
-  const handleSavePost = (e: React.FormEvent) => {
+  const handleSavePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formTitle.trim()) {
       alert("Vui lòng nhập tiêu đề bài viết!");
@@ -505,59 +521,57 @@ export default function AdminPostsPage() {
       .map((t) => t.trim())
       .filter((t) => t.length > 0);
 
-    if (editingPost) {
-      const updated = posts.map((p) =>
-        p.id === editingPost.id
-          ? {
-              ...p,
-              title: formTitle,
-              slug: finalSlug,
-              category: formCategory,
-              author: formAuthor || "ZunPhoto",
-              excerpt: formExcerpt || formTitle,
-              content: formContent || formTitle,
-              imageUrl: formImageUrl,
-              downloadUrl: formDownloadUrl,
-              price: formPrice || undefined,
-              badge: formBadge,
-              tags: parsedTags,
-              isPinned: formIsPinned,
-            }
-          : p
-      );
-      updatePostsState(updated);
-      setNotice(`Đã cập nhật bài viết [${editingPost.id}] thành công!`);
-    } else {
-      const newId = `P-${Math.floor(100 + Math.random() * 900)}`;
-      const newPost: Post = {
-        id: newId,
-        slug: finalSlug,
-        title: formTitle,
-        category: formCategory,
-        author: formAuthor || "ZunPhoto",
-        date: new Date().toISOString().split("T")[0],
-        excerpt: formExcerpt || formTitle,
-        content: formContent || formTitle,
-        imageUrl: formImageUrl,
-        downloadUrl: formDownloadUrl || "https://drive.google.com/",
-        price: formPrice || undefined,
-        badge: formBadge,
-        tags: parsedTags.length > 0 ? parsedTags : ["ZunPhoto", "Bài Viết"],
-        isPinned: formIsPinned,
-      };
-      updatePostsState([newPost, ...posts]);
-      setNotice(`Đã xuất bản bài viết mới [${newId}] từ máy tính thành công!`);
+    const postPayload = {
+      id: editingPost ? editingPost.id : undefined,
+      title: formTitle,
+      slug: finalSlug,
+      category: formCategory,
+      author: formAuthor || "ZunPhoto",
+      excerpt: formExcerpt || formTitle,
+      content: formContent || formTitle,
+      imageUrl: formImageUrl,
+      downloadUrl: formDownloadUrl || "https://drive.google.com/",
+      price: formPrice || undefined,
+      badge: formBadge,
+      tags: parsedTags.length > 0 ? parsedTags : ["ZunPhoto", "Bài Viết"],
+      isPinned: formIsPinned,
+    };
+
+    try {
+      const res = await fetch("/api/admin/posts", {
+        method: editingPost ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(postPayload),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setNotice(
+          editingPost
+            ? `Đã cập nhật bài viết [${editingPost.id}] thành công!`
+            : `Đã xuất bản bài viết mới [${data.post?.id || "Mới"}] thành công!`
+        );
+        fetchPosts();
+      }
+    } catch {
+      setNotice("Lỗi khi lưu bài viết lên hệ thống!");
     }
 
     setIsModalOpen(false);
     setTimeout(() => setNotice(""), 3500);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Xóa bài viết này khỏi hệ thống? (Thao tác không thể hoàn tác)")) {
-      const updated = posts.filter((p) => p.id !== id);
-      updatePostsState(updated);
-      setNotice("Đã xóa bài viết thành công!");
+      try {
+        const res = await fetch(`/api/admin/posts?id=${id}`, { method: "DELETE" });
+        if (res.ok) {
+          setNotice("Đã xóa bài viết khỏi hệ thống thành công!");
+          fetchPosts();
+        }
+      } catch {
+        setNotice("Lỗi khi xóa bài viết");
+      }
       setTimeout(() => setNotice(""), 3000);
     }
   };

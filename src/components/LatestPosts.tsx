@@ -9,10 +9,28 @@ export default function LatestPosts() {
   const [posts, setPosts] = useState<Post[]>(postsData);
 
   useEffect(() => {
-    const stored = getStoredPosts();
-    if (stored && stored.length > 0) {
-      setPosts(stored);
-    }
+    const fetchLivePosts = async () => {
+      try {
+        const res = await fetch("/api/admin/posts");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.posts && Array.isArray(data.posts) && data.posts.length > 0) {
+            setPosts(data.posts);
+            return;
+          }
+        }
+      } catch {
+        // quiet catch
+      }
+      const stored = getStoredPosts();
+      if (stored && stored.length > 0) {
+        setPosts(stored);
+      }
+    };
+
+    fetchLivePosts();
+    const interval = setInterval(fetchLivePosts, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   return (

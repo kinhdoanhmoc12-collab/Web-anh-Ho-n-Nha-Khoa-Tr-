@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getPostBySlug, postsData } from "@/data/posts";
+import { getPostBySlugServer, getAllPosts } from "@/lib/postStore";
 import { Calendar, User, Eye, Clock, Tag, ArrowLeft, Download, Search, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,7 +9,7 @@ import { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = getPostBySlugServer(slug) || getPostBySlug(slug);
 
   if (!post) {
     return {
@@ -29,17 +30,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PostDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = getPostBySlugServer(slug) || getPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
+  const allPosts = getAllPosts();
+
   // Related posts (exclude current post)
-  const relatedPosts = postsData.filter((p) => p.id !== post.id).slice(0, 3);
+  const relatedPosts = allPosts.filter((p) => p.id !== post.id).slice(0, 3);
 
   // Latest 5 posts for right sidebar (prioritizing pinned posts)
-  const latestPosts = [...postsData]
+  const latestPosts = [...allPosts]
     .sort((a, b) => {
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
