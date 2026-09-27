@@ -25,6 +25,41 @@ const defaultBanners = [
   "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=1920",
 ];
 
+function compressImageFile(file: File, maxWidth = 1600, quality = 0.70): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL("image/jpeg", quality);
+          resolve(compressedBase64);
+        } else {
+          resolve(e.target?.result as string);
+        }
+      };
+      img.onerror = () => reject(new Error("Lỗi khi đọc file ảnh"));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error("Lỗi khi tải file"));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function AdminBannersPage() {
   const [banners, setBanners] = useState<string[]>(defaultBanners);
   const [notice, setNotice] = useState("");
@@ -91,29 +126,27 @@ export default function AdminBannersPage() {
     setTimeout(() => setNotice(""), 3500);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 15 * 1024 * 1024) {
-      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 15MB.");
+    if (file.size > 25 * 1024 * 1024) {
+      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 25MB.");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64Image = event.target?.result as string;
-      if (base64Image) {
-        const updated = [...banners, base64Image];
-        saveBanners(updated);
-        setPreviewIndex(updated.length - 1);
-        setNotice(`Đã tải lên thành công ảnh [${file.name}] từ máy tính!`);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
+    try {
+      const base64Image = await compressImageFile(file, 1600, 0.70);
+      const updated = [...banners, base64Image];
+      await saveBanners(updated);
+      setPreviewIndex(updated.length - 1);
+      setNotice(`Đã tải lên thành công ảnh [${file.name}] từ máy tính!`);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      alert("Lỗi khi nén ảnh banner! Vui lòng thử tệp ảnh khác.");
+    }
   };
 
   // Open Edit Modal
@@ -124,23 +157,21 @@ export default function AdminBannersPage() {
   };
 
   // Handle Edit Image Upload from Local Computer
-  const handleEditFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || editIndex === null) return;
 
-    if (file.size > 15 * 1024 * 1024) {
-      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 15MB.");
+    if (file.size > 25 * 1024 * 1024) {
+      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 25MB.");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64Image = event.target?.result as string;
-      if (base64Image) {
-        setEditUrl(base64Image);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const base64Image = await compressImageFile(file, 1600, 0.70);
+      setEditUrl(base64Image);
+    } catch {
+      alert("Lỗi khi nén ảnh banner! Vui lòng thử tệp ảnh khác.");
+    }
   };
 
   // Save Edit Changes

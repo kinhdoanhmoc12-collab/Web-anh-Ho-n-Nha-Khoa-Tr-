@@ -84,6 +84,8 @@ export default function Hero() {
     };
 
     fetchBanners();
+    const interval = setInterval(fetchBanners, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
