@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import AdminSidebar from "@/components/AdminSidebar";
-import { Plus, Search, Edit3, Trash2, X, CheckCircle2, Save, Package } from "lucide-react";
+import { Plus, Search, Edit3, Trash2, X, CheckCircle2, Save, Package, Upload } from "lucide-react";
 
 interface ResourceItem {
   id: string;
@@ -72,6 +72,8 @@ export default function AdminResourcesPage() {
   const [formPrice, setFormPrice] = useState("");
   const [formImageUrl, setFormImageUrl] = useState("");
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleOpenAddModal = () => {
     setEditingResource(null);
     setFormTitle("");
@@ -92,9 +94,33 @@ export default function AdminResourcesPage() {
     setIsModalOpen(true);
   };
 
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Kích thước file quá lớn! Vui lòng chọn ảnh nhỏ hơn 15MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (result) {
+        setFormImageUrl(result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSaveResource = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formTitle.trim()) return;
+
+    if (!formImageUrl) {
+      alert("Vui lòng chọn tải ảnh bìa từ máy tính!");
+      return;
+    }
 
     if (editingResource) {
       // Update existing
@@ -123,10 +149,10 @@ export default function AdminResourcesPage() {
         price: formBadge === "VIP" ? (formPrice ? `${formPrice}` : "199.000đ") : undefined,
         downloads: "0",
         status: "ACTIVE",
-        imageUrl: formImageUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600",
+        imageUrl: formImageUrl,
       };
       setResources([newItem, ...resources]);
-      setNotice(`Đã thêm tài nguyên mới [${newId}] thành công!`);
+      setNotice(`Đã thêm tài nguyên mới từ máy tính [${newId}] thành công!`);
     }
 
     setIsModalOpen(false);
@@ -158,7 +184,7 @@ export default function AdminResourcesPage() {
               <Package className="w-6 h-6 text-[#00b4d8]" /> QUẢN LÝ KHO TÀI NGUYÊN & BÀI VIẾT
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Thêm mới, chỉnh sửa thông tin, giá bán, ẩn/hiện hoặc xóa tài nguyên Stock, Preset, Overlay.
+              Thêm mới và chỉnh sửa tài nguyên bằng cách chọn tải ảnh trực tiếp từ máy tính cá nhân.
             </p>
           </div>
 
@@ -194,7 +220,7 @@ export default function AdminResourcesPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-950 text-slate-400 font-bold uppercase border-b border-slate-800">
                 <tr>
-                  <th className="p-4">Mã ID / Ảnh</th>
+                  <th className="p-4">Mã ID / Ảnh Tải Từ Máy</th>
                   <th className="p-4">Tiêu đề tài nguyên</th>
                   <th className="p-4">Danh mục</th>
                   <th className="p-4">Loại thẻ</th>
@@ -326,16 +352,40 @@ export default function AdminResourcesPage() {
                   </div>
                 )}
 
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-300">Link ảnh Cover URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://images.unsplash.com/..."
-                    value={formImageUrl}
-                    onChange={(e) => setFormImageUrl(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
-                    required
-                  />
+                {/* 100% DEVICE FILE UPLOADER FOR RESOURCES */}
+                <div className="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                  <label className="font-bold text-slate-200 flex items-center justify-between text-xs">
+                    <span className="flex items-center gap-1.5 text-[#00b4d8]">
+                      <Upload className="w-4 h-4" /> 📁 Tải Ảnh Bìa Từ Máy Tính *
+                    </span>
+                  </label>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-16 h-14 rounded-lg overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center flex-shrink-0">
+                      {formImageUrl ? (
+                        <img src={formImageUrl} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-[10px] text-slate-500">Chưa chọn</span>
+                      )}
+                    </div>
+
+                    <div className="flex-1">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileUpload}
+                        className="hidden"
+                        id="res-cover-upload"
+                      />
+                      <label
+                        htmlFor="res-cover-upload"
+                        className="w-full py-2.5 px-4 rounded-xl bg-slate-900 border border-slate-700 hover:border-[#00b4d8] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                      >
+                        <Upload className="w-4 h-4 text-[#00b4d8]" /> Bấm để chọn file ảnh từ máy
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex gap-2 pt-3 border-t border-slate-800">

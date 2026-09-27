@@ -1,10 +1,12 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Camera, Download, Eye, Heart } from "lucide-react";
+import Link from "next/link";
 
 const collections = [
   {
     id: 1,
+    slug: "bo-suu-tap-nang-chieu-hoang-hon-studio",
     title: "Bộ Sưu Tập Nắng Chiều Hoàng Hôn Studio",
     photosCount: "48 Photos",
     views: "15.2K",
@@ -13,6 +15,7 @@ const collections = [
   },
   {
     id: 2,
+    slug: "concept-chan-dung-indoor-diu-dang",
     title: "Concept Chân Dung Indoor Dịu Dàng",
     photosCount: "35 Photos",
     views: "18.9K",
@@ -21,6 +24,7 @@ const collections = [
   },
   {
     id: 3,
+    slug: "stock-vintage-film-aesthetic-35mm-raw-pack",
     title: "Bộ Ảnh Vintage Film 35mm Aesthetic",
     photosCount: "62 Photos",
     views: "22.5K",
@@ -29,6 +33,7 @@ const collections = [
   },
   {
     id: 4,
+    slug: "preset-color-grading-cinematic-moody-film",
     title: "Chụp Ảnh Đường Phố Đêm Cinematic Light",
     photosCount: "40 Photos",
     views: "12.0K",
@@ -37,6 +42,7 @@ const collections = [
   },
   {
     id: 5,
+    slug: "stock-cuc-tan-an-do-duong-pho-ha-noi",
     title: "Concept Cúc Tần Ấn Độ Mùa Hè Rực Rỡ",
     photosCount: "55 Photos",
     views: "28.1K",
@@ -45,6 +51,7 @@ const collections = [
   },
   {
     id: 6,
+    slug: "preset-retouch-da-chan-dung-studio",
     title: "Chân Dung Thời Trang LookBook Studio Pro",
     photosCount: "30 Photos",
     views: "9.4K",
@@ -77,9 +84,10 @@ export default function CollectionPage() {
           {/* Collection Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {collections.map((col) => (
-              <div
+              <Link
                 key={col.id}
-                className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300"
+                href={`/post/${col.slug}`}
+                className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 block cursor-pointer"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
                   <img
@@ -107,11 +115,11 @@ export default function CollectionPage() {
                       <Heart className="w-3.5 h-3.5 text-rose-500" /> {col.likes}
                     </span>
                   </div>
-                  <button className="px-3 py-1.5 rounded bg-[#1e232a] hover:bg-[#00b4d8] text-white font-bold transition-colors flex items-center gap-1">
+                  <span className="px-3 py-1.5 rounded bg-[#1e232a] group-hover:bg-[#00b4d8] text-white font-bold transition-colors flex items-center gap-1">
                     <Download className="w-3.5 h-3.5" /> Xem bộ ảnh
-                  </button>
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </main>
@@ -121,3 +129,4 @@ export default function CollectionPage() {
     </div>
   );
 }
+

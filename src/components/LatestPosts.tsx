@@ -1,10 +1,20 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Calendar, User, Eye } from "lucide-react";
-import { postsData } from "@/data/posts";
+import { postsData, getStoredPosts, Post } from "@/data/posts";
 
 export default function LatestPosts() {
+  const [posts, setPosts] = useState<Post[]>(postsData);
+
+  useEffect(() => {
+    const stored = getStoredPosts();
+    if (stored && stored.length > 0) {
+      setPosts(stored);
+    }
+  }, []);
+
   return (
     <section id="latest-posts" className="py-8">
       {/* Section Title */}
@@ -16,7 +26,7 @@ export default function LatestPosts() {
 
       {/* Grid of Post Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {postsData.map((post) => (
+        {posts.map((post) => (
           <Link
             key={post.id}
             href={`/post/${post.slug}`}
@@ -70,5 +80,6 @@ export default function LatestPosts() {
     </section>
   );
 }
+
 
 

@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ChevronRight, Download, Eye } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { getStoredPosts, Post } from "@/data/posts";
 
 interface ResourceItem {
   id: string;
@@ -13,9 +15,9 @@ interface ResourceItem {
   category: string;
 }
 
-const stockFreeItems: ResourceItem[] = [
+const defaultStockFreeItems: ResourceItem[] = [
   {
-    id: "1",
+    id: "P-101",
     slug: "1a-2-zip-stock-nang-chieu-hoang-hon",
     title: "1a-2.zip (Stock Nắng Chiều Hoàng Hôn)",
     image: "https://www.kienkaka.pro/storage/uploads/1a-2.webp",
@@ -23,7 +25,7 @@ const stockFreeItems: ResourceItem[] = [
     category: "Stock Free",
   },
   {
-    id: "2",
+    id: "P-102",
     slug: "stock-chan-dung-indoor-nhe-nhang-mua-he",
     title: "Stock Nàng Thơ Bên Khung Cửa Sổ RAW",
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600",
@@ -31,7 +33,7 @@ const stockFreeItems: ResourceItem[] = [
     category: "Stock Free",
   },
   {
-    id: "3",
+    id: "P-103",
     slug: "stock-cuc-tan-an-do-duong-pho-ha-noi",
     title: "Stock Cúc Tần Ấn Độ Đường Phố Hà Nội",
     image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=600",
@@ -39,7 +41,7 @@ const stockFreeItems: ResourceItem[] = [
     category: "Stock Free",
   },
   {
-    id: "4",
+    id: "P-104",
     slug: "stock-vintage-film-aesthetic-35mm-raw-pack",
     title: "Stock Vintage Film Aesthetic 35mm RAW Pack",
     image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=600",
@@ -48,9 +50,9 @@ const stockFreeItems: ResourceItem[] = [
   },
 ];
 
-const presetFreeItems: ResourceItem[] = [
+const defaultPresetFreeItems: ResourceItem[] = [
   {
-    id: "5",
+    id: "P-105",
     slug: "preset-lightroom-tone-han-quoc-trong-treo",
     title: "Preset Lightroom Tone Hàn Quốc Trong Trẻo",
     image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=600",
@@ -58,7 +60,7 @@ const presetFreeItems: ResourceItem[] = [
     category: "Preset Free",
   },
   {
-    id: "6",
+    id: "P-106",
     slug: "preset-color-grading-cinematic-moody-film",
     title: "Preset Color Grading Cinematic Moody Film",
     image: "https://images.unsplash.com/photo-1554048612-b6a482bc67e5?auto=format&fit=crop&q=80&w=600",
@@ -66,7 +68,7 @@ const presetFreeItems: ResourceItem[] = [
     category: "Preset Free",
   },
   {
-    id: "7",
+    id: "P-107",
     slug: "preset-tone-nang-mua-he-ruc-ro",
     title: "Preset Tone Nắng Mùa Hè Rực Rỡ Mobile/PC",
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600",
@@ -74,7 +76,7 @@ const presetFreeItems: ResourceItem[] = [
     category: "Preset Free",
   },
   {
-    id: "8",
+    id: "P-108",
     slug: "preset-retouch-da-chan-dung-studio",
     title: "Preset Retouch Da Chân Dung Studio",
     image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600",
@@ -83,9 +85,9 @@ const presetFreeItems: ResourceItem[] = [
   },
 ];
 
-const paidItems: ResourceItem[] = [
+const defaultPaidItems: ResourceItem[] = [
   {
-    id: "9",
+    id: "P-109",
     slug: "bo-500-preset-doc-quyen-zunphoto-full-pack",
     title: "Bộ 500+ Preset Độc Quyền ZunPhoto Full Pack",
     image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=600",
@@ -94,7 +96,7 @@ const paidItems: ResourceItem[] = [
     category: "Tài nguyên trả phí",
   },
   {
-    id: "10",
+    id: "P-110",
     slug: "full-khoa-hoc-retouch-photoshop-chuyen-nghiep",
     title: "Full Khóa Học Retouch Photoshop Chuyên Nghiệp",
     image: "https://images.unsplash.com/photo-1493863641943-9b68992a8d07?auto=format&fit=crop&q=80&w=600",
@@ -103,7 +105,7 @@ const paidItems: ResourceItem[] = [
     category: "Tài nguyên trả phí",
   },
   {
-    id: "11",
+    id: "P-111",
     slug: "bo-nguyen-lieu-overlay-light-leak-chuyen-nghiep",
     title: "Bộ Nguyên Liệu Overlay & Light Leak Chuyên Nghiệp",
     image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=600",
@@ -112,7 +114,7 @@ const paidItems: ResourceItem[] = [
     category: "Tài nguyên trả phí",
   },
   {
-    id: "12",
+    id: "P-112",
     slug: "combo-all-in-one-stock-preset-vip-pass",
     title: "Combo All-in-One Stock + Preset VIP Pass",
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600",
@@ -123,6 +125,56 @@ const paidItems: ResourceItem[] = [
 ];
 
 export default function ResourcesSection() {
+  const [stockFreeItems, setStockFreeItems] = useState<ResourceItem[]>(defaultStockFreeItems);
+  const [presetFreeItems, setPresetFreeItems] = useState<ResourceItem[]>(defaultPresetFreeItems);
+  const [paidItems, setPaidItems] = useState<ResourceItem[]>(defaultPaidItems);
+
+  useEffect(() => {
+    const posts: Post[] = getStoredPosts();
+    
+    // Filter Stock Free
+    const stockPosts = posts.filter(p => p.category === "Stock Free" || p.category === "Stock RAW Free");
+    if (stockPosts.length > 0) {
+      setStockFreeItems(stockPosts.map(p => ({
+        id: p.id,
+        slug: p.slug,
+        title: p.title,
+        image: p.imageUrl,
+        badge: (p.badge as "Free" | "Trả phí") || "Free",
+        price: p.price,
+        category: p.category,
+      })).slice(0, 4));
+    }
+
+    // Filter Preset Free
+    const presetPosts = posts.filter(p => p.category === "Preset Free");
+    if (presetPosts.length > 0) {
+      setPresetFreeItems(presetPosts.map(p => ({
+        id: p.id,
+        slug: p.slug,
+        title: p.title,
+        image: p.imageUrl,
+        badge: (p.badge as "Free" | "Trả phí") || "Free",
+        price: p.price,
+        category: p.category,
+      })).slice(0, 4));
+    }
+
+    // Filter Paid Items
+    const paid = posts.filter(p => p.category === "Tài nguyên trả phí" || p.price);
+    if (paid.length > 0) {
+      setPaidItems(paid.map(p => ({
+        id: p.id,
+        slug: p.slug,
+        title: p.title,
+        image: p.imageUrl,
+        badge: "Trả phí" as "Free" | "Trả phí",
+        price: p.price || "499.000đ",
+        category: p.category,
+      })).slice(0, 4));
+    }
+  }, []);
+
   const renderCategoryBlock = (
     title: string,
     href: string,
@@ -180,8 +232,6 @@ export default function ResourcesSection() {
                 )}
               </div>
 
-
-
               {/* Bottom Title Overlay */}
               <div className="absolute bottom-3 left-3 right-3 z-10 pointer-events-none">
                 <h4 className="text-sm font-bold text-white leading-tight line-clamp-2 drop-shadow">
@@ -211,3 +261,4 @@ export default function ResourcesSection() {
     </section>
   );
 }
+

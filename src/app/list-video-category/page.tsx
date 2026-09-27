@@ -1,10 +1,12 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { PlayCircle, Video, Clock, Award, Star } from "lucide-react";
+import { PlayCircle, Video, Clock, Star } from "lucide-react";
+import Link from "next/link";
 
 const courses = [
   {
     id: 1,
+    slug: "khoa-hoc-retouch-photoshop-chuyen-nghiep-tu-a-z",
     title: "KHÓA HỌC RETOUCH PHOTOSHOP CHUYÊN NGHIỆP TỪ A-Z",
     lessons: "24 Bài Giảng",
     duration: "12 Giờ Học HD",
@@ -15,6 +17,7 @@ const courses = [
   },
   {
     id: 2,
+    slug: "lam-chu-bo-cuc-anh-sang-den-flash-studio-pro",
     title: "LÀM CHỦ BỐ CỤC ÁNH SÁNG & ĐÈN FLASH STUDIO PRO",
     lessons: "16 Bài Giảng",
     duration: "8 Giờ Học HD",
@@ -25,6 +28,7 @@ const courses = [
   },
   {
     id: 3,
+    slug: "preset-color-grading-cinematic-moody-film",
     title: "BÍ QUYẾT BLEND MÀU CINEMATIC VỚI LIGHTROOM & CAPTURE ONE",
     lessons: "18 Bài Giảng",
     duration: "9 Giờ Học HD",
@@ -59,9 +63,10 @@ export default function CoursesPage() {
           {/* Courses List */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {courses.map((course) => (
-              <div
+              <Link
                 key={course.id}
-                className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                href={`/post/${course.slug}`}
+                className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between block cursor-pointer"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
                   <img
@@ -99,12 +104,12 @@ export default function CoursesPage() {
                     <span className="text-amber-500 flex items-center gap-1">
                       <Star className="w-3.5 h-3.5 fill-amber-500" /> {course.rating} ({course.students})
                     </span>
-                    <button className="px-4 py-2 rounded-xl bg-[#1e232a] hover:bg-[#00b4d8] text-white font-bold transition-colors">
+                    <span className="px-4 py-2 rounded-xl bg-[#1e232a] group-hover:bg-[#00b4d8] text-white font-bold transition-colors">
                       Vào Học Ngay
-                    </button>
+                    </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </main>
@@ -114,3 +119,4 @@ export default function CoursesPage() {
     </div>
   );
 }
+
