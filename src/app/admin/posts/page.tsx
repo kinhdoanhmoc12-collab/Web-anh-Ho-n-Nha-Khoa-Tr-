@@ -38,6 +38,41 @@ interface WordPressEditorProps {
   onChange: (val: string) => void;
 }
 
+function compressImageFile(file: File, maxWidth = 1200, quality = 0.82): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL("image/jpeg", quality);
+          resolve(compressedBase64);
+        } else {
+          resolve(e.target?.result as string);
+        }
+      };
+      img.onerror = () => reject(new Error("Lỗi khi đọc file ảnh"));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error("Lỗi khi tải file"));
+    reader.readAsDataURL(file);
+  });
+}
+
 function WordPressRichEditor({ value, onChange }: WordPressEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,24 +101,22 @@ function WordPressRichEditor({ value, onChange }: WordPressEditorProps) {
     }
   };
 
-  const handleImageInsert = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageInsert = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 15 * 1024 * 1024) {
-      alert("File ảnh quá lớn! Vui lòng chọn file dưới 15MB.");
+    if (file.size > 25 * 1024 * 1024) {
+      alert("File ảnh quá lớn! Vui lòng chọn file dưới 25MB.");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const base64 = ev.target?.result as string;
-      if (base64) {
-        const imgHtml = `<img src="${base64}" alt="Ảnh bài viết" style="max-width:100%; height:auto; border-radius:12px; margin: 16px auto; display:block;" />`;
-        exec("insertHTML", imgHtml);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const base64 = await compressImageFile(file, 1200, 0.82);
+      const imgHtml = `<img src="${base64}" alt="Ảnh bài viết" style="max-width:100%; height:auto; border-radius:12px; margin: 16px auto; display:block;" />`;
+      exec("insertHTML", imgHtml);
+    } catch {
+      alert("Lỗi khi nén ảnh! Vui lòng thử lại với tệp ảnh khác.");
+    }
   };
 
   const handleInsertLink = () => {
@@ -484,23 +517,21 @@ export default function AdminPostsPage() {
     }
   };
 
-  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 15 * 1024 * 1024) {
-      alert("Dung lượng file quá lớn! Vui lòng chọn ảnh nhỏ hơn 15MB.");
+    if (file.size > 25 * 1024 * 1024) {
+      alert("Dung lượng file quá lớn! Vui lòng chọn ảnh nhỏ hơn 25MB.");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result as string;
-      if (result) {
-        setFormImageUrl(result);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImageFile(file, 1200, 0.82);
+      setFormImageUrl(compressed);
+    } catch {
+      alert("Lỗi khi tải ảnh bìa! Vui lòng thử tệp ảnh khác.");
+    }
   };
 
   const handleSavePost = async (e: React.FormEvent) => {
@@ -551,14 +582,16 @@ export default function AdminPostsPage() {
             ? `Đã cập nhật bài viết [${editingPost.id}] thành công!`
             : `Đã xuất bản bài viết mới [${data.post?.id || "Mới"}] thành công!`
         );
-        fetchPosts();
+        await fetchPosts();
+        setIsModalOpen(false);
+        setTimeout(() => setNotice(""), 3500);
+      } else {
+        const errData = await res.json().catch(() => ({ message: "Lỗi kết nối máy chủ" }));
+        alert(`Không thể xuất bản bài viết: ${errData.message || "Lỗi lưu dữ liệu máy chủ"}`);
       }
-    } catch {
-      setNotice("Lỗi khi lưu bài viết lên hệ thống!");
+    } catch (err: any) {
+      alert(`Lỗi hệ thống khi lưu bài viết: ${err?.message || "Không thể kết nối đến máy chủ"}`);
     }
-
-    setIsModalOpen(false);
-    setTimeout(() => setNotice(""), 3500);
   };
 
   const handleDelete = async (id: string) => {
