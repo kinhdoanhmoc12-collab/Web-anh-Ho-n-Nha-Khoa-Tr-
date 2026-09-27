@@ -929,22 +929,29 @@ export default function AdminResourcesPage() {
                   </div>
                 </div>
 
-                {(formBadge === "VIP" || formCategory === "Tài nguyên trả phí" || formCategory === "Khóa học") && (
-                  <div className="space-y-1.5 bg-emerald-950/20 p-3.5 rounded-xl border border-emerald-500/30 animate-in fade-in duration-200">
-                    <label className="font-bold text-emerald-400 flex items-center justify-between text-xs">
-                      <span>💰 Giá Bán / Phí Tài Nguyên (VNĐ) *</span>
-                      <span className="text-[10px] text-slate-400 font-normal">Nhập số tiền hiển thị cho khách mua (Ví dụ: 499.000đ)</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ví dụ: 499.000đ hoặc 1.200.000đ"
-                      value={formPrice}
-                      onChange={(e) => setFormPrice(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-emerald-500/50 text-emerald-400 font-bold text-sm focus:outline-none focus:border-emerald-400"
-                    />
-                  </div>
-                )}
+                <div className="space-y-1.5 bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                  <label className="font-bold text-emerald-400 flex items-center justify-between text-xs">
+                    <span>💰 Giá Bán / Phí Bài Viết Tài Nguyên (VNĐ)</span>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      (Để trống nếu Miễn Phí / Free, hoặc nhập giá ví dụ: 499.000đ)
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Để trống = Miễn phí (Free) | Hoặc nhập ví dụ: 499.000đ"
+                    value={formPrice}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormPrice(val);
+                      if (val.trim()) {
+                        setFormBadge("VIP");
+                      } else if (formCategory === "Stock Free" || formCategory === "Preset Free") {
+                        setFormBadge("Free");
+                      }
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-400 font-bold text-sm focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
 
                 {/* Cover Image Upload */}
                 <div className="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
