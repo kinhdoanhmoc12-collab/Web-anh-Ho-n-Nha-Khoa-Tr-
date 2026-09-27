@@ -192,7 +192,7 @@ export default function Header() {
                 </svg>
               </a>
               <a
-                href="https://tiktok.com/"
+                href="https://vt.tiktok.com/ZSqvgL7gT/"
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-full bg-[#1c222e] flex items-center justify-center text-white hover:bg-[#00b4d8] transition-colors shadow-sm"
