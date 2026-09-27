@@ -2,9 +2,383 @@
 
 import { useState, useEffect, useRef } from "react";
 import AdminSidebar from "@/components/AdminSidebar";
-import { FileText, Plus, Search, Edit3, Trash2, CheckCircle2, X, Save, Image as ImageIcon, ExternalLink, Link as LinkIcon, Star, Upload } from "lucide-react";
+import {
+  FileText,
+  Plus,
+  Search,
+  Edit3,
+  Trash2,
+  CheckCircle2,
+  X,
+  Save,
+  Image as ImageIcon,
+  ExternalLink,
+  Link as LinkIcon,
+  Star,
+  Upload,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  List,
+  ListOrdered,
+  Quote,
+  Code,
+  Palette,
+} from "lucide-react";
 import Link from "next/link";
 import { getStoredPosts, saveStoredPosts, Post } from "@/data/posts";
+
+interface WordPressEditorProps {
+  value: string;
+  onChange: (val: string) => void;
+}
+
+function WordPressRichEditor({ value, onChange }: WordPressEditorProps) {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCodeView, setIsCodeView] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkText, setLinkText] = useState("");
+  const [linkUrl, setLinkUrl] = useState("https://");
+  const [selectedColor, setSelectedColor] = useState("#00b4d8");
+
+  useEffect(() => {
+    if (editorRef.current && editorRef.current.innerHTML !== value) {
+      editorRef.current.innerHTML = value || "<p><br></p>";
+    }
+  }, [isCodeView]);
+
+  const exec = (command: string, val: string | undefined = undefined) => {
+    document.execCommand(command, false, val);
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleInput = () => {
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleImageInsert = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert("File ảnh quá lớn! Vui lòng chọn file dưới 15MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target?.result as string;
+      if (base64) {
+        const imgHtml = `<img src="${base64}" alt="Ảnh bài viết" style="max-width:100%; height:auto; border-radius:12px; margin: 16px auto; display:block;" />`;
+        exec("insertHTML", imgHtml);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleInsertLink = () => {
+    if (!linkUrl.trim()) return;
+    const anchorText = linkText.trim() || linkUrl;
+    const aHtml = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="color: #00b4d8; font-weight: bold; text-decoration: underline;">${anchorText}</a>`;
+    exec("insertHTML", aHtml);
+    setShowLinkModal(false);
+    setLinkText("");
+    setLinkUrl("https://");
+  };
+
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden shadow-lg">
+      {/* WordPress Editor Toolbar */}
+      <div className="bg-slate-900 border-b border-slate-800 p-2.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-300">
+        {/* Headings */}
+        <select
+          onChange={(e) => exec("formatBlock", e.target.value)}
+          className="px-2 py-1.5 rounded bg-slate-950 border border-slate-800 text-white font-semibold text-xs focus:outline-none cursor-pointer"
+        >
+          <option value="p">Đoạn văn (Paragraph)</option>
+          <option value="h1">Tiêu đề 1 (H1)</option>
+          <option value="h2">Tiêu đề 2 (H2)</option>
+          <option value="h3">Tiêu đề 3 (H3)</option>
+          <option value="h4">Tiêu đề 4 (H4)</option>
+        </select>
+
+        {/* Font Family */}
+        <select
+          onChange={(e) => exec("fontName", e.target.value)}
+          className="px-2 py-1.5 rounded bg-slate-950 border border-slate-800 text-white font-semibold text-xs focus:outline-none cursor-pointer"
+        >
+          <option value="Inter, sans-serif">Phông Inter</option>
+          <option value="Roboto, sans-serif">Phông Roboto</option>
+          <option value="Arial, sans-serif">Phông Arial</option>
+          <option value="Georgia, serif">Phông Georgia (Có chân)</option>
+          <option value="Courier New, monospace">Phông Monospace (Mã)</option>
+        </select>
+
+        {/* Font Size */}
+        <select
+          onChange={(e) => exec("fontSize", e.target.value)}
+          className="px-2 py-1.5 rounded bg-slate-950 border border-slate-800 text-white font-semibold text-xs focus:outline-none cursor-pointer"
+        >
+          <option value="3">Size 16px (Chuẩn)</option>
+          <option value="2">Size 14px (Nhỏ)</option>
+          <option value="4">Size 18px (Lớn)</option>
+          <option value="5">Size 24px (Rất Lớn)</option>
+          <option value="6">Size 32px (Tiêu Đề)</option>
+        </select>
+
+        <span className="h-4 w-px bg-slate-800 mx-1" />
+
+        {/* Bold, Italic, Underline, Strikethrough */}
+        <button
+          type="button"
+          onClick={() => exec("bold")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white font-bold cursor-pointer"
+          title="Bôi đậm (Bold)"
+        >
+          <Bold className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => exec("italic")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white cursor-pointer"
+          title="In nghiêng (Italic)"
+        >
+          <Italic className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => exec("underline")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white cursor-pointer"
+          title="Gạch chân (Underline)"
+        >
+          <Underline className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => exec("strikeThrough")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white cursor-pointer"
+          title="Gạch ngang (Strikethrough)"
+        >
+          <Strikethrough className="w-4 h-4" />
+        </button>
+
+        <span className="h-4 w-px bg-slate-800 mx-1" />
+
+        {/* Text Alignments */}
+        <button
+          type="button"
+          onClick={() => exec("justifyLeft")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white cursor-pointer"
+          title="Căn Trái"
+        >
+          <AlignLeft className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => exec("justifyCenter")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white cursor-pointer"
+          title="Căn Giữa"
+        >
+          <AlignCenter className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => exec("justifyRight")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white cursor-pointer"
+          title="Căn Phải"
+        >
+          <AlignRight className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => exec("justifyFull")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white cursor-pointer"
+          title="Căn Đều 2 Bên"
+        >
+          <AlignJustify className="w-4 h-4" />
+        </button>
+
+        <span className="h-4 w-px bg-slate-800 mx-1" />
+
+        {/* Text Color Picker */}
+        <div className="flex items-center gap-1">
+          <Palette className="w-4 h-4 text-[#00b4d8]" />
+          <input
+            type="color"
+            value={selectedColor}
+            onChange={(e) => {
+              setSelectedColor(e.target.value);
+              exec("foreColor", e.target.value);
+            }}
+            className="w-6 h-6 rounded cursor-pointer border-0 bg-transparent"
+            title="Chọn Màu Chữ"
+          />
+        </div>
+
+        <span className="h-4 w-px bg-slate-800 mx-1" />
+
+        {/* Lists & Quote */}
+        <button
+          type="button"
+          onClick={() => exec("insertUnorderedList")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white cursor-pointer"
+          title="Danh sách Dấu Chấm"
+        >
+          <List className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => exec("insertOrderedList")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white cursor-pointer"
+          title="Danh sách Số"
+        >
+          <ListOrdered className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => exec("formatBlock", "blockquote")}
+          className="p-1.5 rounded hover:bg-slate-800 text-slate-200 hover:text-white cursor-pointer"
+          title="Khối Trích Dẫn"
+        >
+          <Quote className="w-4 h-4" />
+        </button>
+
+        <span className="h-4 w-px bg-slate-800 mx-1" />
+
+        {/* INSERT HIDDEN LINK BUTTON */}
+        <button
+          type="button"
+          onClick={() => setShowLinkModal(true)}
+          className="py-1 px-2.5 rounded bg-[#00b4d8]/20 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white font-bold flex items-center gap-1 transition-colors cursor-pointer"
+          title="Chèn Link Ẩn"
+        >
+          <LinkIcon className="w-3.5 h-3.5" /> Chèn Link Ẩn
+        </button>
+
+        {/* INSERT IMAGE FROM COMPUTER BUTTON */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="py-1 px-2.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-600 hover:text-white font-bold flex items-center gap-1 transition-colors cursor-pointer"
+          title="Chèn Ảnh Từ Máy Tính"
+        >
+          <ImageIcon className="w-3.5 h-3.5" /> Chèn Ảnh Từ Máy
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageInsert}
+          className="hidden"
+        />
+
+        <span className="h-4 w-px bg-slate-800 mx-1" />
+
+        {/* Toggle HTML Code View */}
+        <button
+          type="button"
+          onClick={() => setIsCodeView(!isCodeView)}
+          className={`py-1 px-2.5 rounded font-bold flex items-center gap-1 transition-colors cursor-pointer ${
+            isCodeView
+              ? "bg-amber-500 text-slate-950"
+              : "bg-slate-800 text-slate-300 hover:text-white"
+          }`}
+          title="Xem Mã HTML"
+        >
+          <Code className="w-3.5 h-3.5" /> {isCodeView ? "Văn Bản" : "Mã HTML"}
+        </button>
+      </div>
+
+      {/* Editor Main Canvas / Textarea */}
+      {isCodeView ? (
+        <textarea
+          rows={12}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full p-4 bg-slate-950 text-amber-300 font-mono text-xs leading-relaxed focus:outline-none border-0"
+        />
+      ) : (
+        <div
+          ref={editorRef}
+          contentEditable
+          onInput={handleInput}
+          onBlur={handleInput}
+          className="p-5 min-h-[300px] max-h-[500px] overflow-y-auto bg-slate-950 text-slate-100 text-sm leading-relaxed focus:outline-none font-sans [&_p]:mb-3 [&_h1]:text-2xl [&_h1]:font-black [&_h2]:text-xl [&_h2]:font-extrabold [&_h3]:text-lg [&_h3]:font-bold [&_a]:text-[#00b4d8] [&_a]:font-bold [&_a]:underline [&_img]:max-w-full [&_img]:rounded-xl [&_img]:my-3 [&_blockquote]:border-l-4 [&_blockquote]:border-[#00b4d8] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+        />
+      )}
+
+      {/* Insert Hidden Link Modal */}
+      {showLinkModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-md space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+              <LinkIcon className="w-4 h-4 text-[#00b4d8]" /> Chèn Đường Dẫn Link Ẩn
+            </h3>
+
+            <div className="space-y-3 text-xs">
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-300">Chữ hiển thị (Link Text)</label>
+                <input
+                  type="text"
+                  placeholder="Ví dụ: Bấm vào đây để tải Preset..."
+                  value={linkText}
+                  onChange={(e) => setLinkText(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-300">Địa chỉ URL liên kết *</label>
+                <input
+                  type="text"
+                  placeholder="https://drive.google.com/..."
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-cyan-400 font-mono focus:outline-none focus:border-[#00b4d8]"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setShowLinkModal(false)}
+                className="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors cursor-pointer text-xs"
+              >
+                Hủy Bỏ
+              </button>
+              <button
+                type="button"
+                onClick={handleInsertLink}
+                className="flex-1 py-2 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold transition-colors shadow cursor-pointer text-xs"
+              >
+                Chèn Link Vào Bài Viết
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -206,10 +580,10 @@ export default function AdminPostsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
           <div>
             <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              <FileText className="w-6 h-6 text-[#00b4d8]" /> QUẢN LÝ TẠO & CHỈNH SỬA BÀI VIẾT ZUNPHOTO
+              <FileText className="w-6 h-6 text-[#00b4d8]" /> QUẢN LÝ TẠO &amp; CHỈNH SỬA BÀI VIẾT ZUNPHOTO
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Tải ảnh trực tiếp từ máy tính lên để tạo và chỉnh sửa bài viết Stock, Preset, Khóa học & Tài nguyên.
+              Tải ảnh trực tiếp từ máy tính lên để tạo và chỉnh sửa bài viết Stock, Preset, Khóa học &amp; Tài nguyên.
             </p>
           </div>
 
@@ -250,9 +624,8 @@ export default function AdminPostsPage() {
               <option value="Stock Free">Stock Free</option>
               <option value="Preset Free">Preset Free</option>
               <option value="Tài nguyên trả phí">Tài nguyên trả phí</option>
-              <option value="Khóa học">Khóa học</option>
-              <option value="Ảnh của Zun">Ảnh của Zun</option>
-              <option value="Kinh nghiệm">Kinh nghiệm nhiếp ảnh</option>
+              <option value="Khóa học">Khóa học HD</option>
+              <option value="Kinh nghiệm">Kinh nghiệm hậu kỳ</option>
             </select>
           </div>
         </div>
@@ -263,216 +636,165 @@ export default function AdminPostsPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-950 text-slate-400 font-bold uppercase border-b border-slate-800">
                 <tr>
-                  <th className="p-4">Bài Viết & Ảnh Tải Từ Máy</th>
-                  <th className="p-4">Tiêu Đề / Slug</th>
+                  <th className="p-4">Mã / Ảnh Tải Từ Máy</th>
+                  <th className="p-4">Tiêu Đề Bài Viết</th>
                   <th className="p-4">Chuyên Mục</th>
-                  <th className="p-4">Tải Về & Giá</th>
-                  <th className="p-4">Ngày Đăng</th>
+                  <th className="p-4">Tác Giả</th>
+                  <th className="p-4">Giá / Thẻ</th>
+                  <th className="p-4">Ghim</th>
                   <th className="p-4 text-right">Thao Tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-medium">
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="p-8 text-center text-slate-500 font-medium">
-                      Không tìm thấy bài viết nào phù hợp.
+                {filtered.map((post) => (
+                  <tr key={post.id} className="hover:bg-slate-800/40 transition-colors">
+                    <td className="p-4 flex items-center gap-2">
+                      <img
+                        src={post.imageUrl}
+                        alt={post.title}
+                        className="w-10 h-10 rounded-lg object-cover bg-slate-950 flex-shrink-0 border border-slate-800"
+                      />
+                      <span className="font-bold text-[#00b4d8]">{post.id}</span>
+                    </td>
+                    <td className="p-4 font-bold text-white max-w-sm">
+                      <Link
+                        href={`/post/${post.slug}`}
+                        target="_blank"
+                        className="hover:text-[#00b4d8] transition-colors flex items-center gap-1 leading-snug line-clamp-2"
+                      >
+                        {post.title} <ExternalLink className="w-3 h-3 flex-shrink-0 text-slate-500" />
+                      </Link>
+                    </td>
+                    <td className="p-4 text-slate-400">{post.category}</td>
+                    <td className="p-4 text-slate-300">{post.author}</td>
+                    <td className="p-4 font-bold">
+                      {post.price ? (
+                        <span className="text-emerald-400 font-bold">{post.price}</span>
+                      ) : (
+                        <span className="text-slate-400">Free</span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      {post.isPinned ? (
+                        <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-[10px]">
+                          📌 Đã Ghim
+                        </span>
+                      ) : (
+                        <span className="text-slate-500 text-[10px]">-</span>
+                      )}
+                    </td>
+                    <td className="p-4 text-right space-x-2">
+                      <button
+                        onClick={() => handleOpenEditModal(post)}
+                        className="p-1.5 rounded bg-[#00b4d8]/10 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white transition-colors cursor-pointer"
+                        title="Chỉnh sửa bài viết"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(post.id)}
+                        className="p-1.5 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
+                        title="Xóa bài viết"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </td>
                   </tr>
-                ) : (
-                  filtered.map((post) => (
-                    <tr key={post.id} className="hover:bg-slate-800/40 transition-colors">
-                      <td className="p-4 flex items-center gap-3">
-                        <img
-                          src={post.imageUrl}
-                          alt={post.title}
-                          className="w-12 h-10 rounded-lg object-cover bg-slate-950 flex-shrink-0 border border-slate-800"
-                        />
-                        <div>
-                          <span className="font-bold text-[#00b4d8] block">{post.id}</span>
-                          {post.isPinned && (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-amber-400 font-bold">
-                              <Star className="w-3 h-3 fill-amber-400" /> Ghim
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-4 max-w-sm">
-                        <div className="font-bold text-white leading-snug line-clamp-1">{post.title}</div>
-                        <div className="text-[11px] text-slate-400 line-clamp-1 mt-0.5 font-mono">
-                          /post/{post.slug}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className="px-2.5 py-1 rounded-full bg-slate-800 text-slate-200 text-[11px] font-bold">
-                          {post.category}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        {post.price ? (
-                          <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[11px] font-bold">
-                            {post.price}
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[11px] font-bold">
-                            Miễn phí
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-4 text-slate-400">{post.date}</td>
-                      <td className="p-4 text-right space-x-2 whitespace-nowrap">
-                        <Link
-                          href={`/post/${post.slug}`}
-                          target="_blank"
-                          className="p-1.5 inline-flex items-center rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                          title="Xem bài viết trên web"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </Link>
-                        <button
-                          onClick={() => handleOpenEditModal(post)}
-                          className="p-1.5 rounded bg-[#00b4d8]/10 text-[#00b4d8] hover:bg-[#00b4d8] hover:text-white transition-colors cursor-pointer"
-                          title="Chỉnh sửa bài viết"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(post.id)}
-                          className="p-1.5 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
-                          title="Xóa bài viết"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                ))}
               </tbody>
             </table>
           </div>
         </div>
       </main>
 
-      {/* Modal Edit / Add Post */}
+      {/* Modal Dialog for Edit / Add Post */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-3xl space-y-4 relative shadow-2xl max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full p-6 space-y-4 shadow-2xl my-8 relative">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-[#00b4d8]" />
                 {editingPost ? `Chỉnh Sửa Bài Viết [${editingPost.id}]` : "Soạn Thảo Bài Viết Mới"}
-              </h3>
+              </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer"
+                className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSavePost} className="space-y-4 text-xs">
-              {/* Title & Slug */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-300">Tiêu đề bài viết *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ví dụ: Stock Nắng Chiều Hoàng Hôn RAW..."
-                    value={formTitle}
-                    onChange={(e) => handleTitleChange(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold focus:outline-none focus:border-[#00b4d8]"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-300">Đường dẫn tĩnh (Slug URL)</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="1a-2-zip-stock-nang-chieu-hoang-hon"
-                    value={formSlug}
-                    onChange={(e) => setFormSlug(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-cyan-400 font-mono focus:outline-none focus:border-[#00b4d8]"
-                  />
-                </div>
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-300">Tiêu đề bài viết *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ví dụ: STOCK RAW NẮNG HOÀNG HÔN MÀU HÀN QUỐC CỰC ĐẸP"
+                  value={formTitle}
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold focus:outline-none focus:border-[#00b4d8]"
+                />
               </div>
 
-              {/* Category, Author, Badge & Price */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="space-y-1">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <div className="sm:col-span-6 space-y-1">
+                  <label className="font-semibold text-slate-300">Đường dẫn Slug (URL)</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="stock-raw-nang-hoang-hon"
+                    value={formSlug}
+                    onChange={(e) => setFormSlug(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 font-mono text-[11px] focus:outline-none focus:border-[#00b4d8]"
+                  />
+                </div>
+
+                <div className="sm:col-span-3 space-y-1">
                   <label className="font-semibold text-slate-300">Chuyên mục</label>
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
                   >
                     <option value="Stock Free">Stock Free</option>
                     <option value="Preset Free">Preset Free</option>
                     <option value="Tài nguyên trả phí">Tài nguyên trả phí</option>
-                    <option value="Khóa học">Khóa học</option>
-                    <option value="Ảnh của Zun">Ảnh của Zun</option>
-                    <option value="Kinh nghiệm">Kinh nghiệm nhiếp ảnh</option>
+                    <option value="Khóa học">Khóa học HD</option>
+                    <option value="Kinh nghiệm">Kinh nghiệm hậu kỳ</option>
                   </select>
                 </div>
 
-                <div className="space-y-1">
+                <div className="sm:col-span-3 space-y-1">
                   <label className="font-semibold text-slate-300">Tác giả</label>
                   <input
                     type="text"
                     value={formAuthor}
                     onChange={(e) => setFormAuthor(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-300">Nhãn Badge</label>
-                  <select
-                    value={formBadge}
-                    onChange={(e) => setFormBadge(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
-                  >
-                    <option value="Free">Free</option>
-                    <option value="Trả phí">Trả phí</option>
-                    <option value="VIP">VIP</option>
-                    <option value="Hot Masterclass">Hot Masterclass</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-300">Giá bán (nếu có)</label>
-                  <input
-                    type="text"
-                    placeholder="Ví dụ: 499.000đ"
-                    value={formPrice}
-                    onChange={(e) => setFormPrice(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-bold focus:outline-none focus:border-[#00b4d8]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
                   />
                 </div>
               </div>
 
-              {/* 100% LOCAL FILE UPLOAD DROPZONE & PREVIEW */}
-              <div className="space-y-2 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              {/* Cover Image Upload */}
+              <div className="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
                 <label className="font-bold text-slate-200 flex items-center justify-between text-xs">
                   <span className="flex items-center gap-1.5 text-[#00b4d8]">
-                    <Upload className="w-4 h-4" /> 📁 Tải Ảnh Bìa Bài Viết Trực Tiếp Từ Máy Tính *
+                    <Upload className="w-4 h-4" /> 📁 Tải Ảnh Bìa Bài Viết Từ Máy Tính *
                   </span>
-                  <span className="text-[10px] text-slate-400">Hỗ trợ JPG, PNG, WEBP, GIF</span>
                 </label>
 
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                  {/* Image Preview Box */}
-                  <div className="sm:col-span-4 relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center">
-                    {formImageUrl ? (
-                      <img src={formImageUrl} alt="Cover Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="text-center p-3 text-slate-500 text-[11px]">
-                        Chưa chọn ảnh từ máy
-                      </div>
-                    )}
+                  <div className="sm:col-span-4 flex justify-center">
+                    <div className="w-full h-24 rounded-lg overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center">
+                      {formImageUrl ? (
+                        <img src={formImageUrl} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-[10px] text-slate-500">Chưa chọn ảnh</span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Dropzone & Browse File Button */}
                   <div className="sm:col-span-8 space-y-2">
                     <input
                       ref={fileInputRef}
@@ -552,20 +874,13 @@ export default function AdminPostsPage() {
                 />
               </div>
 
-              {/* Full Content */}
+              {/* Full Content - WORDPRESS RICH TEXT EDITOR */}
               <div className="space-y-1">
                 <label className="font-semibold text-slate-300 flex items-center justify-between">
-                  <span>Nội Dụng Chi Tiết Bài Viết *</span>
-                  <span className="text-[10px] text-[#00b4d8]">Hỗ trợ Markdown & Tiêu đề ###</span>
+                  <span>Nội Dụng Chi Tiết Bài Viết (Trình Soạn Thảo WordPress) *</span>
+                  <span className="text-[10px] text-[#00b4d8]">Thanh công cụ: Tiêu đề H1-H4, Font/Cỡ chữ, Màu chữ, Căn lề, Bôi đậm, In nghiêng, Chèn ảnh từ máy &amp; Link ẩn</span>
                 </label>
-                <textarea
-                  rows={8}
-                  required
-                  placeholder="Nhập nội dung bài viết, công thức kéo màu Lightroom, hướng dẫn hậu kỳ ở đây..."
-                  value={formContent}
-                  onChange={(e) => setFormContent(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white leading-relaxed focus:outline-none focus:border-[#00b4d8] font-sans"
-                />
+                <WordPressRichEditor value={formContent} onChange={setFormContent} />
               </div>
 
               <div className="flex gap-2 pt-3 border-t border-slate-800">
@@ -580,7 +895,7 @@ export default function AdminPostsPage() {
                   type="submit"
                   className="flex-1 py-2.5 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold transition-colors shadow flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <Save className="w-4 h-4" /> Lưu & Xuất Bản Bài Viết
+                  <Save className="w-4 h-4" /> Lưu &amp; Xuất Bản Bài Viết
                 </button>
               </div>
             </form>

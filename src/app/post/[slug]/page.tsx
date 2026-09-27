@@ -132,63 +132,70 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                   </div>
                 )}
 
-                {/* Render Article Paragraphs */}
-                <div className="prose max-w-none text-slate-800 text-sm sm:text-base leading-relaxed space-y-6">
-                  {post.content.split("\n\n").map((paragraph, index) => {
-                    const renderFormattedText = (str: string) => {
-                      const parts = str.split(/(\*\*.*?\*\*)/g);
-                      return parts.map((part, i) => {
-                        if (part.startsWith("**") && part.endsWith("**")) {
-                          return (
-                            <strong key={i} className="font-bold text-slate-900">
-                              {part.slice(2, -2)}
-                            </strong>
-                          );
-                        }
-                        return part;
-                      });
-                    };
+                {/* Render Article Paragraphs / HTML Content */}
+                <div className="prose max-w-none text-slate-800 text-sm sm:text-base leading-relaxed space-y-4 font-sans">
+                  {post.content && (post.content.includes("<p") || post.content.includes("<h") || post.content.includes("<img") || post.content.includes("<div") || post.content.includes("<span") || post.content.includes("<a ") || post.content.includes("<b") || post.content.includes("<i") || post.content.includes("<u")) ? (
+                    <div
+                      className="wordpress-post-content space-y-4 font-normal text-slate-800 text-sm sm:text-base leading-relaxed [&_h1]:text-2xl [&_h1]:sm:text-3xl [&_h1]:font-black [&_h1]:text-slate-900 [&_h1]:mt-6 [&_h1]:mb-3 [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-extrabold [&_h2]:text-slate-900 [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-slate-800 [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-slate-800 [&_h4]:mt-3 [&_h4]:mb-1 [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:text-[#00b4d8] [&_a]:font-bold [&_a]:underline [&_a]:hover:text-cyan-600 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-2xl [&_img]:my-4 [&_img]:shadow-md [&_img]:border [&_img]:border-slate-200 [&_blockquote]:border-l-4 [&_blockquote]:border-[#00b4d8] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:bg-slate-50 [&_blockquote]:py-2 [&_blockquote]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-3"
+                      dangerouslySetInnerHTML={{ __html: post.content }}
+                    />
+                  ) : (
+                    post.content.split("\n\n").map((paragraph, index) => {
+                      const renderFormattedText = (str: string) => {
+                        const parts = str.split(/(\*\*.*?\*\*)/g);
+                        return parts.map((part, i) => {
+                          if (part.startsWith("**") && part.endsWith("**")) {
+                            return (
+                              <strong key={i} className="font-bold text-slate-900">
+                                {part.slice(2, -2)}
+                              </strong>
+                            );
+                          }
+                          return part;
+                        });
+                      };
 
-                    if (paragraph.startsWith("### ")) {
-                      const headingText = paragraph.replace("### ", "");
+                      if (paragraph.startsWith("### ")) {
+                        const headingText = paragraph.replace("### ", "");
+                        return (
+                          <h2
+                            key={index}
+                            className="text-lg sm:text-xl font-extrabold text-[#1a202c] pt-3 mt-4 leading-tight"
+                          >
+                            {renderFormattedText(headingText)}
+                          </h2>
+                        );
+                      }
+                      if (paragraph.startsWith("- ")) {
+                        return (
+                          <ul key={index} className="space-y-2 my-3 pl-2">
+                            {paragraph.split("\n").map((item, idx) => (
+                              <li key={idx} className="flex items-start gap-2 text-slate-700 text-sm sm:text-base">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#00b4d8] mt-2 flex-shrink-0" />
+                                <span>{renderFormattedText(item.replace("- ", ""))}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        );
+                      }
+                      if (/^\d+\./.test(paragraph)) {
+                        return (
+                          <ol key={index} className="space-y-2 my-3 pl-2">
+                            {paragraph.split("\n").map((item, idx) => (
+                              <li key={idx} className="text-slate-700 text-sm sm:text-base leading-relaxed font-medium">
+                                {renderFormattedText(item)}
+                              </li>
+                            ))}
+                          </ol>
+                        );
+                      }
                       return (
-                        <h2
-                          key={index}
-                          className="text-lg sm:text-xl font-extrabold text-[#1a202c] pt-3 mt-4 leading-tight"
-                        >
-                          {renderFormattedText(headingText)}
-                        </h2>
+                        <p key={index} className="text-slate-800 text-sm sm:text-base leading-relaxed font-normal">
+                          {renderFormattedText(paragraph)}
+                        </p>
                       );
-                    }
-                    if (paragraph.startsWith("- ")) {
-                      return (
-                        <ul key={index} className="space-y-2 my-3 pl-2">
-                          {paragraph.split("\n").map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-slate-700 text-sm sm:text-base">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#00b4d8] mt-2 flex-shrink-0" />
-                              <span>{renderFormattedText(item.replace("- ", ""))}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      );
-                    }
-                    if (/^\d+\./.test(paragraph)) {
-                      return (
-                        <ol key={index} className="space-y-2 my-3 pl-2">
-                          {paragraph.split("\n").map((item, idx) => (
-                            <li key={idx} className="text-slate-700 text-sm sm:text-base leading-relaxed font-medium">
-                              {renderFormattedText(item)}
-                            </li>
-                          ))}
-                        </ol>
-                      );
-                    }
-                    return (
-                      <p key={index} className="text-slate-800 text-sm sm:text-base leading-relaxed font-normal">
-                        {renderFormattedText(paragraph)}
-                      </p>
-                    );
-                  })}
+                    })
+                  )}
                 </div>
 
                 {/* Download Resource Action Card */}
