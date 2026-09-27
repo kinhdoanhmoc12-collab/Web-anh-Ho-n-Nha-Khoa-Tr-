@@ -29,7 +29,7 @@ const defaultUsers: UserRecord[] = [
     name: "ZunPhoto Admin",
     email: "admin@zunphoto.pro",
     role: "ADMIN",
-    balance: 10000000,
+    balance: 0,
     transferCode: "ZUN 1001",
     createdAt: "2026-01-01",
   },

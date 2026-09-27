@@ -43,7 +43,7 @@ const initialUsers: UserItem[] = [
     name: "ZunPhoto Admin",
     email: "admin@zunphoto.pro",
     role: "ADMIN",
-    balance: 10000000,
+    balance: 0,
     createdAt: "2026-01-01",
   },
 ];
