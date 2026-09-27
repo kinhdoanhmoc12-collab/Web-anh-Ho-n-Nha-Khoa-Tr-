@@ -32,7 +32,7 @@ import {
 import Link from "next/link";
 import { Post, formatPriceString } from "@/data/posts";
 
-function compressImageFile(file: File, maxWidth = 1000, quality = 0.68): Promise<string> {
+function compressImageFile(file: File, maxWidth = 800, quality = 0.55): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -65,6 +65,61 @@ function compressImageFile(file: File, maxWidth = 1000, quality = 0.68): Promise
     reader.onerror = () => reject(new Error("Lỗi khi tải file"));
     reader.readAsDataURL(file);
   });
+}
+
+function compressBase64Image(base64Str: string, maxWidth = 750, quality = 0.55): Promise<string> {
+  return new Promise((resolve) => {
+    if (!base64Str || !base64Str.startsWith("data:image")) return resolve(base64Str);
+    const img = new Image();
+    img.onload = () => {
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      } else {
+        resolve(base64Str);
+      }
+    };
+    img.onerror = () => resolve(base64Str);
+    img.src = base64Str;
+  });
+}
+
+async function autoCompressContentImages(html: string): Promise<string> {
+  if (!html || typeof window === "undefined" || !html.includes("data:image")) return html;
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const imgs = Array.from(doc.querySelectorAll("img"));
+
+    let modified = false;
+
+    for (const img of imgs) {
+      const src = img.getAttribute("src");
+      if (src && src.startsWith("data:image") && src.length > 100000) {
+        const compressed = await compressBase64Image(src, 750, 0.55);
+        img.setAttribute("src", compressed);
+        modified = true;
+      }
+    }
+
+    return modified ? doc.body.innerHTML : html;
+  } catch {
+    return html;
+  }
 }
 
 interface WordPressEditorProps {
@@ -110,7 +165,7 @@ function WordPressRichEditor({ value, onChange }: WordPressEditorProps) {
     }
 
     try {
-      const base64 = await compressImageFile(file, 900, 0.65);
+      const base64 = await compressImageFile(file, 750, 0.55);
       const imgHtml = `<img src="${base64}" alt="Ảnh bài viết" style="max-width:100%; height:auto; border-radius:12px; margin: 16px auto; display:block;" />`;
       exec("insertHTML", imgHtml);
     } catch {
@@ -540,6 +595,11 @@ export default function AdminResourcesPage() {
       return;
     }
 
+    const cleanedContent = await autoCompressContentImages(formContent || formTitle);
+    const cleanedCover = formImageUrl.startsWith("data:image") && formImageUrl.length > 100000
+      ? await compressBase64Image(formImageUrl, 750, 0.55)
+      : formImageUrl;
+
     const finalSlug = formSlug.trim() || generateSlug(formTitle);
     const parsedTags = formTags
       .split(",")
@@ -555,8 +615,8 @@ export default function AdminResourcesPage() {
       category: formCategory,
       author: formAuthor || "ZunPhoto",
       excerpt: formExcerpt || formTitle,
-      content: formContent || formTitle,
-      imageUrl: formImageUrl,
+      content: cleanedContent,
+      imageUrl: cleanedCover,
       downloadUrl: formDownloadUrl || "https://drive.google.com/",
       price: formattedPrice,
       badge: formattedPrice ? "VIP" : formBadge,
