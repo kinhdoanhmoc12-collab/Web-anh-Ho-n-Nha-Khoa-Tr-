@@ -151,7 +151,7 @@ export default function TransactionPage() {
 
                     <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-2.5">
                       <RefreshCw className="w-4 h-4 animate-spin flex-shrink-0 text-emerald-400" />
-                      <span>Hệ thống SePAY tự động quét &amp; cộng tiền tức thì trong 3-5 giây sau khi bạn chuyển khoản!</span>
+                      <span>Hệ thống ZunPhoto tự động quét &amp; cộng tiền tức thì trong 3-5 giây sau khi bạn chuyển khoản!</span>
                     </div>
                   </div>
                 </div>
