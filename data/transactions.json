@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "id": "TX-312254",
+    "memoCode": "ZUN 312254",
+    "userEmail": "user@zunphoto.pro",
+    "amount": 200000,
+    "bankName": "MB Bank",
+    "accountNumber": "0979487405",
+    "status": "APPROVED",
+    "createdAt": "2026-09-26 14:20:00",
+    "referenceCode": "SEPAY-200K-312254"
+  }
+]

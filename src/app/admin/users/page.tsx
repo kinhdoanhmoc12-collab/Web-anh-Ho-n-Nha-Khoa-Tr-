@@ -15,12 +15,12 @@ interface UserItem {
 
 const initialUsers: UserItem[] = [
   {
-    id: "USR-930392",
-    name: "Thành Viên VIP",
+    id: "USR-312254",
+    name: "Thành viên VIP",
     email: "user@zunphoto.pro",
     role: "VIP_MEMBER",
-    balance: 150000,
-    createdAt: "2026-09-15",
+    balance: 200000,
+    createdAt: "2026-09-26",
   },
   {
     id: "USR-889922",

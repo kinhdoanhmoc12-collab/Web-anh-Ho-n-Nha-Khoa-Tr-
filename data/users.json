@@ -1,5 +1,14 @@
 [
   {
+    "id": "USR-312254",
+    "name": "Thành viên",
+    "email": "user@zunphoto.pro",
+    "role": "USER",
+    "balance": 200000,
+    "transferCode": "ZUN 312254",
+    "createdAt": "2026-09-26"
+  },
+  {
     "id": "USR-640591",
     "name": "ALo 12",
     "email": "alo12@gmail.com",
@@ -7,5 +16,14 @@
     "balance": 0,
     "transferCode": "ZUN 640591",
     "createdAt": "2026-09-25"
+  },
+  {
+    "id": "USR-1001",
+    "name": "ZunPhoto Admin",
+    "email": "admin@zunphoto.pro",
+    "role": "ADMIN",
+    "balance": 10000000,
+    "transferCode": "ZUN 1001",
+    "createdAt": "2026-01-01"
   }
 ]

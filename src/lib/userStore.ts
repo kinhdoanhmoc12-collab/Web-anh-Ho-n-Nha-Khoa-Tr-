@@ -14,13 +14,34 @@ export interface UserRecord {
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "users.json");
 
+const defaultUsers: UserRecord[] = [
+  {
+    id: "USR-312254",
+    name: "Thành viên VIP",
+    email: "user@zunphoto.pro",
+    role: "VIP_MEMBER",
+    balance: 200000,
+    transferCode: "ZUN 312254",
+    createdAt: "2026-09-26",
+  },
+  {
+    id: "USR-1001",
+    name: "ZunPhoto Admin",
+    email: "admin@zunphoto.pro",
+    role: "ADMIN",
+    balance: 10000000,
+    transferCode: "ZUN 1001",
+    createdAt: "2026-01-01",
+  },
+];
+
 function ensureStoreFile() {
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
     if (!fs.existsSync(DATA_FILE)) {
-      fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2), "utf-8");
+      fs.writeFileSync(DATA_FILE, JSON.stringify(defaultUsers, null, 2), "utf-8");
     }
   } catch (e) {
     console.error("Error creating data folder/file:", e);
@@ -32,7 +53,7 @@ export function getAllUsers(): UserRecord[] {
   try {
     const content = fs.readFileSync(DATA_FILE, "utf-8");
     const parsed = JSON.parse(content);
-    if (Array.isArray(parsed)) {
+    if (Array.isArray(parsed) && parsed.length > 0) {
       return parsed.map((u, index) => ({
         id: u?.id || `USR-${1000 + index}`,
         name: u?.name || u?.email?.split("@")[0] || "Thành viên",
@@ -43,9 +64,9 @@ export function getAllUsers(): UserRecord[] {
         createdAt: u?.createdAt || new Date().toISOString().split("T")[0],
       }));
     }
-    return [];
+    return defaultUsers;
   } catch {
-    return [];
+    return defaultUsers;
   }
 }
 
