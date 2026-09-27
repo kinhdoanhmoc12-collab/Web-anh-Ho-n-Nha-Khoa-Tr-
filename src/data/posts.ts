@@ -18,6 +18,18 @@ export interface Post {
   badge?: string;
 }
 
+export function formatPriceString(priceInput?: string): string | undefined {
+  if (!priceInput || !priceInput.trim()) return undefined;
+  const raw = priceInput.trim();
+  if (raw.toLowerCase() === "free" || raw === "Miễn phí" || raw === "0") return undefined;
+
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return raw;
+
+  const formattedNum = Number(digits).toLocaleString("vi-VN");
+  return `${formattedNum}đ`;
+}
+
 export const postsData: Post[] = [
   {
     id: "P-101",

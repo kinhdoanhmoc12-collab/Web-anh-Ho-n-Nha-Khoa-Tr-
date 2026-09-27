@@ -31,7 +31,7 @@ import {
   Palette,
 } from "lucide-react";
 import Link from "next/link";
-import { getStoredPosts, saveStoredPosts, Post } from "@/data/posts";
+import { getStoredPosts, saveStoredPosts, Post, formatPriceString } from "@/data/posts";
 
 interface WordPressEditorProps {
   value: string;
@@ -553,6 +553,8 @@ export default function AdminPostsPage() {
       .map((t) => t.trim())
       .filter((t) => t.length > 0);
 
+    const formattedPrice = formatPriceString(formPrice);
+
     const postPayload = {
       id: editingPost ? editingPost.id : undefined,
       title: formTitle,
@@ -563,8 +565,8 @@ export default function AdminPostsPage() {
       content: formContent || formTitle,
       imageUrl: formImageUrl,
       downloadUrl: formDownloadUrl || "https://drive.google.com/",
-      price: formPrice || undefined,
-      badge: formBadge,
+      price: formattedPrice,
+      badge: formattedPrice ? "VIP" : formBadge,
       tags: parsedTags.length > 0 ? parsedTags : ["ZunPhoto", "Bài Viết"],
       isPinned: formIsPinned,
     };

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { postsData, Post } from "@/data/posts";
+import { postsData, Post, formatPriceString } from "@/data/posts";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "posts.json");
@@ -42,7 +42,8 @@ export function getPostBySlugServer(slug: string): Post | undefined {
 
 export function savePost(post: Partial<Post> & { title: string; category: string }): Post {
   const posts = getAllPosts();
-  
+  const formattedPrice = formatPriceString(post.price);
+
   // If editing existing post by ID
   if (post.id) {
     const idx = posts.findIndex((p) => p.id === post.id);
@@ -53,6 +54,8 @@ export function savePost(post: Partial<Post> & { title: string; category: string
         title: post.title,
         category: post.category,
         slug: post.slug || posts[idx].slug,
+        price: formattedPrice,
+        badge: post.badge || (formattedPrice ? "VIP" : "Free"),
       };
       posts[idx] = updatedPost;
       savePosts(posts);
@@ -91,8 +94,8 @@ export function savePost(post: Partial<Post> & { title: string; category: string
     downloadUrl: post.downloadUrl || "https://drive.google.com/",
     tags: post.tags || ["ZunPhoto", "Bài Viết"],
     isPinned: !!post.isPinned,
-    price: post.price,
-    badge: post.badge || (post.price ? "Trả phí" : "Free"),
+    price: formattedPrice,
+    badge: post.badge || (formattedPrice ? "VIP" : "Free"),
   };
 
   posts.unshift(newPost);

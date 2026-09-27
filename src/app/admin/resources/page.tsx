@@ -30,7 +30,7 @@ import {
   Palette,
 } from "lucide-react";
 import Link from "next/link";
-import { Post } from "@/data/posts";
+import { Post, formatPriceString } from "@/data/posts";
 
 function compressImageFile(file: File, maxWidth = 1200, quality = 0.82): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -546,6 +546,8 @@ export default function AdminResourcesPage() {
       .map((t) => t.trim())
       .filter((t) => t.length > 0);
 
+    const formattedPrice = formatPriceString(formPrice);
+
     const resourcePayload = {
       id: editingResource ? editingResource.id : undefined,
       title: formTitle,
@@ -556,8 +558,8 @@ export default function AdminResourcesPage() {
       content: formContent || formTitle,
       imageUrl: formImageUrl,
       downloadUrl: formDownloadUrl || "https://drive.google.com/",
-      price: formBadge === "VIP" ? (formPrice ? `${formPrice}` : "199.000đ") : undefined,
-      badge: formBadge,
+      price: formattedPrice,
+      badge: formattedPrice ? "VIP" : formBadge,
       tags: parsedTags.length > 0 ? parsedTags : ["ZunPhoto", "Tài Nguyên"],
       isPinned: formIsPinned,
     };
