@@ -27,7 +27,7 @@ export default function Testimonials() {
   return (
     <section className="py-10">
       <div className="mb-10">
-        <h2 className="text-2xl sm:text-3xl font-black text-[#0f2744] title-underline pb-2">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 title-underline pb-2">
           MỌI NGƯỜI NÓI GÌ?
         </h2>
       </div>
@@ -36,8 +36,8 @@ export default function Testimonials() {
         {reviews.map((rev, idx) => (
           <div key={idx} className="flex flex-col items-center text-center space-y-4">
             {/* Talk bubble box */}
-            <div className="relative p-6 rounded-2xl bg-white shadow-md border border-slate-200 text-slate-700 text-sm italic leading-relaxed">
-              <Quote className="w-6 h-6 text-[#00b4d8] mb-2 inline-block opacity-60" />
+            <div className="relative p-6 rounded-2xl bg-white shadow-sm border border-slate-200 text-slate-700 text-sm italic leading-relaxed">
+              <Quote className="w-6 h-6 text-[#0284c7] mb-2 inline-block opacity-60" />
               <p>"{rev.quote}"</p>
               {/* Bubble triangle indicator */}
               <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white" />
@@ -48,9 +48,9 @@ export default function Testimonials() {
               <img
                 src={rev.avatar}
                 alt={rev.author}
-                className="w-12 h-12 rounded-full object-cover border-2 border-[#00b4d8] shadow-sm"
+                className="w-12 h-12 rounded-full object-cover border-2 border-sky-300 shadow-xs"
               />
-              <span className="text-sm font-bold text-[#0f2744] mt-1">{rev.author}</span>
+              <span className="text-sm font-bold text-slate-900 mt-1">{rev.author}</span>
               <span className="text-xs text-slate-500 font-medium">{rev.role}</span>
             </div>
           </div>

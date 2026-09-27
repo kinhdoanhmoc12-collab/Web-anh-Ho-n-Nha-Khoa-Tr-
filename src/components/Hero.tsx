@@ -84,7 +84,7 @@ export default function Hero() {
   const activeSlide = slides[currentIndex] || slides[0];
 
   return (
-    <section id="hero" className="relative w-full h-[55vh] min-h-[380px] max-h-[600px] overflow-hidden bg-slate-900 shadow-md group">
+    <section id="hero" className="relative w-full h-[55vh] min-h-[380px] max-h-[600px] overflow-hidden bg-slate-900 shadow-lg rounded-2xl group border border-slate-200/80">
       {/* Background Images with Link */}
       {slides.map((slide, index) => (
         <Link
@@ -101,14 +101,14 @@ export default function Hero() {
           />
 
           {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
 
           {/* Slide Title Banner */}
           <div className="absolute bottom-10 left-6 sm:left-10 max-w-xl text-white space-y-2 z-20">
-            <span className="px-3 py-1 rounded-full bg-[#00b4d8] text-white text-xs font-bold shadow inline-flex items-center gap-1">
+            <span className="px-3 py-1 rounded-full bg-[#0284c7] text-white text-xs font-bold shadow-md inline-flex items-center gap-1">
               <Eye className="w-3.5 h-3.5" /> BÀI VIẾT NỔI BẬT
             </span>
-            <h2 className="text-xl sm:text-3xl font-extrabold line-clamp-2 drop-shadow-md leading-tight">
+            <h2 className="text-xl sm:text-3xl font-black line-clamp-2 drop-shadow-md leading-tight text-white">
               {slide.title}
             </h2>
             <p className="text-xs sm:text-sm text-slate-200 line-clamp-1 font-medium">
@@ -119,24 +119,24 @@ export default function Hero() {
       ))}
 
       {/* Floating Controls at Bottom Right */}
-      <div className="absolute bottom-4 right-4 z-30 flex items-center gap-1.5 p-1 bg-black/60 backdrop-blur-sm rounded-xl">
+      <div className="absolute bottom-4 right-4 z-30 flex items-center gap-1.5 p-1.5 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-slate-200/80">
         <button
           onClick={handlePrev}
-          className="w-9 h-9 rounded-lg bg-[#1e232a] text-white flex items-center justify-center hover:bg-black transition-colors cursor-pointer"
+          className="w-9 h-9 rounded-lg bg-sky-50 text-slate-700 flex items-center justify-center hover:bg-[#0284c7] hover:text-white transition-colors cursor-pointer border border-sky-100"
           aria-label="Previous Slide"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
           onClick={() => setIsPlaying(!isPlaying)}
-          className="w-9 h-9 rounded-lg bg-[#1e232a] text-white flex items-center justify-center hover:bg-black transition-colors cursor-pointer"
+          className="w-9 h-9 rounded-lg bg-sky-50 text-slate-700 flex items-center justify-center hover:bg-[#0284c7] hover:text-white transition-colors cursor-pointer border border-sky-100"
           aria-label="Toggle Auto Slide"
         >
-          {isPlaying ? <Pause className="w-4 h-4 text-[#00b4d8]" /> : <Play className="w-4 h-4" />}
+          {isPlaying ? <Pause className="w-4 h-4 text-[#0284c7]" /> : <Play className="w-4 h-4" />}
         </button>
         <button
           onClick={handleNext}
-          className="w-9 h-9 rounded-lg bg-[#1e232a] text-white flex items-center justify-center hover:bg-black transition-colors cursor-pointer"
+          className="w-9 h-9 rounded-lg bg-sky-50 text-slate-700 flex items-center justify-center hover:bg-[#0284c7] hover:text-white transition-colors cursor-pointer border border-sky-100"
           aria-label="Next Slide"
         >
           <ChevronRight className="w-5 h-5" />
@@ -150,7 +150,7 @@ export default function Hero() {
             key={idx}
             onClick={() => setCurrentIndex(idx)}
             className={`h-2 rounded-full transition-all cursor-pointer ${
-              idx === currentIndex ? "w-6 bg-[#00b4d8]" : "w-2 bg-white/60 hover:bg-white"
+              idx === currentIndex ? "w-6 bg-[#0284c7]" : "w-2 bg-white/60 hover:bg-white"
             }`}
             aria-label={`Slide ${idx + 1}`}
           />

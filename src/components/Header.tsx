@@ -61,36 +61,36 @@ export default function Header() {
   return (
     <>
       {/* Mobile Sticky Navbar (< xl) */}
-      <header className="xl:hidden fixed top-0 left-0 right-0 z-50 bg-[#0c0d10] px-4 py-3 flex items-center justify-between border-b border-slate-800 shadow-md">
+      <header className="xl:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-slate-200 shadow-sm">
         <Link href="/" className="flex items-center gap-2">
           {logoUrl ? (
-            <img src={logoUrl} alt="ZunPhoto Logo" className="w-7 h-7 object-contain rounded-full" />
+            <img src={logoUrl} alt="ZunPhoto Logo" className="w-7 h-7 object-contain rounded-full border border-sky-200" />
           ) : (
-            <Aperture className="w-7 h-7 text-[#00b4d8]" />
+            <Aperture className="w-7 h-7 text-[#0284c7]" />
           )}
           <div>
-            <span className="font-extrabold text-sm tracking-wider text-[#00b4d8]">ZUN</span>
-            <span className="font-extrabold text-sm tracking-wider text-white">PHOTO</span>
+            <span className="font-black text-sm tracking-wider text-[#0284c7]">ZUN</span>
+            <span className="font-black text-sm tracking-wider text-slate-900">PHOTO</span>
           </div>
         </Link>
 
         <div className="flex items-center gap-2">
           {isLoggedIn && user ? (
-            <div className="flex items-center gap-1.5 text-xs font-bold text-white bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
-              <User className="w-3.5 h-3.5 text-white" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-sky-950 bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
+              <User className="w-3.5 h-3.5 text-[#0284c7]" />
               <span>{user.name || "Hoàn NT"} - {(user.balance || 0).toLocaleString('vi-VN')}<u>đ</u></span>
             </div>
           ) : (
             <Link
               href="/login"
-              className="px-3 py-1 rounded bg-[#d9534f] text-white text-xs font-medium hover:bg-rose-600"
+              className="px-3 py-1 rounded-lg bg-[#0284c7] text-white text-xs font-bold hover:bg-sky-600 shadow-sm"
             >
               Đăng nhập
             </Link>
           )}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 rounded bg-slate-800 text-white"
+            className="p-1.5 rounded-lg bg-sky-50 text-slate-700 border border-slate-200"
             aria-label="Toggle Navigation"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -102,13 +102,13 @@ export default function Header() {
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
-          className="xl:hidden fixed inset-0 bg-black/70 z-40"
+          className="xl:hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40"
         />
       )}
 
       {/* Desktop Fixed Left Sidebar */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-[240px] bg-[#0c0d10] border-r border-slate-800/60 flex flex-col justify-between transition-transform duration-300 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-[240px] bg-white border-r border-slate-200/80 shadow-sm flex flex-col justify-between transition-transform duration-300 ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
         }`}
       >
@@ -116,16 +116,16 @@ export default function Header() {
           {/* Top Logo */}
           <div className="flex flex-col items-center text-center pt-2 pb-2">
             <Link href="/" className="flex flex-col items-center gap-1 group">
-              <div className="w-12 h-12 rounded-full border border-slate-700/80 flex items-center justify-center bg-slate-900 group-hover:border-[#00b4d8] transition-colors overflow-hidden">
+              <div className="w-12 h-12 rounded-full border-2 border-sky-200 flex items-center justify-center bg-sky-50 group-hover:border-[#0284c7] transition-colors overflow-hidden shadow-sm">
                 {logoUrl ? (
                   <img src={logoUrl} alt="ZunPhoto Logo" className="w-full h-full object-cover rounded-full" />
                 ) : (
-                  <Aperture className="w-8 h-8 text-[#00b4d8]" />
+                  <Aperture className="w-8 h-8 text-[#0284c7]" />
                 )}
               </div>
               <div className="mt-2">
-                <span className="text-lg font-black tracking-wider text-[#00b4d8]">ZUN</span>
-                <span className="text-lg font-black tracking-wider text-white">PHOTO</span>
+                <span className="text-lg font-black tracking-wider text-[#0284c7]">ZUN</span>
+                <span className="text-lg font-black tracking-wider text-slate-900">PHOTO</span>
                 <span className="block text-[9px] text-slate-400 tracking-widest font-semibold uppercase">
                   PHOTOGRAPHY
                 </span>
@@ -135,13 +135,13 @@ export default function Header() {
             {/* Auth Buttons or User Badge */}
             {isLoggedIn && user ? (
               <div className="flex flex-col items-center gap-1 mt-4 w-full">
-                <div className="flex items-center justify-center gap-1.5 text-sm font-bold text-white tracking-wide">
-                  <User className="w-4.5 h-4.5 text-white" />
+                <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-sky-950 bg-sky-50 px-3 py-1.5 rounded-xl border border-sky-200 w-full shadow-xs">
+                  <User className="w-4 h-4 text-[#0284c7]" />
                   <span>{user.name || "Hoàn NT"} - {(user.balance || 0).toLocaleString('vi-VN')}<u>đ</u></span>
                 </div>
                 <button
                   onClick={logout}
-                  className="text-[11px] text-slate-400 hover:text-rose-400 transition-colors mt-0.5 cursor-pointer underline"
+                  className="text-[11px] text-slate-400 hover:text-rose-500 transition-colors mt-0.5 cursor-pointer underline"
                 >
                   [Đăng xuất]
                 </button>
@@ -150,13 +150,13 @@ export default function Header() {
               <div className="grid grid-cols-2 gap-2 w-full mt-4">
                 <Link
                   href="/login"
-                  className="py-1.5 text-center text-xs font-medium rounded bg-[#d9534f] text-white hover:bg-rose-600 transition-colors"
+                  className="py-1.5 text-center text-xs font-bold rounded-lg bg-[#0284c7] text-white hover:bg-sky-600 transition-colors shadow-xs"
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   href="/register"
-                  className="py-1.5 text-center text-xs font-medium rounded bg-[#d9534f] text-white hover:bg-rose-600 transition-colors"
+                  className="py-1.5 text-center text-xs font-bold rounded-lg bg-sky-100 text-[#0284c7] hover:bg-sky-200 transition-colors border border-sky-200"
                 >
                   Đăng ký
                 </Link>
@@ -177,15 +177,15 @@ export default function Header() {
                     <Link
                       href={destination}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded text-[13px] font-bold tracking-wide transition-all ${
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-bold tracking-wide transition-all ${
                         isActive
-                          ? "bg-slate-800/80 text-white border-l-4 border-[#00b4d8]"
-                          : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                          ? "bg-sky-50 text-[#0284c7] border-l-4 border-[#0284c7] shadow-xs"
+                          : "text-slate-600 hover:text-[#0284c7] hover:bg-sky-50/60"
                       }`}
                     >
                       <IconComp
                         className={`w-4 h-4 ${
-                          isActive ? "text-[#00b4d8]" : "text-slate-400"
+                          isActive ? "text-[#0284c7]" : "text-slate-400"
                         }`}
                       />
                       <span>{item.label}</span>
@@ -197,9 +197,9 @@ export default function Header() {
           </nav>
 
           {/* Circular Profile Avatar & Round Social Icons & Copyright */}
-          <div className="pt-4 border-t border-slate-800/80 flex flex-col items-center text-center space-y-3 pb-3">
+          <div className="pt-4 border-t border-slate-200/80 flex flex-col items-center text-center space-y-3 pb-3">
             {/* Circular Avatar Frame */}
-            <div className="relative w-24 h-24 rounded-full p-1 border-2 border-slate-700/80 bg-slate-900 overflow-hidden shadow-lg group">
+            <div className="relative w-24 h-24 rounded-full p-1 border-2 border-sky-200 bg-sky-50 overflow-hidden shadow-sm group">
               <img
                 src={avatarUrl}
                 alt="ZunPhoto Avatar"
@@ -213,7 +213,7 @@ export default function Header() {
                 href="https://www.instagram.com/"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-full bg-[#1c222e] flex items-center justify-center text-white hover:bg-[#00b4d8] transition-colors shadow-sm"
+                className="w-9 h-9 rounded-full bg-sky-100 text-sky-800 flex items-center justify-center hover:bg-[#0284c7] hover:text-white transition-colors shadow-xs"
                 aria-label="Instagram"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -224,7 +224,7 @@ export default function Header() {
                 href="https://vt.tiktok.com/ZSqvgL7gT/"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-full bg-[#1c222e] flex items-center justify-center text-white hover:bg-[#00b4d8] transition-colors shadow-sm"
+                className="w-9 h-9 rounded-full bg-sky-100 text-sky-800 flex items-center justify-center hover:bg-[#0284c7] hover:text-white transition-colors shadow-xs"
                 aria-label="TikTok"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -235,7 +235,7 @@ export default function Header() {
                 href="https://www.facebook.com/"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-full bg-[#1c222e] flex items-center justify-center text-white hover:bg-[#00b4d8] transition-colors shadow-sm"
+                className="w-9 h-9 rounded-full bg-sky-100 text-sky-800 flex items-center justify-center hover:bg-[#0284c7] hover:text-white transition-colors shadow-xs"
                 aria-label="Facebook"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -245,9 +245,9 @@ export default function Header() {
             </div>
 
             {/* Copyright Text */}
-            <p className="text-[11px] text-slate-400 font-semibold pt-1">
+            <p className="text-[11px] text-slate-500 font-semibold pt-1">
               © Bản quyền thuộc về <br />
-              <strong className="text-white font-bold">zunphoto.vn</strong>
+              <strong className="text-slate-800 font-bold">zunphoto.vn</strong>
             </p>
           </div>
         </div>

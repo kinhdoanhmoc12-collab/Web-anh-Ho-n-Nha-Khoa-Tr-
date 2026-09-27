@@ -30,10 +30,10 @@ export default function LatestPosts() {
           <Link
             key={post.id}
             href={`/post/${post.slug}`}
-            className="group flex flex-col sm:flex-row bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 p-0"
+            className="group flex flex-col sm:flex-row bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md hover:border-[#0284c7]/40 transition-all duration-300 p-0"
           >
             {/* Post Image Thumbnail */}
-            <div className="sm:w-5/12 aspect-[4/3] sm:aspect-auto relative overflow-hidden bg-slate-900 flex-shrink-0">
+            <div className="sm:w-5/12 aspect-[4/3] sm:aspect-auto relative overflow-hidden bg-slate-100 flex-shrink-0">
               <img
                 src={post.imageUrl}
                 alt={post.title}
@@ -51,7 +51,7 @@ export default function LatestPosts() {
                     <span>{post.author}</span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-[#0f2744] group-hover:text-[#00b4d8] transition-colors leading-snug line-clamp-2 uppercase">
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0284c7] transition-colors leading-snug line-clamp-2 uppercase">
                     {post.title}
                   </h3>
 
@@ -69,7 +69,7 @@ export default function LatestPosts() {
 
               {/* Action Button */}
               <div className="pt-2">
-                <span className="inline-flex items-center gap-1.5 py-2 px-5 rounded bg-[#1e232a] group-hover:bg-[#00b4d8] text-white font-bold text-xs transition-colors shadow-sm">
+                <span className="inline-flex items-center gap-1.5 py-2 px-5 rounded-lg bg-sky-50 group-hover:bg-[#0284c7] text-[#0284c7] group-hover:text-white font-bold text-xs transition-colors shadow-xs border border-sky-200">
                   <Eye className="w-3.5 h-3.5" /> Xem ngay
                 </span>
               </div>

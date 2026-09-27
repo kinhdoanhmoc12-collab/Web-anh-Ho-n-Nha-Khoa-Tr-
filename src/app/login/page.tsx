@@ -62,10 +62,10 @@ export default function LoginPage() {
       <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-xl border border-slate-100 p-8 sm:p-10 relative z-10 space-y-6">
         {/* Brand Title */}
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-block text-2xl font-black text-[#2d3748] tracking-tight">
+          <Link href="/" className="inline-block text-2xl font-black text-[#0f172a] tracking-tight">
             zunphoto.vn
           </Link>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#1a202c] flex items-center justify-center gap-2 pt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center justify-center gap-2 pt-1">
             Chào mừng bạn đến với trang web! 👏
           </h1>
         </div>
@@ -96,7 +96,7 @@ export default function LoginPage() {
                 placeholder="Nhập email của bạn"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20 transition-all"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 transition-all"
               />
             </div>
           </div>
@@ -113,7 +113,7 @@ export default function LoginPage() {
                   e.preventDefault();
                   alert("Vui lòng liên hệ Admin ZunPhoto để cấp lại mật khẩu!");
                 }}
-                className="text-xs font-semibold text-[#6366f1] hover:underline"
+                className="text-xs font-semibold text-[#0284c7] hover:underline"
               >
                 Quên mật khẩu?
               </a>
@@ -126,7 +126,7 @@ export default function LoginPage() {
                 placeholder="Nhập mật khẩu của bạn"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20 transition-all pr-10"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 transition-all pr-10"
               />
               <button
                 type="button"
@@ -145,7 +145,7 @@ export default function LoginPage() {
               id="remember"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 text-[#6366f1] focus:ring-[#6366f1] cursor-pointer"
+              className="w-4 h-4 rounded border-slate-300 text-[#0284c7] focus:ring-[#0284c7] cursor-pointer"
             />
             <label htmlFor="remember" className="text-xs font-medium text-slate-600 cursor-pointer select-none">
               Nhớ mật khẩu
@@ -155,7 +155,7 @@ export default function LoginPage() {
           {/* Đăng nhập Submit Button */}
           <button
             type="submit"
-            className="w-full py-3.5 px-4 rounded-xl bg-[#6366f1] hover:bg-[#5457e5] text-white font-bold text-sm shadow-md shadow-[#6366f1]/30 transition-all duration-200 cursor-pointer"
+            className="w-full py-3.5 px-4 rounded-xl bg-[#0284c7] hover:bg-sky-600 text-white font-bold text-sm shadow-md shadow-[#0284c7]/30 transition-all duration-200 cursor-pointer"
           >
             Đăng nhập
           </button>
@@ -165,7 +165,7 @@ export default function LoginPage() {
         <div className="text-center pt-2">
           <p className="text-xs text-slate-500">
             Bạn không có tài khoản?{" "}
-            <Link href="/register" className="font-bold text-[#6366f1] hover:underline">
+            <Link href="/register" className="font-bold text-[#0284c7] hover:underline">
               Đăng ký
             </Link>
           </p>

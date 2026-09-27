@@ -59,7 +59,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
   ];
 
   return (
-    <div className="min-h-screen bg-[#f4f6f9] text-[#1a202c] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#edf3f8] text-[#0f172a] flex flex-col font-sans">
       <Header />
 
       <div className="xl:pl-[240px] flex-1 flex flex-col min-w-0">
@@ -72,14 +72,14 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
             <div className="lg:col-span-8 space-y-4">
               
               {/* Top Meta Header Box */}
-              <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-3">
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-3">
                 {/* Breadcrumbs */}
                 <nav className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500 font-medium">
-                  <Link href="/" className="font-bold text-slate-800 hover:text-[#00b4d8] transition-colors">
+                  <Link href="/" className="font-bold text-slate-800 hover:text-[#0284c7] transition-colors">
                     Home
                   </Link>
                   <span>/</span>
-                  <Link href="/category/stock-free" className="text-slate-600 hover:text-[#00b4d8] transition-colors">
+                  <Link href="/category/stock-free" className="text-slate-600 hover:text-[#0284c7] transition-colors">
                     {post.category || "Tài nguyên free"}
                   </Link>
                   <span>/</span>
@@ -93,7 +93,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                 </div>
 
                 {/* Post Title */}
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#1a202c] leading-tight tracking-tight uppercase">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 leading-tight tracking-tight uppercase">
                   {post.title}
                 </h1>
 
@@ -105,7 +105,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
               </div>
 
               {/* Main Content Card Box */}
-              <article className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 sm:p-8 space-y-6">
+              <article className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-8 space-y-6">
                 
                 {/* Content Section Title */}
                 <div className="border-b border-slate-200/80 pb-3">
@@ -116,7 +116,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
                 {/* Featured Image */}
                 {post.imageUrl && (
-                  <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-xs">
+                  <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-xs">
                     <img
                       src={post.imageUrl}
                       alt={post.title}
@@ -127,7 +127,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
                 {/* Excerpt Lead Paragraph */}
                 {post.excerpt && (
-                  <div className="p-4 rounded-xl bg-slate-50 border-l-4 border-[#00b4d8] text-slate-700 text-sm leading-relaxed font-medium">
+                  <div className="p-4 rounded-xl bg-sky-50/60 border-l-4 border-[#0284c7] text-slate-700 text-sm leading-relaxed font-medium">
                     "{post.excerpt}"
                   </div>
                 )}
@@ -136,7 +136,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                 <div className="prose max-w-none text-slate-800 text-sm sm:text-base leading-relaxed space-y-4 font-sans">
                   {post.content && (post.content.includes("<p") || post.content.includes("<h") || post.content.includes("<img") || post.content.includes("<div") || post.content.includes("<span") || post.content.includes("<a ") || post.content.includes("<b") || post.content.includes("<i") || post.content.includes("<u")) ? (
                     <div
-                      className="wordpress-post-content space-y-4 font-normal text-slate-800 text-sm sm:text-base leading-relaxed [&_h1]:text-2xl [&_h1]:sm:text-3xl [&_h1]:font-black [&_h1]:text-slate-900 [&_h1]:mt-6 [&_h1]:mb-3 [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-extrabold [&_h2]:text-slate-900 [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-slate-800 [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-slate-800 [&_h4]:mt-3 [&_h4]:mb-1 [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:text-[#00b4d8] [&_a]:font-bold [&_a]:underline [&_a]:hover:text-cyan-600 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-2xl [&_img]:my-4 [&_img]:shadow-md [&_img]:border [&_img]:border-slate-200 [&_blockquote]:border-l-4 [&_blockquote]:border-[#00b4d8] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:bg-slate-50 [&_blockquote]:py-2 [&_blockquote]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-3"
+                      className="wordpress-post-content space-y-4 font-normal text-slate-800 text-sm sm:text-base leading-relaxed [&_h1]:text-2xl [&_h1]:sm:text-3xl [&_h1]:font-black [&_h1]:text-slate-900 [&_h1]:mt-6 [&_h1]:mb-3 [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-extrabold [&_h2]:text-slate-900 [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-slate-800 [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-slate-800 [&_h4]:mt-3 [&_h4]:mb-1 [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:text-[#0284c7] [&_a]:font-bold [&_a]:underline [&_a]:hover:text-sky-700 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-2xl [&_img]:my-4 [&_img]:shadow-md [&_img]:border [&_img]:border-slate-200 [&_blockquote]:border-l-4 [&_blockquote]:border-[#0284c7] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:bg-sky-50/50 [&_blockquote]:py-2 [&_blockquote]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-3"
                       dangerouslySetInnerHTML={{ __html: post.content }}
                     />
                   ) : (
@@ -160,7 +160,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                         return (
                           <h2
                             key={index}
-                            className="text-lg sm:text-xl font-extrabold text-[#1a202c] pt-3 mt-4 leading-tight"
+                            className="text-lg sm:text-xl font-extrabold text-slate-900 pt-3 mt-4 leading-tight"
                           >
                             {renderFormattedText(headingText)}
                           </h2>
@@ -171,7 +171,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                           <ul key={index} className="space-y-2 my-3 pl-2">
                             {paragraph.split("\n").map((item, idx) => (
                               <li key={idx} className="flex items-start gap-2 text-slate-700 text-sm sm:text-base">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#00b4d8] mt-2 flex-shrink-0" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#0284c7] mt-2 flex-shrink-0" />
                                 <span>{renderFormattedText(item.replace("- ", ""))}</span>
                               </li>
                             ))}
@@ -200,8 +200,8 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
                 {/* Download Resource Action Card */}
                 {post.downloadUrl && (
-                  <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-slate-900 to-[#0f2744] text-white space-y-3 shadow-lg">
-                    <div className="flex items-center gap-2 text-[#00b4d8] text-xs font-bold uppercase tracking-wider">
+                  <div className="mt-8 p-6 rounded-2xl bg-slate-900 text-white space-y-3 shadow-lg border border-slate-800">
+                    <div className="flex items-center gap-2 text-[#0284c7] text-xs font-bold uppercase tracking-wider">
                       <Download className="w-4 h-4" /> TÀI NGUYÊN MIỄN PHÍ
                     </div>
                     <h3 className="text-base sm:text-lg font-bold">
@@ -215,7 +215,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                         href={post.downloadUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-2 py-2.5 px-6 rounded-xl bg-[#00b4d8] hover:bg-cyan-600 text-white font-bold text-xs transition-all shadow-md"
+                        className="inline-flex items-center gap-2 py-2.5 px-6 rounded-xl bg-[#0284c7] hover:bg-sky-600 text-white font-bold text-xs transition-all shadow-md cursor-pointer"
                       >
                         <Download className="w-4 h-4" /> Link Google Drive Tải Ngay
                       </a>
@@ -230,7 +230,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                     {post.tags.map((tag, idx) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium cursor-pointer transition-colors"
+                        className="px-3 py-1 rounded-full bg-sky-50 border border-sky-100 hover:bg-sky-100 text-[#0284c7] text-xs font-bold cursor-pointer transition-colors"
                       >
                         #{tag}
                       </span>
@@ -251,7 +251,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
               {/* Related Posts Section */}
               <section className="space-y-4 pt-4">
-                <h3 className="text-lg font-bold text-[#1a202c] uppercase tracking-wide border-l-4 border-[#00b4d8] pl-2.5">
+                <h3 className="text-lg font-bold text-slate-900 uppercase tracking-wide border-l-4 border-[#0284c7] pl-2.5">
                   Bài Viết Liên Quan
                 </h3>
 
@@ -262,21 +262,21 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                       href={`/post/${rel.slug}`}
                       className="group bg-white rounded-xl overflow-hidden border border-slate-200/80 shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between"
                     >
-                      <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                         <img
                           src={rel.imageUrl}
                           alt={rel.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         <div className="absolute top-2.5 left-2.5">
-                          <span className="px-2 py-0.5 rounded-full bg-[#00b4d8] text-white text-[10px] font-bold">
+                          <span className="px-2 py-0.5 rounded-full bg-[#0284c7] text-white text-[10px] font-bold">
                             {rel.category}
                           </span>
                         </div>
                       </div>
 
                       <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
-                        <h4 className="text-xs font-bold text-[#1a202c] group-hover:text-[#00b4d8] transition-colors line-clamp-2 uppercase">
+                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#0284c7] transition-colors line-clamp-2 uppercase">
                           {rel.title}
                         </h4>
                         <div className="text-[11px] text-slate-400 flex items-center gap-1 pt-1">
@@ -301,7 +301,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                       type="text"
                       name="q"
                       placeholder="Nhập nội dung tìm kiếm"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-slate-200 shadow-2xs text-xs text-slate-700 focus:outline-none focus:border-amber-500 transition-all placeholder:text-slate-400"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-slate-200 shadow-2xs text-xs text-slate-700 focus:outline-none focus:border-[#0284c7] transition-all placeholder:text-slate-400"
                     />
                   </div>
                 </form>
@@ -309,10 +309,10 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
               {/* Sidebar Box 1: Bài viết mới nhất (Top 5 Pinned/Latest) */}
               <div className="space-y-2.5">
-                <div className="text-base font-bold text-[#1a202c] border-l-4 border-amber-500 pl-2.5">
+                <div className="text-base font-bold text-slate-900 border-l-4 border-[#0284c7] pl-2.5">
                   Bài viết mới nhất
                 </div>
-                <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs space-y-3">
+                <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs space-y-3">
                   {latestPosts.map((item) => (
                     <Link
                       key={item.id}
@@ -322,10 +322,10 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                       <img
                         src={item.imageUrl}
                         alt={item.title}
-                        className="w-16 h-14 rounded-lg object-cover bg-slate-900 flex-shrink-0 group-hover:opacity-90 transition-opacity border border-slate-100"
+                        className="w-16 h-14 rounded-lg object-cover bg-slate-100 flex-shrink-0 group-hover:opacity-90 transition-opacity border border-slate-100"
                       />
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-xs sm:text-sm font-bold text-[#1a202c] group-hover:text-[#00b4d8] transition-colors line-clamp-1 leading-snug">
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#0284c7] transition-colors line-clamp-1 leading-snug">
                           {item.title}
                         </h4>
                         <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
@@ -339,16 +339,16 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
               {/* Sidebar Box 2: Danh mục */}
               <div className="space-y-2.5">
-                <div className="text-base font-bold text-[#1a202c] border-l-4 border-amber-500 pl-2.5">
+                <div className="text-base font-bold text-slate-900 border-l-4 border-[#0284c7] pl-2.5">
                   Danh mục
                 </div>
-                <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs">
+                <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs">
                   <div className="flex flex-wrap gap-2">
                     {categoryTags.map((cat, idx) => (
                       <Link
                         key={idx}
                         href={cat.href}
-                        className="px-3 py-1.5 rounded-full border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 text-xs font-medium transition-all shadow-2xs"
+                        className="px-3 py-1.5 rounded-full border border-sky-200 text-[#0284c7] hover:bg-sky-50 hover:border-sky-300 text-xs font-bold transition-all shadow-2xs"
                       >
                         {cat.label}
                       </Link>

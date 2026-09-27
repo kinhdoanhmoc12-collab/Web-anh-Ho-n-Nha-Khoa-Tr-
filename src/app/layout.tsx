@@ -22,9 +22,9 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${inter.variable} dark scroll-smooth h-full antialiased`}
+      className={`${inter.variable} light scroll-smooth h-full antialiased`}
     >
-      <body className={`${inter.className} min-h-full bg-[#0b0f17] text-slate-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white`}>
+      <body className={`${inter.className} min-h-full bg-[#edf3f8] text-slate-800 flex flex-col font-sans selection:bg-sky-500 selection:text-white`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

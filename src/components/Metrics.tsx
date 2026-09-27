@@ -11,7 +11,7 @@ export default function Metrics() {
   ];
 
   return (
-    <section className="py-8 my-6 border-t border-b border-slate-300/60 bg-white/60 backdrop-blur-sm rounded-2xl shadow-sm">
+    <section className="py-8 my-6 border border-slate-200 bg-white rounded-2xl shadow-sm">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 px-6">
         {stats.map((stat, idx) => {
           const IconComp = stat.icon;
@@ -20,11 +20,11 @@ export default function Metrics() {
               key={idx}
               className="flex items-center justify-center gap-4 p-4 text-center md:text-left border-r last:border-r-0 border-slate-200"
             >
-              <div className="w-12 h-12 rounded-full bg-[#00b4d8]/10 flex items-center justify-center text-[#00b4d8]">
+              <div className="w-12 h-12 rounded-full bg-sky-50 border border-sky-200 flex items-center justify-center text-[#0284c7]">
                 <IconComp className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-2xl sm:text-3xl font-black text-[#0f2744] block leading-none">
+                <span className="text-2xl sm:text-3xl font-black text-slate-900 block leading-none">
                   {stat.count}
                 </span>
                 <span className="text-xs sm:text-sm font-semibold text-slate-500 mt-1 block">

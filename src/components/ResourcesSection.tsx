@@ -184,13 +184,13 @@ export default function ResourcesSection() {
       <div className="flex items-center justify-between">
         <Link
           href={href}
-          className="text-lg font-bold text-[#0f2744] hover:text-[#00b4d8] transition-colors flex items-center gap-2"
+          className="text-lg font-bold text-slate-900 hover:text-[#0284c7] transition-colors flex items-center gap-2"
         >
           <span>{title}</span>
         </Link>
         <Link
           href={href}
-          className="w-9 h-9 rounded-full bg-[#00b4d8] text-white flex items-center justify-center shadow hover:bg-cyan-600 transition-colors"
+          className="w-9 h-9 rounded-full bg-[#0284c7] text-white flex items-center justify-center shadow-md hover:bg-sky-600 transition-colors"
           aria-label={`Xem tất cả ${title}`}
         >
           <ChevronRight className="w-5 h-5" />
@@ -202,7 +202,7 @@ export default function ResourcesSection() {
           <Link
             key={item.id}
             href={`/post/${item.slug}`}
-            className="group relative rounded-xl overflow-hidden shadow-md bg-slate-900 border border-slate-200/40 hover:shadow-xl transition-all duration-300 block cursor-pointer"
+            className="group relative rounded-2xl overflow-hidden shadow-sm bg-slate-900 border border-slate-200/80 hover:shadow-md hover:border-[#0284c7]/40 transition-all duration-300 block cursor-pointer"
           >
             {/* Aspect ratio image container */}
             <div className="relative aspect-[4/3] overflow-hidden">
@@ -213,20 +213,20 @@ export default function ResourcesSection() {
               />
 
               {/* Gradient Bottom Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent pointer-events-none" />
 
               {/* Top Badges */}
               <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10 pointer-events-none">
                 <span
                   className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold text-white shadow ${
-                    item.badge === "Free" ? "bg-[#d9534f]" : "bg-amber-600"
+                    item.badge === "Free" ? "bg-rose-500" : "bg-amber-500 text-slate-950"
                   }`}
                 >
                   {item.badge}
                 </span>
 
                 {item.price && (
-                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#00b4d8] text-white shadow">
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#0284c7] text-white shadow">
                     {item.price}
                   </span>
                 )}
@@ -249,7 +249,7 @@ export default function ResourcesSection() {
     <section className="py-8">
       {/* Section Title */}
       <div className="mb-8">
-        <h2 className="text-2xl sm:text-3xl font-black text-[#0f2744] title-underline pb-2">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 title-underline pb-2">
           Tài liệu ngành ảnh
         </h2>
       </div>
