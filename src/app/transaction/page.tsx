@@ -1,17 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { Wallet, QrCode, Copy, CheckCircle2, RefreshCw, ShieldCheck } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
-export default function TransactionPage() {
+function TransactionContent() {
   const { user, isLoggedIn, updateBalance } = useAuth();
-  const [amount, setAmount] = useState<number>(100000);
+  const searchParams = useSearchParams();
+  const initialAmount = searchParams.get("amount");
+
+  const [amount, setAmount] = useState<number>(initialAmount ? Number(initialAmount) : 100000);
   const [copied, setCopied] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [depositNotice, setDepositNotice] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (initialAmount && !isNaN(Number(initialAmount))) {
+      setAmount(Number(initialAmount));
+    }
+  }, [initialAmount]);
 
   const transferMemo = user?.transferCode || "ZUN 888888";
   const qrUrl = "https://img.vietqr.io/image/MB-0979487405-compact2.png?amount=" + amount + "&addInfo=" + encodeURIComponent(transferMemo) + "&accountName=NGUYEN%20THANH%20HOAN";
@@ -188,5 +198,13 @@ export default function TransactionPage() {
       <Footer />
       </div>
     </div>
+  );
+}
+
+export default function TransactionPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#edf3f8] flex items-center justify-center text-slate-500 font-bold text-sm">Đang tải trang nạp tiền...</div>}>
+      <TransactionContent />
+    </Suspense>
   );
 }

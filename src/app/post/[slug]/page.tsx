@@ -6,6 +6,7 @@ import { Calendar, User, Eye, Clock, Tag, ArrowLeft, Download, Search, ExternalL
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import PostPurchaseCard from "@/components/PostPurchaseCard";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -201,37 +202,14 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                   )}
                 </div>
 
-                {/* Download Resource Action Card */}
-                {post.downloadUrl && (
-                  <div className="mt-8 p-6 rounded-2xl bg-slate-900 text-white space-y-3 shadow-lg border border-slate-800">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <div className="flex items-center gap-2 text-[#0284c7] text-xs font-bold uppercase tracking-wider">
-                        <Download className="w-4 h-4" /> {formatPriceString(post.price) ? "TÀI NGUYÊN TRẢ PHÍ" : "TÀI NGUYÊN MIỄN PHÍ"}
-                      </div>
-                      {formatPriceString(post.price) && (
-                        <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-black">
-                          💰 Giá bán: {formatPriceString(post.price)}
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="text-base sm:text-lg font-bold">
-                      Tải Về Trọn Bộ Preset &amp; Stock File RAW (Google Drive Tốc Độ Cao)
-                    </h3>
-                    <p className="text-xs text-slate-300">
-                      Bấm vào nút bên dưới để truy cập liên kết tải xuống tốc độ cao.
-                    </p>
-                    <div className="pt-2">
-                      <a
-                        href={post.downloadUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 py-2.5 px-6 rounded-xl bg-[#0284c7] hover:bg-sky-600 text-white font-bold text-xs transition-all shadow-md cursor-pointer"
-                      >
-                        <Download className="w-4 h-4" /> Link Google Drive Tải Ngay {formatPriceString(post.price) ? `(${formatPriceString(post.price)})` : ""}
-                      </a>
-                    </div>
-                  </div>
-                )}
+                {/* Download / Purchase Resource Action Card */}
+                <PostPurchaseCard
+                  postId={post.id}
+                  postTitle={post.title}
+                  postSlug={post.slug}
+                  downloadUrl={post.downloadUrl}
+                  price={post.price}
+                />
 
                 {/* Article Tags */}
                 {post.tags && post.tags.length > 0 && (
