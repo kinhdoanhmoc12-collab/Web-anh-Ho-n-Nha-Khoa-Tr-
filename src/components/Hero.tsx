@@ -44,23 +44,46 @@ export default function Hero() {
   const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("zunphoto_hero_banners");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setSlides(
-            parsed.map((imgUrl: string, idx: number) => ({
-              image: imgUrl,
-              slug: defaultSlides[idx % defaultSlides.length]?.slug || "1a-2-zip-stock-nang-chieu-hoang-hon",
-              title: defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết tài nguyên chi tiết",
-            }))
-          );
+    const fetchBanners = async () => {
+      try {
+        const res = await fetch("/api/banners");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.banners && Array.isArray(data.banners) && data.banners.length > 0) {
+            setSlides(
+              data.banners.map((imgUrl: string, idx: number) => ({
+                image: imgUrl,
+                slug: defaultSlides[idx % defaultSlides.length]?.slug || "1a-2-zip-stock-nang-chieu-hoang-hon",
+                title: defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết tài nguyên chi tiết",
+              }))
+            );
+            return;
+          }
         }
+      } catch {
+        // Fallback
       }
-    } catch {
-      // Fallback to default
-    }
+
+      try {
+        const saved = localStorage.getItem("zunphoto_hero_banners");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setSlides(
+              parsed.map((imgUrl: string, idx: number) => ({
+                image: imgUrl,
+                slug: defaultSlides[idx % defaultSlides.length]?.slug || "1a-2-zip-stock-nang-chieu-hoang-hon",
+                title: defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết tài nguyên chi tiết",
+              }))
+            );
+          }
+        }
+      } catch {
+        // Fallback to default
+      }
+    };
+
+    fetchBanners();
   }, []);
 
   useEffect(() => {

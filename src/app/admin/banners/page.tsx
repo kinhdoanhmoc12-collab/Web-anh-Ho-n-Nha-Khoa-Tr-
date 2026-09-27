@@ -37,7 +37,21 @@ export default function AdminBannersPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  const fetchBanners = async () => {
+    try {
+      const res = await fetch("/api/banners");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.banners && Array.isArray(data.banners) && data.banners.length > 0) {
+          setBanners(data.banners);
+          localStorage.setItem("zunphoto_hero_banners", JSON.stringify(data.banners));
+          return;
+        }
+      }
+    } catch {
+      // quiet fallback
+    }
+
     try {
       const saved = localStorage.getItem("zunphoto_hero_banners");
       if (saved) {
@@ -49,15 +63,30 @@ export default function AdminBannersPage() {
     } catch {
       // Fallback
     }
+  };
+
+  useEffect(() => {
+    fetchBanners();
   }, []);
 
-  const saveBanners = (updated: string[]) => {
+  const saveBanners = async (updated: string[]) => {
     setBanners(updated);
     try {
       localStorage.setItem("zunphoto_hero_banners", JSON.stringify(updated));
     } catch {
       // localStorage error
     }
+
+    try {
+      await fetch("/api/banners", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ banners: updated }),
+      });
+    } catch {
+      console.error("Failed to sync banners to server API");
+    }
+
     setNotice("Đã cập nhật danh sách Banner Slider thành công!");
     setTimeout(() => setNotice(""), 3500);
   };
