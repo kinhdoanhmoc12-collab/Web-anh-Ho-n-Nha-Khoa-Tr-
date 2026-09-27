@@ -892,13 +892,22 @@ export default function AdminResourcesPage() {
                     <label className="font-semibold text-slate-300">Chuyên mục</label>
                     <select
                       value={formCategory}
-                      onChange={(e) => setFormCategory(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormCategory(val);
+                        if (val === "Tài nguyên trả phí" || val === "Khóa học") {
+                          setFormBadge("VIP");
+                          if (!formPrice) setFormPrice("499.000đ");
+                        } else if (val === "Stock Free" || val === "Preset Free") {
+                          setFormBadge("Free");
+                        }
+                      }}
                       className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
                     >
                       <option value="Stock Free">Stock Free</option>
                       <option value="Preset Free">Preset Free</option>
-                      <option value="Tài nguyên trả phí">Tài nguyên trả phí</option>
-                      <option value="Khóa học">Khóa học HD</option>
+                      <option value="Tài nguyên trả phí">Tài nguyên trả phí (Trả Phí)</option>
+                      <option value="Khóa học">Khóa học HD (Trả Phí)</option>
                       <option value="Kinh nghiệm">Kinh nghiệm hậu kỳ</option>
                     </select>
                   </div>
@@ -907,7 +916,11 @@ export default function AdminResourcesPage() {
                     <label className="font-semibold text-slate-300">Loại thẻ (Free/VIP)</label>
                     <select
                       value={formBadge}
-                      onChange={(e) => setFormBadge(e.target.value as "Free" | "VIP")}
+                      onChange={(e) => {
+                        const val = e.target.value as "Free" | "VIP";
+                        setFormBadge(val);
+                        if (val === "VIP" && !formPrice) setFormPrice("499.000đ");
+                      }}
                       className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-[#00b4d8]"
                     >
                       <option value="Free">Free (Tải miễn phí)</option>
@@ -916,15 +929,19 @@ export default function AdminResourcesPage() {
                   </div>
                 </div>
 
-                {formBadge === "VIP" && (
-                  <div className="space-y-1">
-                    <label className="font-semibold text-slate-300">Giá bán (VNĐ)</label>
+                {(formBadge === "VIP" || formCategory === "Tài nguyên trả phí" || formCategory === "Khóa học") && (
+                  <div className="space-y-1.5 bg-emerald-950/20 p-3.5 rounded-xl border border-emerald-500/30 animate-in fade-in duration-200">
+                    <label className="font-bold text-emerald-400 flex items-center justify-between text-xs">
+                      <span>💰 Giá Bán / Phí Tài Nguyên (VNĐ) *</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Nhập số tiền hiển thị cho khách mua (Ví dụ: 499.000đ)</span>
+                    </label>
                     <input
                       type="text"
-                      placeholder="Ví dụ: 499.000đ"
+                      required
+                      placeholder="Ví dụ: 499.000đ hoặc 1.200.000đ"
                       value={formPrice}
                       onChange={(e) => setFormPrice(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 font-bold focus:outline-none focus:border-[#00b4d8]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-emerald-500/50 text-emerald-400 font-bold text-sm focus:outline-none focus:border-emerald-400"
                     />
                   </div>
                 )}
