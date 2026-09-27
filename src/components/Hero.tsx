@@ -46,16 +46,32 @@ export default function Hero() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
+        let livePosts: any[] = [];
+        try {
+          const postsRes = await fetch("/api/admin/posts");
+          if (postsRes.ok) {
+            const postsData = await postsRes.json();
+            if (postsData.posts && Array.isArray(postsData.posts)) {
+              livePosts = postsData.posts;
+            }
+          }
+        } catch {
+          // quiet
+        }
+
         const res = await fetch("/api/banners");
         if (res.ok) {
           const data = await res.json();
           if (data.banners && Array.isArray(data.banners) && data.banners.length > 0) {
             setSlides(
-              data.banners.map((imgUrl: string, idx: number) => ({
-                image: imgUrl,
-                slug: defaultSlides[idx % defaultSlides.length]?.slug || "1a-2-zip-stock-nang-chieu-hoang-hon",
-                title: defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết tài nguyên chi tiết",
-              }))
+              data.banners.map((imgUrl: string, idx: number) => {
+                const matched = livePosts.find((p) => p.imageUrl === imgUrl) || livePosts[idx % Math.max(1, livePosts.length)];
+                return {
+                  image: imgUrl,
+                  slug: matched?.slug || defaultSlides[idx % defaultSlides.length]?.slug || "1a-2-zip-stock-nang-chieu-hoang-hon",
+                  title: matched?.title || defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết tài nguyên chi tiết",
+                };
+              })
             );
             return;
           }
