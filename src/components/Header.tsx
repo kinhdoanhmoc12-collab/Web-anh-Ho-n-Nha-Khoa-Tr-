@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -37,12 +37,37 @@ export default function Header() {
   const pathname = usePathname();
   const { isLoggedIn, user, logout } = useAuth();
 
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string>("/avatar.jpg?v=20260924");
+
+  const syncBranding = () => {
+    try {
+      const savedLogo = localStorage.getItem("zunphoto_logo_url");
+      if (savedLogo) setLogoUrl(savedLogo);
+
+      const savedAvatar = localStorage.getItem("zunphoto_avatar_url");
+      if (savedAvatar) setAvatarUrl(savedAvatar);
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    syncBranding();
+    window.addEventListener("zunphoto_branding_updated", syncBranding);
+    return () => window.removeEventListener("zunphoto_branding_updated", syncBranding);
+  }, []);
+
   return (
     <>
       {/* Mobile Sticky Navbar (< xl) */}
       <header className="xl:hidden fixed top-0 left-0 right-0 z-50 bg-[#0c0d10] px-4 py-3 flex items-center justify-between border-b border-slate-800 shadow-md">
         <Link href="/" className="flex items-center gap-2">
-          <Aperture className="w-7 h-7 text-[#00b4d8]" />
+          {logoUrl ? (
+            <img src={logoUrl} alt="ZunPhoto Logo" className="w-7 h-7 object-contain rounded-full" />
+          ) : (
+            <Aperture className="w-7 h-7 text-[#00b4d8]" />
+          )}
           <div>
             <span className="font-extrabold text-sm tracking-wider text-[#00b4d8]">ZUN</span>
             <span className="font-extrabold text-sm tracking-wider text-white">PHOTO</span>
@@ -91,8 +116,12 @@ export default function Header() {
           {/* Top Logo */}
           <div className="flex flex-col items-center text-center pt-2 pb-2">
             <Link href="/" className="flex flex-col items-center gap-1 group">
-              <div className="w-12 h-12 rounded-full border border-slate-700/80 flex items-center justify-center bg-slate-900 group-hover:border-[#00b4d8] transition-colors">
-                <Aperture className="w-8 h-8 text-[#00b4d8]" />
+              <div className="w-12 h-12 rounded-full border border-slate-700/80 flex items-center justify-center bg-slate-900 group-hover:border-[#00b4d8] transition-colors overflow-hidden">
+                {logoUrl ? (
+                  <img src={logoUrl} alt="ZunPhoto Logo" className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <Aperture className="w-8 h-8 text-[#00b4d8]" />
+                )}
               </div>
               <div className="mt-2">
                 <span className="text-lg font-black tracking-wider text-[#00b4d8]">ZUN</span>
@@ -172,7 +201,7 @@ export default function Header() {
             {/* Circular Avatar Frame */}
             <div className="relative w-24 h-24 rounded-full p-1 border-2 border-slate-700/80 bg-slate-900 overflow-hidden shadow-lg group">
               <img
-                src="/avatar.jpg?v=20260924"
+                src={avatarUrl}
                 alt="ZunPhoto Avatar"
                 className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-300"
               />
