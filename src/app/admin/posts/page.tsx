@@ -799,9 +799,11 @@ export default function AdminPostsPage() {
               <option value="ALL">-- Tất cả chuyên mục --</option>
               <option value="Stock Free">Stock Free</option>
               <option value="Preset Free">Preset Free</option>
+              <option value="Tài nguyên">Tài nguyên (Tài nguyên Free)</option>
+              <option value="Ảnh của Zun">Ảnh của Zun</option>
+              <option value="Kinh nghiệm">Kinh nghiệm hậu kỳ</option>
               <option value="Tài nguyên trả phí">Tài nguyên trả phí</option>
               <option value="Khóa học">Khóa học HD</option>
-              <option value="Kinh nghiệm">Kinh nghiệm hậu kỳ</option>
             </select>
           </div>
         </div>
@@ -965,7 +967,7 @@ export default function AdminPostsPage() {
                         if (val === "Tài nguyên trả phí" || val === "Khóa học") {
                           setFormBadge("VIP");
                           if (!formPrice) setFormPrice("499.000đ");
-                        } else if (val === "Stock Free" || val === "Preset Free") {
+                        } else {
                           setFormBadge("Free");
                         }
                       }}
@@ -973,9 +975,11 @@ export default function AdminPostsPage() {
                     >
                       <option value="Stock Free">Stock Free</option>
                       <option value="Preset Free">Preset Free</option>
-                      <option value="Tài nguyên trả phí">Tài nguyên trả phí (Trả Phí)</option>
-                      <option value="Khóa học">Khóa học HD (Trả Phí)</option>
-                      <option value="Kinh nghiệm">Kinh nghiệm hậu kỳ</option>
+                      <option value="Tài nguyên">Tài nguyên (Tải Miễn Phí)</option>
+                      <option value="Ảnh của Zun">Ảnh của Zun (Bộ Sưu Tập)</option>
+                      <option value="Kinh nghiệm">Kinh nghiệm hậu kỳ (Bài Viết)</option>
+                      <option value="Tài nguyên trả phí">Tài nguyên trả phí (Yêu Cầu Trả Phí)</option>
+                      <option value="Khóa học">Khóa học HD (Yêu Cầu Trả Phí)</option>
                     </select>
                   </div>
 
