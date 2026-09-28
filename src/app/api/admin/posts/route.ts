@@ -1,9 +1,19 @@
 import { NextResponse } from "next/server";
 import { getAllPosts, savePost, deletePost } from "@/lib/postStore";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const posts = getAllPosts();
-  return NextResponse.json({ success: true, posts });
+  return NextResponse.json(
+    { success: true, posts },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      },
+    }
+  );
 }
 
 export async function POST(req: Request) {

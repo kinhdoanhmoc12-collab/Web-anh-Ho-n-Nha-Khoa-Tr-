@@ -5,8 +5,10 @@ import Link from "next/link";
 import { Calendar, User, Eye } from "lucide-react";
 import { postsData, getStoredPosts, Post } from "@/data/posts";
 
-export default function LatestPosts() {
-  const [posts, setPosts] = useState<Post[]>(postsData);
+export default function LatestPosts({ initialPosts }: { initialPosts?: Post[] }) {
+  const [posts, setPosts] = useState<Post[]>(
+    initialPosts && initialPosts.length > 0 ? initialPosts : postsData
+  );
 
   useEffect(() => {
     const fetchLivePosts = async () => {

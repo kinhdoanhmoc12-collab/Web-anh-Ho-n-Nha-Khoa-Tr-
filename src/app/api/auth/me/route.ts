@@ -3,6 +3,9 @@ import { verifyJwtToken, AUTH_COOKIE_NAME } from "@/lib/auth";
 import { applySecurityHeaders } from "@/lib/security";
 import { registerUser } from "@/lib/userStore";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   const token = req.cookies.get(AUTH_COOKIE_NAME)?.value;
 

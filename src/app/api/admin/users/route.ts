@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getAllUsers, registerUser, updateUser, deleteUser } from "@/lib/userStore";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const users = getAllUsers();
   return NextResponse.json({ success: true, users });

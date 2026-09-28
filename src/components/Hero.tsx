@@ -4,42 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Pause, Play, Eye } from "lucide-react";
 
-interface BannerSlide {
-  image: string;
-  link: string;
-  title: string;
-}
+import { BannerItem, defaultBanners } from "@/lib/bannerTypes";
 
-const defaultSlides: BannerSlide[] = [
-  {
-    image: "https://www.kienkaka.pro/storage/uploads/1a-2.webp",
-    link: "/post/1a-2-zip-stock-nang-chieu-hoang-hon",
-    title: "1a-2.zip (Stock Nắng Chiều Hoàng Hôn RAW Pack)",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1920",
-    link: "/post/stock-chan-dung-indoor-nhe-nhang-mua-he",
-    title: "Stock Nàng Thơ Bên Khung Cửa Sổ RAW Pack",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1920",
-    link: "/post/stock-cuc-tan-an-do-duong-pho-ha-noi",
-    title: "Stock Cúc Tần Ấn Độ Đường Phố Hà Nội",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1920",
-    link: "/post/stock-vintage-film-aesthetic-35mm-raw-pack",
-    title: "Stock Vintage Film Aesthetic 35mm RAW Pack",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1920",
-    link: "/post/preset-lightroom-tone-han-quoc-trong-treo",
-    title: "Preset Lightroom Tone Hàn Quốc Trong Trẻo",
-  },
-];
-
-export default function Hero() {
-  const [slides, setSlides] = useState<BannerSlide[]>(defaultSlides);
+export default function Hero({ initialBanners }: { initialBanners?: BannerItem[] }) {
+  const [slides, setSlides] = useState<BannerItem[]>(
+    initialBanners && initialBanners.length > 0 ? initialBanners : defaultBanners
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -70,13 +40,13 @@ export default function Hero() {
                 const customTitle = typeof item === "object" ? item?.title || "" : "";
 
                 const matched = livePosts.find((p) => p.imageUrl === image) || livePosts[idx % Math.max(1, livePosts.length)];
-                const defaultSlug = matched?.slug || defaultSlides[idx % defaultSlides.length]?.link || "/post/1a-2-zip-stock-nang-chieu-hoang-hon";
+                const defaultSlug = matched?.slug || defaultBanners[idx % defaultBanners.length]?.link || "/post/1a-2-zip-stock-nang-chieu-hoang-hon";
                 const fallbackLink = defaultSlug.startsWith("/") ? defaultSlug : `/post/${defaultSlug}`;
 
                 return {
                   image,
                   link: customLink ? customLink : fallbackLink,
-                  title: customTitle || matched?.title || defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết chi tiết",
+                  title: customTitle || matched?.title || defaultBanners[idx % defaultBanners.length]?.title || "Xem bài viết chi tiết",
                 };
               })
             );
@@ -97,12 +67,12 @@ export default function Hero() {
                 const image = typeof item === "string" ? item : item?.image || "";
                 const customLink = typeof item === "object" ? item?.link || "" : "";
                 const customTitle = typeof item === "object" ? item?.title || "" : "";
-                const fallbackLink = defaultSlides[idx % defaultSlides.length]?.link || "/post/1a-2-zip-stock-nang-chieu-hoang-hon";
+                const fallbackLink = defaultBanners[idx % defaultBanners.length]?.link || "/post/1a-2-zip-stock-nang-chieu-hoang-hon";
 
                 return {
                   image,
                   link: customLink || fallbackLink,
-                  title: customTitle || defaultSlides[idx % defaultSlides.length]?.title || "Xem bài viết chi tiết",
+                  title: customTitle || defaultBanners[idx % defaultBanners.length]?.title || "Xem bài viết chi tiết",
                 };
               })
             );
@@ -140,12 +110,13 @@ export default function Hero() {
     <section id="hero" className="relative w-full h-[55vh] min-h-[380px] max-h-[600px] overflow-hidden bg-slate-900 shadow-lg rounded-2xl group border border-slate-200/80">
       {/* Background Images with Link */}
       {slides.map((slide, index) => {
-        const isExternal = slide.link.startsWith("http://") || slide.link.startsWith("https://");
+        const link = slide.link || "/";
+        const isExternal = link.startsWith("http://") || link.startsWith("https://");
         const slideContent = (
           <>
             <img
               src={slide.image}
-              alt={slide.title}
+              alt={slide.title || "Banner"}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
             />
 
@@ -158,7 +129,7 @@ export default function Hero() {
                 <Eye className="w-3.5 h-3.5" /> BÀI VIẾT NỔI BẬT
               </span>
               <h2 className="text-xl sm:text-3xl font-black line-clamp-2 drop-shadow-md leading-tight text-white">
-                {slide.title}
+                {slide.title || "Xem chi tiết bài viết"}
               </h2>
               <p className="text-xs sm:text-sm text-slate-200 line-clamp-1 font-medium">
                 Bấm vào banner để chuyển hướng đến bài viết / link tài nguyên
@@ -171,7 +142,7 @@ export default function Hero() {
           return (
             <a
               key={`${slide.image}-${index}`}
-              href={slide.link}
+              href={link}
               target="_blank"
               rel="noopener noreferrer"
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out cursor-pointer ${
@@ -186,7 +157,7 @@ export default function Hero() {
         return (
           <Link
             key={`${slide.image}-${index}`}
-            href={slide.link.startsWith("/") ? slide.link : `/${slide.link}`}
+            href={link.startsWith("/") ? link : `/${link}`}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out cursor-pointer ${
               index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
             }`}
