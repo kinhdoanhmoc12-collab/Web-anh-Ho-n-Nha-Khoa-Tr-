@@ -502,7 +502,6 @@ export default function AdminPostsPage() {
         const data = await res.json();
         if (data.posts && Array.isArray(data.posts)) {
           setPosts(data.posts);
-          saveStoredPosts(data.posts);
         }
       }
     } catch {
@@ -518,7 +517,6 @@ export default function AdminPostsPage() {
 
   const updatePostsState = (newPosts: Post[]) => {
     setPosts(newPosts);
-    saveStoredPosts(newPosts);
   };
 
   const handleOpenAddModal = () => {

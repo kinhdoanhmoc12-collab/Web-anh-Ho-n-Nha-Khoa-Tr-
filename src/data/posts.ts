@@ -357,7 +357,7 @@ Tải ngay file gốc bên dưới để thực hành bài tập kéo màu tone 
 export const STORAGE_KEY_POSTS = "zunphoto_custom_posts_v2";
 
 export function getStoredPosts(): Post[] {
-  if (typeof window === "undefined") return postsData;
+  if (typeof window === "undefined") return [];
   try {
     const saved = localStorage.getItem(STORAGE_KEY_POSTS);
     if (saved) {
@@ -367,9 +367,9 @@ export function getStoredPosts(): Post[] {
       }
     }
   } catch {
-    // Return default fallback
+    // Return empty array
   }
-  return postsData;
+  return [];
 }
 
 export function saveStoredPosts(posts: Post[]) {
@@ -382,7 +382,7 @@ export function saveStoredPosts(posts: Post[]) {
 }
 
 export function getPostBySlug(slug: string): Post | undefined {
-  const currentPosts = typeof window !== "undefined" ? getStoredPosts() : postsData;
+  const currentPosts = typeof window !== "undefined" ? getStoredPosts() : [];
 
   return currentPosts.find(
     (p) => p.slug === slug || p.id === slug || p.slug.includes(slug) || slug.includes(p.slug)

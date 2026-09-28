@@ -7,7 +7,7 @@ import { postsData, getStoredPosts, Post } from "@/data/posts";
 
 export default function LatestPosts({ initialPosts }: { initialPosts?: Post[] }) {
   const [posts, setPosts] = useState<Post[]>(
-    initialPosts && initialPosts.length > 0 ? initialPosts : postsData
+    initialPosts && Array.isArray(initialPosts) ? initialPosts : []
   );
 
   useEffect(() => {
