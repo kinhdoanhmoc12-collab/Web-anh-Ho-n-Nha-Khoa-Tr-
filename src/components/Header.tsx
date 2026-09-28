@@ -221,7 +221,7 @@ export default function Header() {
                 </svg>
               </a>
               <a
-                href="https://vt.tiktok.com/ZSqvgL7gT/"
+                href="https://www.tiktok.com/@zunphoto"
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-full bg-sky-100 text-sky-800 flex items-center justify-center hover:bg-[#0284c7] hover:text-white transition-colors shadow-xs"
