@@ -43,7 +43,7 @@ function extractResourceItems(posts: Post[]) {
   }));
 
   const paid = posts.filter(
-    (p) => p.category === "Tài nguyên trả phí" || p.category === "Khóa học" || (p.price && p.price.trim() !== "")
+    (p) => p.category === "Tài nguyên trả phí" || (p.price && p.price.trim() !== "" && p.category !== "Khóa học")
   );
   const paidList = paid.map((p) => ({
     id: p.id,
@@ -55,7 +55,29 @@ function extractResourceItems(posts: Post[]) {
     category: p.category,
   }));
 
-  return { stock, preset, paidList };
+  const courses = posts.filter((p) => p.category === "Khóa học");
+  const courseList = courses.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    image: p.imageUrl,
+    badge: (p.badge as "Free" | "Trả phí") || (p.price ? ("Trả phí" as const) : ("Free" as const)),
+    price: p.price,
+    category: p.category,
+  }));
+
+  const collections = posts.filter((p) => p.category === "Ảnh của Zun");
+  const collectionList = collections.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    image: p.imageUrl,
+    badge: (p.badge as "Free" | "Trả phí") || "Free",
+    price: p.price,
+    category: p.category,
+  }));
+
+  return { stock, preset, paidList, courseList, collectionList };
 }
 
 export default function ResourcesSection({ initialPosts }: { initialPosts?: Post[] }) {
@@ -64,13 +86,17 @@ export default function ResourcesSection({ initialPosts }: { initialPosts?: Post
   const [stockFreeItems, setStockFreeItems] = useState<ResourceItem[]>(initialData?.stock || []);
   const [presetFreeItems, setPresetFreeItems] = useState<ResourceItem[]>(initialData?.preset || []);
   const [paidItems, setPaidItems] = useState<ResourceItem[]>(initialData?.paidList || []);
+  const [courseItems, setCourseItems] = useState<ResourceItem[]>(initialData?.courseList || []);
+  const [collectionItems, setCollectionItems] = useState<ResourceItem[]>(initialData?.collectionList || []);
 
   useEffect(() => {
     const processPosts = (posts: Post[]) => {
-      const { stock, preset, paidList } = extractResourceItems(posts);
+      const { stock, preset, paidList, courseList, collectionList } = extractResourceItems(posts);
       setStockFreeItems(stock);
       setPresetFreeItems(preset);
       setPaidItems(paidList);
+      setCourseItems(courseList);
+      setCollectionItems(collectionList);
     };
 
     const fetchLivePosts = async () => {
@@ -171,7 +197,13 @@ export default function ResourcesSection({ initialPosts }: { initialPosts?: Post
     );
   };
 
-  if (stockFreeItems.length === 0 && presetFreeItems.length === 0 && paidItems.length === 0) {
+  if (
+    stockFreeItems.length === 0 &&
+    presetFreeItems.length === 0 &&
+    paidItems.length === 0 &&
+    courseItems.length === 0 &&
+    collectionItems.length === 0
+  ) {
     return null;
   }
 
@@ -188,6 +220,8 @@ export default function ResourcesSection({ initialPosts }: { initialPosts?: Post
       {renderCategoryBlock("Stock Free", "/category/stock-free", stockFreeItems)}
       {renderCategoryBlock("Preset Free", "/category/preset-free", presetFreeItems)}
       {renderCategoryBlock("Tài nguyên trả phí", "/category/tai-nguyen-tra-phi", paidItems)}
+      {renderCategoryBlock("Khóa học & Đào tạo", "/category/kinh-nghiep", courseItems)}
+      {renderCategoryBlock("Ảnh của Zun", "/category/tai-nguyen", collectionItems)}
     </section>
   );
 }
