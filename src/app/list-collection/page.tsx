@@ -2,6 +2,20 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Camera, Download, Eye, Heart } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Ảnh Của Zun | Bộ Sưu Tập Nhiếp Ảnh Chân Dung Nghệ Thuật",
+  description: "Khám phá các bộ sưu tập ảnh chân dung nghệ thuật, concept indoor, outdoor và ảnh chụp thực tế thực hiện bởi nhiếp ảnh gia ZunPhoto.",
+  alternates: {
+    canonical: "https://zunphoto.vn/list-collection",
+  },
+  openGraph: {
+    title: "Ảnh Của Zun | Bộ Sưu Tập Nhiếp Ảnh Chân Dung Nghệ Thuật",
+    description: "Tổng hợp các bộ ảnh chân dung, nghệ thuật concept và sản phẩm nhiếp ảnh thực hiện bởi ZunPhoto.",
+    url: "https://zunphoto.vn/list-collection",
+  },
+};
 
 const collections = [
   {

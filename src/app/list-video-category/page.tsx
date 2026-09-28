@@ -2,6 +2,20 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { PlayCircle, Video, Clock, Star } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Khóa Học Nhiếp Ảnh & Retouch Photoshop Chuyên Nghiệp",
+  description: "Danh sách các khóa học video chất lượng cao: Kỹ thuật blend màu Lightroom/Capture One, làm chủ ánh sáng studio và retouch da nâng cao.",
+  alternates: {
+    canonical: "https://zunphoto.vn/list-video-category",
+  },
+  openGraph: {
+    title: "Khóa Học Nhiếp Ảnh & Retouch Photoshop Chuyên Nghiệp | ZunPhoto",
+    description: "Đào tạo kỹ năng nhiếp ảnh, xử lý màu sắc và retouch da thương mại từ A-Z.",
+    url: "https://zunphoto.vn/list-video-category",
+  },
+};
 
 const courses = [
   {

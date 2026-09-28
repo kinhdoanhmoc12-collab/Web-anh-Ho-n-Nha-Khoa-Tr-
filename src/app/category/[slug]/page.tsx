@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { getAllPosts } from "@/lib/postStore";
 import { Download, Filter, Search } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
 
 const categoryMap: Record<string, { title: string; desc: string; icon: string }> = {
   "stock-free": {
@@ -31,6 +32,28 @@ const categoryMap: Record<string, { title: string; desc: string; icon: string }>
     icon: "💎",
   },
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const catInfo = categoryMap[slug] || {
+    title: `Danh Mục ${slug.toUpperCase()}`,
+    desc: "Tổng hợp các tài nguyên nhiếp ảnh và bài viết chuyên sâu.",
+    icon: "📂",
+  };
+
+  return {
+    title: `${catInfo.title} | ZunPhoto`,
+    description: catInfo.desc,
+    alternates: {
+      canonical: `https://zunphoto.vn/category/${slug}`,
+    },
+    openGraph: {
+      title: `${catInfo.title} | ZunPhoto`,
+      description: catInfo.desc,
+      url: `https://zunphoto.vn/category/${slug}`,
+    },
+  };
+}
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

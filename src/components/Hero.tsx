@@ -117,6 +117,9 @@ export default function Hero({ initialBanners }: { initialBanners?: BannerItem[]
             <img
               src={slide.image}
               alt={slide.title || "Banner"}
+              loading={index === 0 ? "eager" : "lazy"}
+              decoding="async"
+              fetchPriority={index === 0 ? "high" : "auto"}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
             />
 

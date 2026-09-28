@@ -18,10 +18,30 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const postUrl = `https://zunphoto.vn/post/${post.slug}`;
+
   return {
     title: `${post.title} | ZunPhoto`,
     description: post.excerpt,
+    alternates: {
+      canonical: postUrl,
+    },
     openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: postUrl,
+      type: "article",
+      publishedTime: post.date,
+      authors: [post.author || "ZunPhoto"],
+      images: [
+        {
+          url: post.imageUrl,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
       images: [post.imageUrl],
@@ -62,8 +82,39 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
     { label: "ẩn", href: "/" },
   ];
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    image: [post.imageUrl],
+    datePublished: post.date,
+    dateModified: post.date,
+    author: {
+      "@type": "Person",
+      name: post.author || "ZunPhoto",
+      url: "https://zunphoto.vn",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "ZunPhoto",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://zunphoto.vn/avatar.jpg",
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://zunphoto.vn/post/${post.slug}`,
+    },
+  };
+
   return (
     <div className="min-h-screen bg-[#edf3f8] text-[#0f172a] flex flex-col font-sans">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       <Header />
 
       <div className="xl:pl-[240px] flex-1 flex flex-col min-w-0">
