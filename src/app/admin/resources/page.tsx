@@ -655,6 +655,9 @@ export default function AdminResourcesPage() {
       try {
         const res = await fetch(`/api/admin/posts?id=${id}`, { method: "DELETE" });
         if (res.ok) {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("zunphoto_custom_posts_v2");
+          }
           setNotice("Đã xóa bài viết khỏi hệ thống thành công!");
           setSelectedIds(selectedIds.filter((item) => item !== id));
           fetchResources();
@@ -677,6 +680,9 @@ export default function AdminResourcesPage() {
         await Promise.all(
           selectedIds.map((id) => fetch(`/api/admin/posts?id=${id}`, { method: "DELETE" }))
         );
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("zunphoto_custom_posts_v2");
+        }
         setNotice(`Đã xóa thành công ${selectedIds.length} bài viết / tài nguyên khỏi hệ thống!`);
         setSelectedIds([]);
         fetchResources();

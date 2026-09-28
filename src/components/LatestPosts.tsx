@@ -16,7 +16,7 @@ export default function LatestPosts({ initialPosts }: { initialPosts?: Post[] })
         const res = await fetch("/api/admin/posts");
         if (res.ok) {
           const data = await res.json();
-          if (data.posts && Array.isArray(data.posts) && data.posts.length > 0) {
+          if (data.posts && Array.isArray(data.posts)) {
             setPosts(data.posts);
             return;
           }

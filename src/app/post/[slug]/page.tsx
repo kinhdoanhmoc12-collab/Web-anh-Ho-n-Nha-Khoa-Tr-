@@ -10,7 +10,7 @@ import PostPurchaseCard from "@/components/PostPurchaseCard";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlugServer(slug) || getPostBySlug(slug);
+  const post = getPostBySlugServer(slug);
 
   if (!post) {
     return {
@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PostDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPostBySlugServer(slug) || getPostBySlug(slug);
+  const post = getPostBySlugServer(slug);
 
   if (!post) {
     notFound();

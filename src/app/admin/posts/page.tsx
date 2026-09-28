@@ -662,6 +662,9 @@ export default function AdminPostsPage() {
       try {
         const res = await fetch(`/api/admin/posts?id=${id}`, { method: "DELETE" });
         if (res.ok) {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("zunphoto_custom_posts_v2");
+          }
           setNotice("Đã xóa bài viết khỏi hệ thống thành công!");
           setSelectedIds(selectedIds.filter((item) => item !== id));
           fetchPosts();
@@ -684,6 +687,9 @@ export default function AdminPostsPage() {
         await Promise.all(
           selectedIds.map((id) => fetch(`/api/admin/posts?id=${id}`, { method: "DELETE" }))
         );
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("zunphoto_custom_posts_v2");
+        }
         setNotice(`Đã xóa thành công ${selectedIds.length} bài viết khỏi hệ thống!`);
         setSelectedIds([]);
         fetchPosts();

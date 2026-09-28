@@ -362,7 +362,7 @@ export function getStoredPosts(): Post[] {
     const saved = localStorage.getItem(STORAGE_KEY_POSTS);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length >= postsData.length) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
@@ -384,42 +384,8 @@ export function saveStoredPosts(posts: Post[]) {
 export function getPostBySlug(slug: string): Post | undefined {
   const currentPosts = typeof window !== "undefined" ? getStoredPosts() : postsData;
 
-  const found = currentPosts.find(
+  return currentPosts.find(
     (p) => p.slug === slug || p.id === slug || p.slug.includes(slug) || slug.includes(p.slug)
   );
-
-  if (found) return found;
-
-  // Dynamic fallback generator so NO slug ever causes 404
-  const formattedTitle = slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-
-  return {
-    id: `P-DYNAMIC-${slug}`,
-    slug: slug,
-    title: formattedTitle.toUpperCase(),
-    category: "Tài nguyên nhiếp ảnh",
-    author: "ZunPhoto",
-    authorAvatar: "/avatar.jpg?v=20260924",
-    date: "2026-09-24",
-    views: "3.2K",
-    readTime: "4 phút đọc",
-    excerpt: `Bài viết & tài nguyên chi tiết dành cho "${formattedTitle}" trên nền tảng ZunPhoto Platform. Tải về file gốc và xem hướng dẫn hậu kỳ tại đây.`,
-    content: `Chào mừng bạn đến với bài viết chi tiết **${formattedTitle}** trên ZunPhoto!
-
-### 📸 1. Tổng quan nội dung
-Bài viết này tổng hợp đầy đủ file tài nguyên, hướng dẫn các bước hậu kỳ thực chiến trên Lightroom/Photoshop và bộ Preset màu đi kèm.
-
-### 🛠️ 2. Hướng dẫn áp dụng & Download
-- Bấm nút **Tải Tài Nguyên** phía bên dưới để nhận liên kết tốc độ cao.
-- Mở ứng dụng Lightroom hoặc Photoshop để áp dụng các thiết lập màu da và độ tương phản tối ưu.
-
-Chúc bạn có những bức ảnh thật đẹp cùng cộng đồng ZunPhoto!`,
-    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1200",
-    downloadUrl: "https://drive.google.com/",
-    tags: ["ZunPhoto", "Tài Nguyên Nhiếp Ảnh", "Lightroom", "Photoshop"],
-  };
 }
 
