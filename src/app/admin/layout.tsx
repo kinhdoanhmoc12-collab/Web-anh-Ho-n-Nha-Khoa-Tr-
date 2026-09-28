@@ -85,11 +85,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </button>
           </form>
 
-          {/* Hint */}
+          {/* Navigation Links */}
           <div className="pt-4 border-t border-slate-800/80 text-center space-y-2">
-            <p className="text-[11px] text-slate-500">
-              💡 Mật khẩu mặc định: <code className="text-[#00b4d8] bg-slate-950 px-1.5 py-0.5 rounded font-mono font-bold">admin2026</code>
-            </p>
             <div>
               <Link
                 href="/"

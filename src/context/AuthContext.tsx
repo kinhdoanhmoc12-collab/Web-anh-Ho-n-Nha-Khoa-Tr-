@@ -192,7 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const adminLogin = (passcode: string): boolean => {
-    if (passcode === "admin2026" || passcode === "zunphoto@2026" || passcode === "admin") {
+    if (passcode === "Ttqtak11*") {
       setIsAdminAuthenticated(true);
       localStorage.setItem("zunphoto_admin_session", "authenticated");
       return true;
