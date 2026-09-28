@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { postsData, Post, formatPriceString } from "@/data/posts";
+import { createSnapshotBackup } from "./backupStore";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "posts.json");
@@ -114,6 +115,7 @@ export function deletePost(id: string): boolean {
 function savePosts(posts: Post[]) {
   ensureStoreFile();
   try {
+    createSnapshotBackup("posts_update");
     fs.writeFileSync(DATA_FILE, JSON.stringify(posts, null, 2), "utf-8");
   } catch (err) {
     console.error("Error writing posts JSON:", err);
