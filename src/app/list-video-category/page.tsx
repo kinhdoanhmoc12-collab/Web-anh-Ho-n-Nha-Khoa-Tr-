@@ -53,7 +53,29 @@ const courses = [
   },
 ];
 
+import { getAllPosts } from "@/lib/postStore";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function CoursesPage() {
+  const allPosts = getAllPosts();
+  const dbCourses = allPosts
+    .filter((p) => (p.category || "").toLowerCase().includes("khóa học"))
+    .map((p, idx) => ({
+      id: p.id || `C-${idx}`,
+      slug: p.slug,
+      title: p.title,
+      lessons: "24 Bài Giảng",
+      duration: p.readTime || "12 Giờ Học HD",
+      rating: 5.0,
+      students: `${p.views || "1.2K"} Học Viên`,
+      image: p.imageUrl,
+      badge: p.badge || (p.price ? "Masterclass" : "Miễn Phí"),
+    }));
+
+  const finalCourses = dbCourses.length > 0 ? dbCourses : courses;
+
   return (
     <div className="min-h-screen bg-[#edf2f7] text-[#1a202c] flex flex-col font-sans">
       <Header />
@@ -76,7 +98,7 @@ export default function CoursesPage() {
 
           {/* Courses List */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {courses.map((course) => (
+            {finalCourses.map((course) => (
               <Link
                 key={course.id}
                 href={`/post/${course.slug}`}

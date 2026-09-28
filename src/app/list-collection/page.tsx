@@ -74,7 +74,27 @@ const collections = [
   },
 ];
 
+import { getAllPosts } from "@/lib/postStore";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function CollectionPage() {
+  const allPosts = getAllPosts();
+  const dbCollections = allPosts
+    .filter((p) => (p.category || "").toLowerCase().includes("ảnh của zun"))
+    .map((p, idx) => ({
+      id: p.id || `COL-${idx}`,
+      slug: p.slug,
+      title: p.title,
+      photosCount: "Bộ Ảnh Full HD",
+      views: p.views || "15.2K",
+      likes: "2.4K",
+      cover: p.imageUrl,
+    }));
+
+  const finalCollections = dbCollections.length > 0 ? dbCollections : collections;
+
   return (
     <div className="min-h-screen bg-[#edf2f7] text-[#1a202c] flex flex-col font-sans">
       <Header />
@@ -97,7 +117,7 @@ export default function CollectionPage() {
 
           {/* Collection Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {collections.map((col) => (
+            {finalCollections.map((col) => (
               <Link
                 key={col.id}
                 href={`/post/${col.slug}`}

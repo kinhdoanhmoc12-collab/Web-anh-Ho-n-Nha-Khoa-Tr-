@@ -43,6 +43,19 @@ export default function PostPurchaseCard({
 
   useEffect(() => {
     if (!numPrice || numPrice === 0) return;
+
+    // 1. Cross-device sync: Check user account purchased items from server
+    if (user?.purchasedItems && Array.isArray(user.purchasedItems)) {
+      const owned = user.purchasedItems.some(
+        (item) => item.postId === postId || item.postSlug === postSlug
+      );
+      if (owned) {
+        setHasPurchased(true);
+        return;
+      }
+    }
+
+    // 2. Local storage session check
     try {
       const saved = localStorage.getItem("zunphoto_purchased_posts");
       if (saved) {
@@ -54,7 +67,7 @@ export default function PostPurchaseCard({
     } catch {
       // quiet catch
     }
-  }, [postId, postSlug, numPrice]);
+  }, [postId, postSlug, numPrice, user?.purchasedItems]);
 
   if (!downloadUrl) return null;
 

@@ -2,6 +2,16 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
+export interface PurchasedItem {
+  id: string;
+  postId: string;
+  postTitle: string;
+  postSlug: string;
+  category: string;
+  price: string;
+  purchasedAt: string;
+}
+
 export interface UserAccount {
   id: string;
   email: string;
@@ -9,6 +19,7 @@ export interface UserAccount {
   role: "GUEST" | "USER" | "VIP_MEMBER" | "ADMIN";
   balance: number;
   transferCode: string;
+  purchasedItems?: PurchasedItem[];
 }
 
 interface AuthContextType {
@@ -55,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             role: data.user.role || "USER",
             balance: typeof data.user.balance === "number" ? data.user.balance : 0,
             transferCode: data.user.transferCode || `ZUN ${data.user.id.replace("USR-", "")}`,
+            purchasedItems: Array.isArray(data.user.purchasedItems) ? data.user.purchasedItems : [],
           };
           setUser(activeUser);
           localStorage.setItem("zunphoto_session", JSON.stringify(activeUser));
@@ -81,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const data = await usersRes.json();
           if (data?.users && Array.isArray(data.users)) {
             const found = data.users.find(
-              (u: { email: string; id: string; transferCode: string }) =>
+              (u: { email: string; id: string; transferCode: string; purchasedItems?: PurchasedItem[] }) =>
                 (parsed.email && u.email.toLowerCase() === parsed.email.toLowerCase()) ||
                 (parsed.transferCode && u.transferCode?.replaceAll(" ", "").toUpperCase() === parsed.transferCode?.replaceAll(" ", "").toUpperCase()) ||
                 (parsed.id && u.id === parsed.id)
@@ -95,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 role: found.role || "USER",
                 balance: typeof found.balance === "number" ? found.balance : 0,
                 transferCode: found.transferCode || parsed.transferCode,
+                purchasedItems: Array.isArray(found.purchasedItems) ? found.purchasedItems : (parsed.purchasedItems || []),
               };
               setUser(updatedUser);
               localStorage.setItem("zunphoto_session", JSON.stringify(updatedUser));
@@ -148,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             role: data.user.role,
             balance: data.user.balance || 0,
             transferCode: data.user.transferCode,
+            purchasedItems: Array.isArray(data.user.purchasedItems) ? data.user.purchasedItems : [],
           };
           setUser(activeUser);
           if (data.user.role === "ADMIN") {
@@ -170,6 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role: isAdmin ? "ADMIN" : "USER",
       balance: 0,
       transferCode: `ZUN ${shortId}`,
+      purchasedItems: [],
     };
     setUser(newUser);
     if (isAdmin) {
@@ -189,6 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAdminAuthenticated(false);
     localStorage.removeItem("zunphoto_session");
     localStorage.removeItem("zunphoto_admin_session");
+    localStorage.removeItem("zunphoto_purchased_posts");
   };
 
   const adminLogin = (passcode: string): boolean => {
