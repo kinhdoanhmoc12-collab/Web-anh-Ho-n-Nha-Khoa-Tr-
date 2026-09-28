@@ -86,7 +86,7 @@ export default function PostPurchaseCard({
     setShowConfirmModal(true);
   };
 
-  const handleConfirmPurchase = () => {
+  const handleConfirmPurchase = async () => {
     if (!numPrice) return;
     const success = deductBalance(numPrice);
 
@@ -97,6 +97,23 @@ export default function PostPurchaseCard({
         if (!arr.includes(postId)) arr.push(postId);
         if (!arr.includes(postSlug)) arr.push(postSlug);
         localStorage.setItem("zunphoto_purchased_posts", JSON.stringify(arr));
+
+        // Sync purchase to server userStore
+        if (user) {
+          fetch("/api/purchase", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: user.id,
+              userEmail: user.email,
+              postId,
+              postTitle,
+              postSlug,
+              price: formattedPrice || `${numPrice.toLocaleString("vi-VN")}đ`,
+              deductAmount: numPrice,
+            }),
+          }).catch(() => {});
+        }
       } catch {
         // ignore
       }
